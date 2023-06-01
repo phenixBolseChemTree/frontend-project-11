@@ -31,6 +31,7 @@
     "webpack-dev-server": "^4.15.0"
   },
   "dependencies": {
-    "bootstrap": "^5.3.0"
+    "bootstrap": "^5.3.0",
+    "yap": "^0.0.2"
   }
 }
