@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 
 const isVolid = (rss) => {
+
   // Создаем схему Yup для валидации RSS
   const rssSchema = yup.string().url().required().matches(/\.xml$/);
 
