@@ -6,3 +6,8 @@ lint:
 
 serve:
 	npx webpack serve
+
+startApp:
+	npm ci \
+	&& npm run build \
+	&& npx webpack serve
