@@ -47,3 +47,15 @@ form.addEventListener('submit', (event) => {
     }
   });
 });
+
+const feedbackElement = document.querySelector('p.feedback');
+feedbackElement.addEventListener('click', async () => {
+  const link = feedbackElement.textContent.replace('Пример: ', '').trim();
+
+  try {
+    await navigator.clipboard.writeText(link);
+    alert('Скопировано в буфер обмена!');
+  } catch (error) {
+    console.error('Ошибка при копировании в буфер обмена:', error);
+  }
+});
