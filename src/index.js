@@ -51,11 +51,9 @@ form.addEventListener('submit', (event) => {
 
 const feedbackElement = document.querySelector('p.feedback');
 feedbackElement.addEventListener('click', async () => {
-  const link = feedbackElement.textContent.replace('Пример: ', '');
-
   try {
-    await navigator.clipboard.writeText(link);
-    alert('Скопировано в буфер обмена!');
+    await navigator.clipboard.writeText('https://ru.hexlet.io/lessons.rss');
+    alert('Copy https://ru.hexlet.io/lessons.rss');
   } catch (error) {
     console.error('Ошибка при копировании в буфер обмена:', error);
   }
