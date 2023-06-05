@@ -2,6 +2,7 @@ import './styles.scss';
 import 'bootstrap';
 import * as yup from 'yup';
 import render from './render.js';
+import langObj from './lang.js';
 
 const rssLinks = [];
 const rssSchema = yup.string().url().required().matches(/\.rss$/);
@@ -50,7 +51,7 @@ form.addEventListener('submit', (event) => {
 
 const feedbackElement = document.querySelector('p.feedback');
 feedbackElement.addEventListener('click', async () => {
-  const link = feedbackElement.textContent.replace('Пример: ', '').trim();
+  const link = feedbackElement.textContent.replace('Пример: ', '');
 
   try {
     await navigator.clipboard.writeText(link);
@@ -59,3 +60,37 @@ feedbackElement.addEventListener('click', async () => {
     console.error('Ошибка при копировании в буфер обмена:', error);
   }
 });
+
+// -------
+
+const allLang = ['ru', 'en'];
+
+const selectLang = document.querySelector('#languageSelect');
+
+selectLang.addEventListener('change', () => {
+  const lang = selectLang.value;
+  location.replace(`${window.location.pathname}#${lang}`);
+  selectLang.value = lang;
+  console.log(lang);
+  location.reload();
+});
+
+// ---------
+
+function changeLanguage() {
+  let { hash } = window.location;
+  hash = hash.substring(1);
+  console.log(hash);
+  if (!allLang.includes(hash)) {
+    location.href = `${window.location.pathname}#en`;
+    location.reload();
+  }
+  selectLang.value = hash;
+  document.querySelector('.lng-h1').innerHTML = langObj.h1[hash];
+  document.querySelector('.lng-p').innerHTML = langObj.p[hash];
+  document.querySelector('.lng-label').innerHTML = langObj.label[hash];
+  document.querySelector('.lng-button').innerHTML = langObj.button[hash];
+  document.querySelector('.lng-link').innerHTML = langObj.link[hash];
+}
+
+changeLanguage();

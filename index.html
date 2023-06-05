@@ -3,17 +3,21 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Webpawwwck App</title>
+  <title>Webpack App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
   <main class="flex-grow-1">
     <section class="container-fluid bg-dark p-5">
+      <select id="languageSelect">
+        <option value="en">EN</option>
+        <option value="ru">RU</option>
+      </select>
       <div class="row">
         <div class="col-md-10 col-lg-8 mx-auto text-white">
-          <h1 class="display-3 mb-0">RSS агрегатор</h1>
-          <p class="lead">Начните читать RSS сегодня! Это легко, это красиво.</p>
+          <h1 class="lng-h1 display-3 mb-0">RSS агрегатор</h1>
+          <p class="lng-p lead">Начните читать RSS сегодня! Это легко, это красиво.</p>
           <form class="rss-form text-body">
             <div class="row">
               <div class="col">
@@ -21,15 +25,15 @@
                   <label for="query" class="form-label"></label>
                   <input name="query" type="text" class="form-control w-100 border-3" id="query"
                     placeholder="Enter the RSS feed URL" required>
-                  <label for="url-input">Ссылка RSS</label>
+                  <label class="lng-label"  for="lng url-input">Ссылка RSS</label>
                 </div>
               </div>
               <div class="col-auto">
-                <button type="submit" class="h-100 btn btn-lg btn-primary px-sm-5">Send</button>
+                <button type="submit" class="lng-button h-100 btn btn-lg btn-primary px-sm-5">Отправить</button>
               </div>
             </div>
           </form>
-          <p class="feedback m-0 position-absolute small text-secondary mt-2">Пример: https://ru.hexlet.io/lessons.rss
+          <p class="lng-link feedback m-0 position-absolute small text-secondary mt-2">Example: https://ru.hexlet.io/lessons.rss</p>
         </div>
       </div>
       </div>
