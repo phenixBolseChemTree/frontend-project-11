@@ -1,7 +1,15 @@
 import i18next from 'i18next';
 import onChange from 'on-change';
+import * as yup from 'yup';
+import render from './render.js';
 
-const formController = (rssLinks, rssSchema, form, input, isSubmit, render) => {
+const formController = () => {
+  const rssLinks = [];
+  const rssSchema = yup.string().url().required().matches(/\.rss$/);
+  const form = document.querySelector('form');
+  const input = form.querySelector('#query');
+  const isSubmit = false; // нужен для отслеживания если input имеет класс is-invalid
+
   input.addEventListener('input', (event) => {
     rssSchema.validate(event.target.value)
       .then(() => {
