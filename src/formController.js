@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import onChange from 'on-change';
 
 const formController = (rssLinks, rssSchema, form, input, isSubmit, render) => {
   input.addEventListener('input', (event) => {
@@ -13,6 +14,19 @@ const formController = (rssLinks, rssSchema, form, input, isSubmit, render) => {
       });
   });
 
+  // Создаем прокси для отслеживания изменений в массиве rssLinks
+  const watchedRssLinks = onChange(rssLinks, (path, value, previousValue) => {
+    if (path.includes('length')) {
+      // Обрабатываем изменения длины массива rssLinks (push, pop, splice и т.д.)
+      return;
+    }
+    // Обрабатываем другие изменения в массиве rssLinks
+    console.log('rssLinks изменился:');
+    console.log('path:', path); // Измененный путь
+    console.log('value:', value); // Новое значение
+    console.log('previousValue:', previousValue); // Предыдущее значение
+  });
+
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(form);
@@ -20,20 +34,20 @@ const formController = (rssLinks, rssSchema, form, input, isSubmit, render) => {
       if (name === 'query') {
         rssSchema.validate(value)
           .then((resolve) => {
-            if (!rssLinks.includes(resolve)) {
+            if (!watchedRssLinks.includes(resolve)) {
               input.classList.remove('is-invalid');
-              rssLinks.push(resolve);
+              watchedRssLinks.push(resolve);
               render(resolve);
-              console.log(i18next.t('successfulScenario'));
+              console.log(i18next.t('successfulScenario')); // Успешный сценарий
               event.target.reset();
               input.focus();
             } else {
-              console.log(i18next.t('duplicateRSSlink'));
+              console.log(i18next.t('duplicateRSSlink')); // Повторяющаяся ссылка RSS
               input.classList.add('is-invalid');
             }
           })
           .catch(() => {
-            console.log(i18next.t('InvalidRSSlink'));
+            console.log(i18next.t('InvalidRSSlink')); // Некорректная ссылка RSS
             input.classList.add('is-invalid');
           });
       }
