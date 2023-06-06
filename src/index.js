@@ -2,7 +2,8 @@ import './styles.scss';
 import 'bootstrap';
 import * as yup from 'yup';
 import render from './render.js';
-import langObj from './lang.js';
+import langObj from './localization/page.js';
+import ErrorMessageObj from './localization/errorMessage.js';
 
 const rssLinks = [];
 const rssSchema = yup.string().url().required().matches(/\.rss$/);
@@ -25,6 +26,7 @@ input.addEventListener('input', (event) => {
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   const formData = new FormData(form);
+  const hash = window.location.hash.slice(1);
   formData.forEach((value, name) => {
     if (name === 'query') {
       rssSchema.validate(value)
@@ -33,21 +35,23 @@ form.addEventListener('submit', (event) => {
             input.classList.remove('is-invalid');
             rssLinks.push(resolve);
             render(resolve);
-            console.log(rssLinks);
+            console.log(ErrorMessageObj.successfulScenario[hash]);
             event.target.reset();
             input.focus();
           } else {
-            console.log(rssLinks);
+            console.log(ErrorMessageObj.duplicateRSSlink[hash]);
             input.classList.add('is-invalid');
           }
         })
         .catch(() => {
-          console.log('идет плохой сценарий');
+          console.log(ErrorMessageObj.InvalidRSSlink[hash]);
           input.classList.add('is-invalid');
         });
     }
   });
 });
+
+// -----------
 
 const feedbackElement = document.querySelector('p.feedback');
 feedbackElement.addEventListener('click', async () => {
@@ -59,7 +63,7 @@ feedbackElement.addEventListener('click', async () => {
   }
 });
 
-// -------
+// ------------
 
 const allLang = ['ru', 'en'];
 
