@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import render from './render.js';
 import makeCopyElement from './makeCopyElement.js';
-import translations from '../../localization/i18resours.js';
+import translations from './localization/i18resours.js';
 import formController from './formController.js';
 import refreshToEn from './refreshToEn.js';
 import changeLanguagePage from './changeLanguage.js';
