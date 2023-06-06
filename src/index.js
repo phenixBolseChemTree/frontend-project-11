@@ -1,98 +1,33 @@
 import './styles.scss';
 import 'bootstrap';
 import * as yup from 'yup';
+import i18next from 'i18next';
 import render from './render.js';
-import langObj from './localization/page.js';
-import ErrorMessageObj from './localization/errorMessage.js';
+import makeCopyElement from './makeCopyElement.js';
+import translations from '../../localization/i18resours.js';
+import formController from './formController.js';
+import refreshToEn from './refreshToEn.js';
+import changeLanguagePage from './changeLanguage.js';
+import selectLang from './selectLang.js';
 
 const rssLinks = [];
 const rssSchema = yup.string().url().required().matches(/\.rss$/);
 const form = document.querySelector('form');
 const input = form.querySelector('#query');
 const isSubmit = false; // нужен для отслеживания если input имеет класс is-invalid
+const hash = window.location.hash.slice(1);
 
-input.addEventListener('input', (event) => {
-  rssSchema.validate(event.target.value)
-    .then(() => {
-      input.classList.remove('is-invalid');
-    })
-    .catch(() => {
-      if (isSubmit) {
-        input.classList.add('is-invalid');
-      }
-    });
+i18next.init({
+  lng: hash,
+  resources: translations,
 });
 
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const formData = new FormData(form);
-  const hash = window.location.hash.slice(1);
-  formData.forEach((value, name) => {
-    if (name === 'query') {
-      rssSchema.validate(value)
-        .then((resolve) => {
-          if (!rssLinks.includes(resolve)) {
-            input.classList.remove('is-invalid');
-            rssLinks.push(resolve);
-            render(resolve);
-            console.log(ErrorMessageObj.successfulScenario[hash]);
-            event.target.reset();
-            input.focus();
-          } else {
-            console.log(ErrorMessageObj.duplicateRSSlink[hash]);
-            input.classList.add('is-invalid');
-          }
-        })
-        .catch(() => {
-          console.log(ErrorMessageObj.InvalidRSSlink[hash]);
-          input.classList.add('is-invalid');
-        });
-    }
-  });
-});
+formController(rssLinks, rssSchema, form, input, isSubmit, render); // вся логика формы
 
-// -----------
+makeCopyElement(); // копируемый при клике элемент
 
-const feedbackElement = document.querySelector('p.feedback');
-feedbackElement.addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText('https://ru.hexlet.io/lessons.rss');
-    alert('Copy https://ru.hexlet.io/lessons.rss');
-  } catch (error) {
-    console.error('Ошибка при копировании в буфер обмена:', error);
-  }
-});
+selectLang(); // обработчик изменения языка
 
-// ------------
+refreshToEn(); // управление блоком контролирующим языки
 
-const allLang = ['ru', 'en'];
-
-const selectLang = document.querySelector('#languageSelect');
-
-selectLang.addEventListener('change', () => {
-  const lang = selectLang.value;
-  location.replace(`${window.location.pathname}#${lang}`);
-  selectLang.value = lang;
-  console.log(lang);
-  location.reload();
-});
-
-// ---------
-
-function changeLanguage() {
-  let { hash } = window.location;
-  hash = hash.substring(1);
-  console.log(hash);
-  if (!allLang.includes(hash)) {
-    location.href = `${window.location.pathname}#en`;
-    location.reload();
-  }
-  selectLang.value = hash;
-  document.querySelector('.lng-h1').innerHTML = langObj.h1[hash];
-  document.querySelector('.lng-p').innerHTML = langObj.p[hash];
-  document.querySelector('.lng-label').innerHTML = langObj.label[hash];
-  document.querySelector('.lng-button').innerHTML = langObj.button[hash];
-  document.querySelector('.lng-link').innerHTML = langObj.link[hash];
-}
-
-changeLanguage();
+changeLanguagePage(); // перевод текста на стринице
