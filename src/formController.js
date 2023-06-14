@@ -1,14 +1,12 @@
 import i18next from 'i18next';
 import onChange from 'on-change';
 import * as yup from 'yup';
-import axios from 'axios';
-import parser from './parserRSS.js';
 import render from './render.js';
 
 const formController = () => {
   let id = 0;
   const rssLinks = [];
-  const rssSchema = yup.string().url().required().matches(/\.rss$/);
+  const rssSchema = yup.string().url().required();
   const form = document.querySelector('form');
   const input = form.querySelector('#query');
   const isSubmit = false; // нужен для отслеживания если input имеет класс is-invalid
@@ -25,31 +23,16 @@ const formController = () => {
       });
   });
 
-  const watchedRssLinks = onChange(rssLinks, (path, value, previousValue) => {
+  const watchedRssLinks = onChange(rssLinks, (path, value) => {
     if (path.includes('length')) {
       // Обрабатываем изменения длины массива rssLinks (push, pop, splice и т.д.)
       return;
     }
-
+    console.log('rssLinks :', rssLinks);
     console.log('rssLinks изменился:');
     console.log('path:', path); // Измененный путь
     console.log('value:', value); // Новое значение
-    console.log('previousValue:', previousValue); // Предыдущее значение
-
-    // axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(value)}&disableCache=true`)
-    //   .then((response) => {
-    //     if (response.status === 200) {
-    //       const data = parser(response);
-    //       const title = data.querySelector('title');
-    //       const description = data.querySelector('description');
-    //       console.log('Parsed data:');
-    //       console.log('Title:', title.textContent);
-    //       console.log('Description:', description.textContent);
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error(error);
-    //   });
+    // console.log('previousValue:', previousValue); // Предыдущее значение
   });
 
   form.addEventListener('submit', (event) => {
