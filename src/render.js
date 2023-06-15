@@ -2,7 +2,8 @@ import axios from 'axios';
 import onChange from 'on-change';
 import parser from './parserRSS.js';
 
-const store = {}; // Хранилище результатов парсера для каждого id
+// const domParser = new DOMParser();
+const store = {}; // Хранилище результатов парсера для каждого обьекта с item
 
 const render = (rssData) => {
   const containerList = document.querySelector('.container-list');
@@ -11,7 +12,6 @@ const render = (rssData) => {
   const processRssItem = ({ id, link }) => {
     const existingElement = Array.from(containerList.children).find((element) => element.querySelector('p').textContent === `volid: ${link}`);
 
-    // Если элемент не существует, создаем его
     if (!existingElement) {
       const div = document.createElement('div'); // блок для заполнения
       div.id = id;
@@ -19,50 +19,93 @@ const render = (rssData) => {
 
       const fetchData = () => {
         axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
-          .then((response) => {
+          .then((response) => { // проверка на удачный response
             if (response.status === 200) {
-              const data = parser(response);
-              const previousData = store[id]; // Получаем предыдущие результаты парсера по id
-              console.log('previousData :', previousData);
-              console.log('data :', data);
-              console.log(store);
-
-              const title = data.querySelector('title');
-              const description = data.querySelector('description');
-
-              const titleCopy = document.createElement('p');
-              titleCopy.textContent = `Title: ${title.textContent}`;
-
-              const descriptionCopy = document.createElement('p');
-              descriptionCopy.textContent = `Description: ${description.textContent}`;
-
-              // div.appendChild(innerDiv);
-              // нужно убирать все содержимое div
-              div.innerHTML = '';
-              containerList.appendChild(div);
-              div.appendChild(titleCopy);
-              div.appendChild(descriptionCopy);
-
-              store[id] = data; // Обновляем результаты парсера в store по id
+              console.log('good');
+              const domXML = parser(response);
+              return domXML;
             }
+          })
+          .then((data) => [...data.querySelectorAll('item')].map((nodeItem) => ({ // вывод сортированных значений
+            title: nodeItem.querySelector('title').innerHTML,
+            description: nodeItem.querySelector('description').innerHTML,
+            link: nodeItem.querySelector('link').innerHTML,
+            pubDate: nodeItem.querySelector('pubDate').innerHTML,
+          })))
+          .then((list) => {
+            console.log('list', list);
+            store[id] = list;
+            console.log(store);
           })
           .catch((error) => {
             console.error(error);
-          })
-          .finally(() => {
-            setTimeout(fetchData, 5000);
           });
       };
 
       fetchData(); // Запускаем первый цикл получения данных при первой отправке
     }
-  };
+    //---
+    // const lastPubDate = store[id][0].pubDate;
 
-  const watchedRssData = onChange(rssData, (path, value) => {
+    const pickOnlyNewPosts = (posts, lastPubDate) => {
+      const newPosts = posts.filter((post) => {
+        if (new Date(post.pubDate) > new Date(lastPubDate)) {
+          return true;
+        }
+        return false;
+      });
+      return newPosts;
+    };
+
+    const pickOnlyOldPosts = (posts, lastPubDate) => {
+      const oldPosts = posts.filter((post) => {
+        if (new Date(post.pubDate) <= new Date(lastPubDate)) {
+          return true;
+        }
+        return false;
+      });
+      return oldPosts;
+    };
+    //---
+    const fetchDataAuto = () => {
+      console.log('работа автомата');
+      axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
+        .then((response) => { // проверка на удачный response
+          if (response.status === 200) {
+            console.log('good');
+            const domXML = parser(response);
+            return domXML;
+          }
+        })
+        .then((data) => [...data.querySelectorAll('item')].map((nodeItem) => ({ // вывод сортированных значений
+          title: nodeItem.querySelector('title').innerHTML,
+          description: nodeItem.querySelector('description').innerHTML,
+          link: nodeItem.querySelector('link').innerHTML,
+          pubDate: nodeItem.querySelector('pubDate').innerHTML,
+        })))
+        .then((data) => {
+          const lastPubDate = store[id][0].pubDate;
+          const newPosts = pickOnlyNewPosts(data, lastPubDate);
+          const oldPosts = pickOnlyOldPosts(store[id], lastPubDate);
+          store[id] = [...newPosts, ...oldPosts];
+          console.log('data from fetchDataAuto: ', data);
+          console.log('!!!(store[id][0].pubDate): ', store[id][0].pubDate);
+        })
+        .then(() => console.log('store from fetchDataAuto:', store))
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          setTimeout(fetchDataAuto, 5000);
+        });
+    };
+    setTimeout(fetchDataAuto, 5000);
+  };// важная для id скобка
+
+  const watchedRssData = onChange(rssData, (path) => {
     if (path === 'length') {
       rssData.forEach(processRssItem);
     }
-    console.log('value in render', value);
   });
 
   watchedRssData.forEach(processRssItem);
