@@ -6,6 +6,8 @@ const changeLanguage = () => {
   document.querySelector('.lng-label').innerHTML = i18next.t('label');
   document.querySelector('.lng-button').innerHTML = i18next.t('button');
   document.querySelector('.lng-link').innerHTML = i18next.t('link');
+  document.querySelector('.lng-posts').innerHTML = i18next.t('posts');
+  document.querySelector('.lng-feeds').innerHTML = i18next.t('feeds');
 };
 
 export default changeLanguage;

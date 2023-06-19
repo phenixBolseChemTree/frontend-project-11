@@ -10,6 +10,8 @@ const translations = {
       button: 'Отправить',
       link: 'Пример: https://ru.hexlet.io/lessons.rss',
       copyElement: 'Скопированно:',
+      feeds: 'Фиды',
+      posts: 'Посты',
     },
   },
   en: {
@@ -23,6 +25,8 @@ const translations = {
       button: 'Send',
       link: 'Example: https://ru.hexlet.io/lessons.rss',
       copyElement: 'Copy:',
+      feeds: 'Feeds',
+      posts: 'Posts',
     },
   },
 };
