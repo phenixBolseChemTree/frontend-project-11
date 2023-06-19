@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import render from './render.js';
 
 const formController = () => {
-  let id = 0;
   const rssLinks = [];
   const rssSchema = yup.string().url().required();
   const form = document.querySelector('form');
@@ -25,42 +24,41 @@ const formController = () => {
 
   const watchedRssLinks = onChange(rssLinks, (path, value) => {
     if (path.includes('length')) {
-      // Обрабатываем изменения длины массива rssLinks (push, pop, splice и т.д.)
       return;
     }
-    console.log('rssLinks :', rssLinks);
-    console.log('rssLinks изменился:');
-    console.log('path:', path); // Измененный путь
-    console.log('value:', value); // Новое значение
-    // console.log('previousValue:', previousValue); // Предыдущее значение
+    if (path === 'rssLinks') {
+      console.log('wwww333');
+    }
+    console.log('новый rss', value);
+    render(value);
   });
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(form);
-    formData.forEach((value, name) => {
-      if (name === 'query') {
-        rssSchema.validate(value)
-          .then((resolve) => {
-            if (!watchedRssLinks.includes(resolve)) {
-              input.classList.remove('is-invalid');
-              watchedRssLinks.push(resolve);
-              id += 1;
-              render([{ id, link: resolve }]);
-              console.log(i18next.t('successfulScenario')); // Успешный сценарий
-              event.target.reset();
-              input.focus();
-            } else {
-              console.log(i18next.t('duplicateRSSlink')); // Повторяющаяся ссылка RSS
-              input.classList.add('is-invalid');
-            }
-          })
-          .catch(() => {
-            console.log(i18next.t('InvalidRSSlink')); // Некорректная ссылка RSS
+    const queryValue = formData.get('query'); // ссылка
+    if (queryValue) {
+      rssSchema.validate(queryValue)
+        .then((resolve) => {
+          console.log('resolve :', resolve);
+          if (!watchedRssLinks.includes(resolve)) {
+            input.classList.remove('is-invalid');
+            watchedRssLinks.push(resolve);
+            console.log('!!!link :', resolve);
+            console.log(i18next.t('successfulScenario')); // Успешный сценарий
+            event.target.reset();
+            input.focus();
+          } else {
+            console.log(i18next.t('duplicateRSSlink')); // Повторяющаяся ссылка RSS
             input.classList.add('is-invalid');
-          });
-      }
-    });
+          }
+        })
+        .catch((e) => {
+          console.log('my error', e);
+          console.log(i18next.t('InvalidRSSlink')); // Некорректная ссылка RSS
+          input.classList.add('is-invalid');
+        });
+    }
   });
 };
 
