@@ -1,4 +1,4 @@
-const renderFeed = (feed) => {
+const renderFeed = (feed) => { // ноучить принимать 1 эл а не все сразу
   const containerFeeds = document.querySelector('.list-group');
   const [{ title, description }] = feed;
   // console.log('description', description.textContent);
@@ -17,11 +17,13 @@ const renderFeed = (feed) => {
   liTag.appendChild(titleTeg);
   liTag.appendChild(descriptionTag);
 
-  containerFeeds.appendChild(liTag);
+  containerFeeds.prepend(liTag);
+  // containerFeeds.appendChild(liTag);
   };
 
   // проходится по полученным данным и отображает их на странице те это в posts
 const renderPosts = (posts) => { // нахожу тег с моим id и туда все добавляю
+  console.log('All posts: ', posts);
   const container = document.querySelector('.container-list');
   const flattenedPosts = posts.flat(); // Преобразование в одномерный массив
 
@@ -48,7 +50,7 @@ const renderPosts = (posts) => { // нахожу тег с моим id и туд
     li.appendChild(titleTag);
     li.appendChild(descriptionTag);
 
-    container.append(li);
+    container.prepend(li);
   });
 };
 

@@ -19,5 +19,3 @@ rules:
   consistent-return: 0
   no-param-reassign: 0
   indent: 0
-  no-undef: 0
-  no-unused-vars: 0
