@@ -12,11 +12,12 @@ let isInitDataCalled = false; // Флаг для отслеживания выз
 
 const store = onChange(initialStoreValues, (path, value, previousValue) => {
 if (path === 'feed') {
-  // console.log('!!!value', value);
+  console.log('!!!Feed', value);
   renderFeed(value); // отображает новый фид на странице
   // создать обработчик для добавления данных
 }
 if (path === 'posts') {
+  console.log('!!!Posts', value);
   renderPosts(value); // отображает посты на странице
 }
 });

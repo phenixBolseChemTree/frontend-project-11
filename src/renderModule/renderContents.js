@@ -1,16 +1,15 @@
 const renderFeed = (feed) => {
   const containerFeeds = document.querySelector('.list-group');
-
-  const { title, description } = feed;
+  const [{ title, description }] = feed;
   // console.log('description', description.textContent);
   // console.log('title', title.textContent);
   const titleTeg = document.createElement('h3');
   titleTeg.classList.add('h6', 'm-0');
-  titleTeg.textContent = title.textContent;
+  titleTeg.textContent = title;
 
   const descriptionTag = document.createElement('p');
   descriptionTag.classList.add('m-0', 'small', 'text-black-50');
-  descriptionTag.textContent = description.textContent;
+  descriptionTag.textContent = description;
 
   const liTag = document.createElement('li');
   liTag.classList.add('list-group-item', 'border-0', 'border-end-0');
@@ -24,9 +23,14 @@ const renderFeed = (feed) => {
   // проходится по полученным данным и отображает их на странице те это в posts
 const renderPosts = (posts) => { // нахожу тег с моим id и туда все добавляю
   const container = document.querySelector('.container-list');
+  const flattenedPosts = posts.flat(); // Преобразование в одномерный массив
+
+  console.log(posts);
+  console.log(flattenedPosts);
   // const divElement = document.getElementById(id);
   // const feedContent = document.createElement('ul');
-  posts.forEach((item) => {
+  flattenedPosts.forEach((item) => {
+    console.log(1);
     const { title, link, description } = item;
     const titleTag = document.createElement('a');
     titleTag.textContent = title;

@@ -8,9 +8,10 @@ const fetchDataStart = (store, link) => { // они должны просто з
     .then((response) => { // проверка на удачный response
       if (response.status === 200) {
         const domXML = parser(response);
-        const title = domXML.querySelector('title');
-        const description = domXML.querySelector('description');
-        store.feed = { title, description }; // заполнение для фидов
+        console.log('!!!domXML', domXML);
+        const title = domXML.querySelector('title').textContent;
+        const description = domXML.querySelector('description').textContent;
+        store.feed = [...store.feed, { title, description }]; // заполнение для фидов
         return domXML;
       }
     })
@@ -21,7 +22,7 @@ const fetchDataStart = (store, link) => { // они должны просто з
       pubDate: nodeItem.querySelector('pubDate').innerHTML,
     })))
     .then((posts) => {
-      store.posts = posts.reverse(); // заполнение для постов
+      store.posts = [...store.posts, posts.reverse()]; // заполнение для постов не забыть reverse
     })
     .catch((error) => {
       console.error(error);
