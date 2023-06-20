@@ -14,12 +14,13 @@ const formController = () => {
   const store = onChange(initialStoreValues, (path, value) => {
     if (path === 'feed') {
       console.log('!!!Feed', value);
-      renderFeed(value); // отображает новый фид на странице
+      const lastFeed = value[value.length - 1];
+      renderFeed(lastFeed); // отображает новый фид на странице
       // создать обработчик для добавления данных
     }
     if (path === 'posts') {
       console.log('!!!Posts', value);
-      const lastPosts = value[0];
+      const lastPosts = value[value.length - 1];
       console.log('lastPosts:', lastPosts);
       renderPosts(lastPosts); // отображает посты на странице
     }
