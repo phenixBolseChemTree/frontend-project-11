@@ -2,25 +2,23 @@ import axios from 'axios';
 import parser from './parserRSS.js';
 import pickOnlyNewPosts from './pickOnlyNewPosts.js';
 import { renderPosts } from './renderContents.js';
-// import renderPosts from './renderPosts.js';
 
-// новые фиды рарстут просто вверх так что их легко будет отобразить
-// нужно взять у постов 1 массив и 1 индекс. взять его дату и проверить при помощи
-// 2 функций есть ли среди новых постов посты свежее этого
-// вопрос (нужно ли брать все это из определенного фида если да то мне нужно сделать
-// запоминание текущего id по index и сверять значения только с ними но тут проблема ведь данные
-// добавляются в начало а не в конец)
+const handler = {
+  set(target, property, value) {
+    const result = Reflect.set(target, property, value);
+    console.log('Изменен объект:', target);
+    return result;
+  },
+};
+// const addNewPosts = (id, newPosts, store) => {
+//   const updatedPosts = new Proxy([...store.posts[id], ...newPosts], handler);
+//   store.posts[id] = updatedPosts;
+// };
 
-// путь говнокода
-// брать новые посты из них брать самый новый и добавлять их
-// вызывать прямо здесь рендер
-// передавать в некст вызов link и lastDateNumber
-
-// мои задачи
-// 1 добавлять новые посты в список
-// 2 рендерить новые посты в список (можно прямо внутри fetchDataAuto)
-const fetchDataAuto = (link, lastData) => {
-  let lastDateNumber = null;
+const fetchDataAuto = (store, link, lastDataArg, id) => {
+  console.log('1 All params', store, link, lastDataArg, id);
+  let lastDateNumber = null; // назначать число последней даты (для новых постов)
+  let newPosts = []; // для новых постов в finally
   axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
     .then((response) => { // проверка на удачный response
       if (response.status === 200) {
@@ -28,29 +26,48 @@ const fetchDataAuto = (link, lastData) => {
         return domXML;
       }
     })
-    .then((data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
-      title: nodeItem.querySelector('title').innerHTML,
-      description: nodeItem.querySelector('description').innerHTML,
-      link: nodeItem.querySelector('link').innerHTML,
-      pubDate: nodeItem.querySelector('pubDate').innerHTML,
-    })))
     .then((data) => {
-      const newPosts = (pickOnlyNewPosts(data, lastData)).reverse();
-      renderPosts(newPosts);
-      // нужно передавать все в финишь но можно вызвать и здесь
-      const currentlastData = (data[data.length - 1]).pubDate;
-      lastDateNumber = Date.parse(currentlastData);
+      console.log('2 data (domXML)', data);
+      return [...data.querySelectorAll('item')].map((nodeItem) => ({
+        title: nodeItem.querySelector('title').innerHTML,
+        description: nodeItem.querySelector('description').innerHTML,
+        link: nodeItem.querySelector('link').innerHTML,
+        pubDate: nodeItem.querySelector('pubDate').innerHTML,
+      }));
+    })
+    .then((data) => { // массив всех постов из API
+      // проверка что массив не пустой
+      console.log('3 parsed data', data);
+      if (data.length !== 0) { // посты есть
+        newPosts = (pickOnlyNewPosts(data, lastDataArg)).reverse(); // получает новые посты
+        renderPosts(newPosts);
+        if (newPosts.length !== 0) { // есть новые данные
+          console.log('есть новые данные');
+          const currentlastData = (data[data.length - 1]).pubDate; // данные есть новая дата
+          lastDateNumber = Date.parse(currentlastData);
+          const newProxyPosts = newPosts.map((post) => new Proxy(post, handler));
+          store.posts[id] = [...store.posts[id], ...newProxyPosts];
+          // addNewPosts(id, newPosts, store);
+        } else {
+          console.log('новые данные не пришли');
+          lastDateNumber = lastDataArg;
+        }
+      } else {
+        lastDateNumber = lastDataArg;
+      }
     })
     .catch((error) => {
       console.error(error);
     })
     .finally(() => {
-      if (lastDateNumber) {
-        setTimeout(() => fetchDataAuto(link, lastDateNumber), 5000);
-      }
-      console.log('lastDateNumber: ', lastDateNumber);
+        console.log('store.posts[id]', store.posts[id]);
+        // addNewPosts(id, newPosts, store);
+        setTimeout(() => fetchDataAuto(store, link, lastDateNumber, id), 5000); // id === indexArr
+      // console.log('lastDateNumber: ', lastDateNumber);
     });
 };
+
+let id = 0;
 
 const fetchData = (store, link) => { // они должны просто заполнять нужный store
   axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
@@ -82,8 +99,9 @@ const fetchData = (store, link) => { // они должны просто зап�
     .then((posts) => { // блок для говняного добавления
       const lastData = (posts[posts.length - 1]).pubDate;
       const lastDateNumber = Date.parse(lastData);
-
-      setTimeout(() => fetchDataAuto(link, lastDateNumber), 5000); // нужно создать lastPubDate
+      const indexId = id;
+      id += 1;
+      setTimeout(() => fetchDataAuto(store, link, lastDateNumber, indexId), 5000);
     })
     .catch((error) => {
       alert('Упс, похоже что то пошло не по плану. Повторите запрос позднее');

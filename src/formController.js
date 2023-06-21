@@ -13,15 +13,17 @@ const formController = () => {
 
   const store = onChange(initialStoreValues, (path, value) => {
     if (path === 'feed') {
-      console.log('!!!Feed', value);
+      // console.log('!!!Feed', value);
       const lastFeed = value[value.length - 1];
       renderFeed(lastFeed); // отображает новый фид на странице
       // создать обработчик для добавления данных
     }
     if (path === 'posts') {
-      console.log('!!!Posts', value);
+      // console.log('!!!Posts', value);
+      // console.log('!!!PreValue', preValue);
+      // console.log('!!!Store', store);
       const lastPosts = value[value.length - 1];
-      console.log('lastPosts:', lastPosts);
+      // console.log('lastPosts:', lastPosts);
       renderPosts(lastPosts); // отображает посты на странице
     }
     });
