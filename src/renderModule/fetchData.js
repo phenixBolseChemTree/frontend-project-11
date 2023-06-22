@@ -3,18 +3,6 @@ import parser from './parserRSS.js';
 import pickOnlyNewPosts from './pickOnlyNewPosts.js';
 import { renderPosts } from './renderContents.js';
 
-const handler = {
-  set(target, property, value) {
-    const result = Reflect.set(target, property, value);
-    console.log('Изменен объект:', target);
-    return result;
-  },
-};
-// const addNewPosts = (id, newPosts, store) => {
-//   const updatedPosts = new Proxy([...store.posts[id], ...newPosts], handler);
-//   store.posts[id] = updatedPosts;
-// };
-
 const fetchDataAuto = (store, link, lastDataArg, id) => {
   console.log('1 All params', store, link, lastDataArg, id);
   let lastDateNumber = null; // назначать число последней даты (для новых постов)
@@ -45,8 +33,9 @@ const fetchDataAuto = (store, link, lastDataArg, id) => {
           console.log('есть новые данные');
           const currentlastData = (data[data.length - 1]).pubDate; // данные есть новая дата
           lastDateNumber = Date.parse(currentlastData);
-          const newProxyPosts = newPosts.map((post) => new Proxy(post, handler));
-          store.posts[id] = [...store.posts[id], ...newProxyPosts];
+          // const newProxyPosts = newPosts.map((post) => new Proxy(post, handler));
+          store.posts[id] = [...store.posts[id], ...newPosts];
+          // store.posts[id].push(newPosts);
           // addNewPosts(id, newPosts, store);
         } else {
           console.log('новые данные не пришли');
@@ -91,9 +80,6 @@ const fetchData = (store, link) => { // они должны просто зап�
     .then((posts) => {
       store.links.push(link);
       store.posts.push(posts.reverse());
-      // const idFetch = id;
-      // id += 1; // id идентичен index~
-      // setTimeout(() => fetchDataAuto(store, link, idFetch), 5000); // нужно создать lastPubDate
       return posts;
     })
     .then((posts) => { // блок для говняного добавления
@@ -104,7 +90,8 @@ const fetchData = (store, link) => { // они должны просто зап�
       setTimeout(() => fetchDataAuto(store, link, lastDateNumber, indexId), 5000);
     })
     .catch((error) => {
-      alert('Упс, похоже что то пошло не по плану. Повторите запрос позднее');
+      const feedback = document.querySelector('.lng-feedback');
+      feedback.textContent = 'Ресурс не содержит валидный RSS';
       console.error(error);
     });
 };

@@ -19,12 +19,15 @@ const formController = () => {
       // создать обработчик для добавления данных
     }
     if (path === 'posts') {
-      // console.log('!!!Posts', value);
-      // console.log('!!!PreValue', preValue);
-      // console.log('!!!Store', store);
       const lastPosts = value[value.length - 1];
       // console.log('lastPosts:', lastPosts);
+      console.log('пришли вот эти данные !!!!', value);
       renderPosts(lastPosts); // отображает посты на странице
+      // console.log('!!!value', value);
+      // value.forEach((elem) => {
+      // const newID =
+      // descriptionData[id] = elem.description
+      // });
     }
     });
 
@@ -32,6 +35,7 @@ const formController = () => {
   const form = document.querySelector('form');
   const input = form.querySelector('#query');
   const isSubmit = false; // нужен для отслеживания если input имеет класс is-invalid
+  const feedback = document.querySelector('.lng-feedback');
 
   input.addEventListener('input', (event) => {
     rssSchema.validate(event.target.value)
@@ -56,17 +60,23 @@ const formController = () => {
           if (!store.links.includes(resolve)) {
             input.classList.remove('is-invalid');
             render(store, resolve);
+            // взять и в блок поместить нужное значение 1111
             console.log(i18next.t('successfulScenario')); // Успешный сценарий
-            event.target.reset();
+            feedback.classList.add('text-success');
+            feedback.textContent = i18next.t('successfulScenario');
+            // event.target.reset();
             input.focus();
           } else {
             console.log(i18next.t('duplicateRSSlink')); // Повторяющаяся ссылка RSS
+            feedback.textContent = i18next.t('duplicateRSSlink');
+            feedback.classList.remove('text-success');
             input.classList.add('is-invalid');
           }
         })
         .catch((e) => {
           console.log('my error', e);
           console.log(i18next.t('InvalidRSSlink')); // Некорректная ссылка RSS
+          feedback.textContent = i18next.t('InvalidRSSlink');
           input.classList.add('is-invalid');
         });
     }
