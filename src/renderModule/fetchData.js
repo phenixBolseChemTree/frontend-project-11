@@ -1,4 +1,5 @@
 import axios from 'axios';
+import i18next from 'i18next';
 import parser from './parserRSS.js';
 import pickOnlyNewPosts from './pickOnlyNewPosts.js';
 import { renderPosts } from './renderContents.js';
@@ -59,6 +60,8 @@ const fetchDataAuto = (store, link, lastDataArg, id) => {
 let id = 0;
 
 const fetchData = (store, link) => { // они должны просто заполнять нужный store
+  const feedback = document.querySelector('.lng-feedback');
+
   axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
     .then((response) => { // проверка на удачный response
       if (response.status === 200) {
@@ -80,6 +83,10 @@ const fetchData = (store, link) => { // они должны просто зап�
     .then((posts) => {
       store.links.push(link);
       store.posts.push(posts.reverse());
+      console.log(i18next.t('successfulScenario'), i18next.t('successfulScenario')); // Успешный сценарий
+            feedback.classList.remove('text-danger');
+            feedback.classList.add('text-success');
+            feedback.textContent = i18next.t('successfulScenario');
       return posts;
     })
     .then((posts) => { // блок для говняного добавления
@@ -90,7 +97,8 @@ const fetchData = (store, link) => { // они должны просто зап�
       setTimeout(() => fetchDataAuto(store, link, lastDateNumber, indexId), 5000);
     })
     .catch((error) => {
-      const feedback = document.querySelector('.lng-feedback');
+      feedback.classList.remove('text-success');
+      feedback.classList.add('text-danger');
       feedback.textContent = 'Ресурс не содержит валидный RSS';
       console.error(error);
     });

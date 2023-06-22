@@ -61,15 +61,13 @@ const formController = () => {
             input.classList.remove('is-invalid');
             render(store, resolve);
             // взять и в блок поместить нужное значение 1111
-            console.log(i18next.t('successfulScenario')); // Успешный сценарий
-            feedback.classList.add('text-success');
-            feedback.textContent = i18next.t('successfulScenario');
             // event.target.reset();
             input.focus();
           } else {
             console.log(i18next.t('duplicateRSSlink')); // Повторяющаяся ссылка RSS
             feedback.textContent = i18next.t('duplicateRSSlink');
             feedback.classList.remove('text-success');
+            feedback.classList.add('text-danger');
             input.classList.add('is-invalid');
           }
         })
@@ -77,6 +75,8 @@ const formController = () => {
           console.log('my error', e);
           console.log(i18next.t('InvalidRSSlink')); // Некорректная ссылка RSS
           feedback.textContent = i18next.t('InvalidRSSlink');
+          feedback.classList.remove('text-success');
+          feedback.classList.add('text-danger');
           input.classList.add('is-invalid');
         });
     }
