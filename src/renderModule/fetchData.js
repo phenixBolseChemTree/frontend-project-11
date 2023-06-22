@@ -101,6 +101,10 @@ const fetchData = (store, link) => { // они должны просто зап�
       feedback.classList.add('text-danger');
       feedback.textContent = 'Ресурс не содержит валидный RSS';
       console.error(error);
+    })
+    .finally(() => {
+      const submitButton = document.querySelector('.lng-button');
+      submitButton.disabled = false;
     });
 };
 

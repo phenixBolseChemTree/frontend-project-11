@@ -36,6 +36,7 @@ const formController = () => {
   const input = form.querySelector('#query');
   const isSubmit = false; // нужен для отслеживания если input имеет класс is-invalid
   const feedback = document.querySelector('.lng-feedback');
+  const submitButton = document.querySelector('.lng-button');
 
   input.addEventListener('input', (event) => {
     rssSchema.validate(event.target.value)
@@ -51,6 +52,7 @@ const formController = () => {
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    submitButton.disabled = true;
     const formData = new FormData(form);
     const queryValue = formData.get('query'); // ссылка
     console.log('!!!queryValue', queryValue);
@@ -69,6 +71,7 @@ const formController = () => {
             feedback.classList.remove('text-success');
             feedback.classList.add('text-danger');
             input.classList.add('is-invalid');
+            submitButton.disabled = false;
           }
         })
         .catch((e) => {
