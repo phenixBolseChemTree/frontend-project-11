@@ -6,23 +6,39 @@ import { renderFeed, renderPosts } from './renderModule/renderContents.js';
 
 const formController = () => {
   const initialStoreValues = {
-    feed: [],
+    feed: [], // попробую хранить здесь вообще все фиды
     posts: [],
     links: [],
+    openPosts: [],
   };
+
+  let iter = 1;
 
   const store = onChange(initialStoreValues, (path, value) => {
     if (path === 'feed') {
       // console.log('!!!Feed', value);
+      console.log('!!! пришли фиды', 'value');
       const lastFeed = value[value.length - 1];
       renderFeed(lastFeed); // отображает новый фид на странице
       // создать обработчик для добавления данных
     }
     if (path === 'posts') {
-      const lastPosts = value[value.length - 1];
+      // const lastPosts = value[value.length - 1];
       // console.log('lastPosts:', lastPosts);
-      console.log('пришли вот эти данные !!!!', value);
-      renderPosts(lastPosts); // отображает посты на странице
+      console.log('пришли вот эти данные (posts) !!!!', value);
+      console.log(iter);
+      iter += 1;
+      // console.log('вот эти были', prevDev);
+      renderPosts(store); // отображает посты на странице
+
+      // нужно брать последние добавленные массивы во всех store
+
+      // const autoUpdator = (value, preventDefault) => {
+      //   const link = store.links[store.links.length - 1]; // последний массив
+      //   const posts = store.posts[store.posts.length - 1];
+      //   // lastData = (posts[posts.length - 1]).pubDate;
+      //   fetchDataAuto()
+      // }
       // console.log('!!!value', value);
       // value.forEach((elem) => {
       // const newID =
@@ -55,7 +71,7 @@ const formController = () => {
     submitButton.disabled = true;
     const formData = new FormData(form);
     const queryValue = formData.get('query'); // ссылка
-    console.log('!!!queryValue', queryValue);
+    // console.log('!!!queryValue', queryValue);
     if (queryValue) {
       rssSchema.validate(queryValue)
         .then((resolve) => {

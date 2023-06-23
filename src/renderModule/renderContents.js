@@ -1,6 +1,3 @@
-const descriptionData = {};
-let id = 0;
-
 // для кажной кнопки нужно сделать возможность вызвать модальное окно
 
 const renderFeed = (feed) => { // ноучить принимать 1 эл а не все сразу
@@ -23,31 +20,31 @@ const renderFeed = (feed) => { // ноучить принимать 1 эл а н
   containerFeeds.prepend(liTag);
   };
 
-  // можно создавать id для description и передавать его и при этом
-  // реализовать добавление description с нужным id через push
-  const renderPosts = (posts) => {
+  // добавим проверку, что если в openPosts: [] есть index текущего поста то мы добавляем серый клас
+  const renderPosts = (store) => {
+    // console.log('!!!posts', posts);
     const container = document.querySelector('.container-list');
-    const flattenedPosts = posts.flat();
+    container.innerHTML = '';
+    store.posts.forEach((item, index) => {
+      const { title, link } = item; // description тут пока что не нужен
 
-    flattenedPosts.forEach((item) => {
-      const { title, link, description } = item;
-
+      // формируем данные title
       const titleTag = document.createElement('a');
-      const descriptionTag = document.createElement('button');
-      const curId = id;
-
       titleTag.textContent = title;
       titleTag.setAttribute('href', link);
       titleTag.setAttribute('target', '_blank');
+
+      // формируем данные description
+      const descriptionTag = document.createElement('button');
       descriptionTag.textContent = 'Просмотр';
 
-      if (descriptionData[id]?.read) {
+      if (store.openPosts.includes(index)) {
         titleTag.classList.add('fw-normal', 'text-secondary');
       } else {
         titleTag.classList.add('fw-bold');
       }
 
-      const handleClick = () => {
+      const handleClick = () => { // позволяет сделать ссылку серой
         titleTag.classList.remove('fw-bold');
         titleTag.classList.add('fw-normal', 'text-secondary');
       };
@@ -56,15 +53,14 @@ const renderFeed = (feed) => { // ноучить принимать 1 эл а н
       descriptionTag.addEventListener('click', handleClick);
 
       descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-      descriptionTag.setAttribute('data-id', curId);
+      descriptionTag.setAttribute('data-id', index); // для выбора description
       descriptionTag.setAttribute('data-bs-toggle', 'modal');
       descriptionTag.setAttribute('data-bs-target', '#modal');
-      descriptionData[id] = { title, description, link };
-      id += 1;
+      // store.openPosts.push(index);
 
       descriptionTag.addEventListener('click', () => {
-        const curId = descriptionTag.getAttribute('data-id');
-        const { title, description, link } = descriptionData[curId];
+        const id = descriptionTag.getAttribute('data-id');
+        const { title, description, link } = store.posts[id]; // тут берет значение а так не надо
 
         const modalTitle = document.querySelector('.modal-title');
         const modalBody = document.querySelector('.modal-body');
@@ -74,7 +70,8 @@ const renderFeed = (feed) => { // ноучить принимать 1 эл а н
         modalBody.textContent = description;
         fullArticleLink.setAttribute('href', link);
 
-        descriptionData[curId].read = true;
+        // descriptionData[curId].read = true;
+        store.openPosts.push(index);
         titleTag.classList.remove('fw-bold');
         titleTag.classList.add('fw-normal', 'text-secondary');
       });

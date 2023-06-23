@@ -2,10 +2,9 @@ import axios from 'axios';
 import i18next from 'i18next';
 import parser from './parserRSS.js';
 import pickOnlyNewPosts from './pickOnlyNewPosts.js';
-import { renderPosts } from './renderContents.js';
 
-const fetchDataAuto = (store, link, lastDataArg, id) => {
-  console.log('1 All params', store, link, lastDataArg, id);
+const fetchDataAuto = (store, link, lastDataArg) => {
+  // console.log('1 All params', store, link, lastDataArg);
   let lastDateNumber = null; // назначать число последней даты (для новых постов)
   let newPosts = []; // для новых постов в finally
   axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
@@ -15,29 +14,23 @@ const fetchDataAuto = (store, link, lastDataArg, id) => {
         return domXML;
       }
     })
-    .then((data) => {
-      console.log('2 data (domXML)', data);
-      return [...data.querySelectorAll('item')].map((nodeItem) => ({
+    .then((data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
         title: nodeItem.querySelector('title').innerHTML,
         description: nodeItem.querySelector('description').innerHTML,
         link: nodeItem.querySelector('link').innerHTML,
         pubDate: nodeItem.querySelector('pubDate').innerHTML,
-      }));
-    })
+      })))
     .then((data) => { // массив всех постов из API
-      // проверка что массив не пустой
-      console.log('3 parsed data', data);
+      // console.log('!!! parsed data', data);
       if (data.length !== 0) { // посты есть
         newPosts = (pickOnlyNewPosts(data, lastDataArg)).reverse(); // получает новые посты
-        renderPosts(newPosts);
         if (newPosts.length !== 0) { // есть новые данные
-          console.log('есть новые данные');
-          const currentlastData = (data[data.length - 1]).pubDate; // данные есть новая дата
+          // console.log('есть новые данные');
+          console.log('!!!new Posts!!!', newPosts);
+          console.log(store);
+          store.posts.push(...newPosts); // вот наша магия !!!!
+          const currentlastData = (data[0]).pubDate; // данные есть новая дата
           lastDateNumber = Date.parse(currentlastData);
-          // const newProxyPosts = newPosts.map((post) => new Proxy(post, handler));
-          store.posts[id] = [...store.posts[id], ...newPosts];
-          // store.posts[id].push(newPosts);
-          // addNewPosts(id, newPosts, store);
         } else {
           console.log('новые данные не пришли');
           lastDateNumber = lastDataArg;
@@ -50,14 +43,13 @@ const fetchDataAuto = (store, link, lastDataArg, id) => {
       console.error(error);
     })
     .finally(() => {
-        console.log('store.posts[id]', store.posts[id]);
         // addNewPosts(id, newPosts, store);
-        setTimeout(() => fetchDataAuto(store, link, lastDateNumber, id), 5000); // id === indexArr
+        setTimeout(() => fetchDataAuto(store, link, lastDateNumber), 5000); // id === indexArr
       // console.log('lastDateNumber: ', lastDateNumber);
     });
 };
 
-let id = 0;
+// let id = 0;
 
 const fetchData = (store, link) => { // они должны просто заполнять нужный store
   const feedback = document.querySelector('.lng-feedback');
@@ -82,24 +74,23 @@ const fetchData = (store, link) => { // они должны просто зап�
     })))
     .then((posts) => {
       store.links.push(link);
-      store.posts.push(posts.reverse());
+      store.posts.push(...posts.reverse());
       console.log(i18next.t('successfulScenario'), i18next.t('successfulScenario')); // Успешный сценарий
             feedback.classList.remove('text-danger');
             feedback.classList.add('text-success');
             feedback.textContent = i18next.t('successfulScenario');
       return posts;
     })
-    .then((posts) => { // блок для говняного добавления
+    .then((posts) => { // блок для пиздатого добавления
       const lastData = (posts[posts.length - 1]).pubDate;
       const lastDateNumber = Date.parse(lastData);
-      const indexId = id;
-      id += 1;
-      setTimeout(() => fetchDataAuto(store, link, lastDateNumber, indexId), 5000);
+      setTimeout(() => fetchDataAuto(store, link, lastDateNumber), 5000);
     })
     .catch((error) => {
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
-      feedback.textContent = 'Ресурс не содержит валидный RSS';
+      // feedback.textContent = 'Ресурс не содержит валидный RSS';
+      feedback.textContent = i18next.t('doesentVolidRSS');
       console.error(error);
     })
     .finally(() => {
