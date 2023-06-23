@@ -49,6 +49,10 @@ const renderFeed = (feed) => { // ноучить принимать 1 эл а н
         titleTag.classList.add('fw-normal', 'text-secondary');
       };
 
+      titleTag.addEventListener('click', () => {
+        store.openPosts.push(index);
+      });
+
       titleTag.addEventListener('click', handleClick);
       descriptionTag.addEventListener('click', handleClick);
 
