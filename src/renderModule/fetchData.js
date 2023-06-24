@@ -4,11 +4,10 @@ import parser from './parserRSS.js';
 import pickOnlyNewPosts from './pickOnlyNewPosts.js';
 
 const fetchDataAuto = (store, link, lastDataArg) => {
-  // console.log('1 All params', store, link, lastDataArg);
-  let lastDateNumber = null; // назначать число последней даты (для новых постов)
-  let newPosts = []; // для новых постов в finally
+  let lastDateNumber = null;
+  let newPosts = [];
   axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
-    .then((response) => { // проверка на удачный response
+    .then((response) => {
       if (response.status === 200) {
         const domXML = parser(response);
         return domXML;
@@ -21,13 +20,9 @@ const fetchDataAuto = (store, link, lastDataArg) => {
         pubDate: nodeItem.querySelector('pubDate').innerHTML,
       })))
     .then((data) => { // массив всех постов из API
-      // console.log('!!! parsed data', data);
       if (data.length !== 0) { // посты есть
-        newPosts = (pickOnlyNewPosts(data, lastDataArg)).reverse(); // получает новые посты
+        newPosts = (pickOnlyNewPosts(data, lastDataArg)).reverse();
         if (newPosts.length !== 0) { // есть новые данные
-          // console.log('есть новые данные');
-          console.log('!!!new Posts!!!', newPosts);
-          console.log(store);
           store.posts.push(...newPosts); // вот наша магия !!!!
           const currentlastData = (data[0]).pubDate; // данные есть новая дата
           lastDateNumber = Date.parse(currentlastData);
@@ -43,13 +38,9 @@ const fetchDataAuto = (store, link, lastDataArg) => {
       console.error(error);
     })
     .finally(() => {
-        // addNewPosts(id, newPosts, store);
         setTimeout(() => fetchDataAuto(store, link, lastDateNumber), 5000); // id === indexArr
-      // console.log('lastDateNumber: ', lastDateNumber);
     });
 };
-
-// let id = 0;
 
 const fetchData = (store, link) => { // они должны просто заполнять нужный store
   const feedback = document.querySelector('.lng-feedback');
@@ -66,7 +57,7 @@ const fetchData = (store, link) => { // они должны просто зап�
         return domXML;
       }
     })
-    .then((data) => [...data.querySelectorAll('item')].map((nodeItem) => ({ // заполнение для постов
+    .then((data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
       title: nodeItem.querySelector('title').innerHTML,
       description: nodeItem.querySelector('description').innerHTML,
       link: nodeItem.querySelector('link').innerHTML,
@@ -75,7 +66,6 @@ const fetchData = (store, link) => { // они должны просто зап�
     .then((posts) => {
       store.links.push(link);
       store.posts.push(...posts.reverse());
-      console.log(i18next.t('successfulScenario'), i18next.t('successfulScenario')); // Успешный сценарий
             feedback.classList.remove('text-danger');
             feedback.classList.add('text-success');
             feedback.textContent = i18next.t('successfulScenario');
@@ -89,7 +79,6 @@ const fetchData = (store, link) => { // они должны просто зап�
     .catch((error) => {
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
-      // feedback.textContent = 'Ресурс не содержит валидный RSS';
       feedback.textContent = i18next.t('doesentVolidRSS');
       console.error(error);
     })

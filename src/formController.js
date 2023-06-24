@@ -6,7 +6,7 @@ import { renderFeed, renderPosts } from './renderModule/renderContents.js';
 
 const formController = () => {
   const initialStoreValues = {
-    feed: [], // попробую хранить здесь вообще все фиды
+    feed: [],
     posts: [],
     links: [],
     openPosts: [],
@@ -17,19 +17,13 @@ const formController = () => {
 
   const store = onChange(initialStoreValues, (path, value) => {
     if (path === 'feed') {
-      // console.log('!!!Feed', value);
-      console.log('!!! пришли фиды', 'value');
       const lastFeed = value[value.length - 1];
-      renderFeed(lastFeed); // отображает новый фид на странице
-      // создать обработчик для добавления данных
+      renderFeed(lastFeed);
     }
     if (path === 'posts') {
-      // const lastPosts = value[value.length - 1];
-      // console.log('lastPosts:', lastPosts);
       console.log('пришли вот эти данные (posts) !!!!', value);
       console.log(iter);
       iter += 1;
-      // console.log('вот эти были', prevDev);
       renderPosts(store); // отображает посты на странице
 
       // нужно брать последние добавленные массивы во всех store
@@ -71,19 +65,16 @@ const formController = () => {
     event.preventDefault();
     submitButton.disabled = true;
     const formData = new FormData(form);
-    const queryValue = formData.get('query'); // ссылка
-    // console.log('!!!queryValue', queryValue);
+    const queryValue = formData.get('query');
     if (queryValue) {
       rssSchema.validate(queryValue)
         .then((resolve) => {
           if (!store.links.includes(resolve)) {
             input.classList.remove('is-invalid');
             render(store, resolve);
-            // взять и в блок поместить нужное значение 1111
             // event.target.reset();
             input.focus();
           } else {
-            console.log(i18next.t('duplicateRSSlink')); // Повторяющаяся ссылка RSS
             feedback.textContent = i18next.t('duplicateRSSlink');
             feedback.classList.remove('text-success');
             feedback.classList.add('text-danger');
@@ -93,7 +84,6 @@ const formController = () => {
         })
         .catch((e) => {
           console.log('my error', e);
-          console.log(i18next.t('InvalidRSSlink')); // Некорректная ссылка RSS
           feedback.textContent = i18next.t('InvalidRSSlink');
           feedback.classList.remove('text-success');
           feedback.classList.add('text-danger');

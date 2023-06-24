@@ -1,6 +1,4 @@
-// для кажной кнопки нужно сделать возможность вызвать модальное окно
-
-const renderFeed = (feed) => { // ноучить принимать 1 эл а не все сразу
+const renderFeed = (feed) => {
   const containerFeeds = document.querySelector('.container-feeds');
   const { title, description } = feed;
   const titleTeg = document.createElement('h3');
@@ -20,9 +18,7 @@ const renderFeed = (feed) => { // ноучить принимать 1 эл а н
   containerFeeds.prepend(liTag);
   };
 
-  // добавим проверку, что если в openPosts: [] есть index текущего поста то мы добавляем серый клас
   const renderPosts = (store) => {
-    // console.log('!!!posts', posts);
     const container = document.querySelector('.container-list');
     container.innerHTML = '';
     store.posts.forEach((item, index) => {
@@ -37,7 +33,6 @@ const renderFeed = (feed) => { // ноучить принимать 1 эл а н
       // формируем данные description
       const descriptionTag = document.createElement('button');
       descriptionTag.textContent = 'Просмотр';
-
       if (store.openPosts.includes(index)) {
         titleTag.classList.add('fw-normal', 'text-secondary');
       } else {
@@ -74,7 +69,6 @@ const renderFeed = (feed) => { // ноучить принимать 1 эл а н
         modalBody.textContent = description;
         fullArticleLink.setAttribute('href', link);
 
-        // descriptionData[curId].read = true;
         store.openPosts.push(index);
         titleTag.classList.remove('fw-bold');
         titleTag.classList.add('fw-normal', 'text-secondary');
