@@ -1,7 +1,16 @@
 import axios from 'axios';
 import i18next from 'i18next';
 import parser from './parserRSS.js';
-import pickOnlyNewPosts from './pickOnlyNewPosts.js';
+
+const pickOnlyNewPosts = (posts, lastDateNumber) => {
+  const newPosts = posts.filter((post) => {
+    if (new Date(post.pubDate) > lastDateNumber) {
+      return true;
+    }
+    return false;
+  });
+  return newPosts;
+};
 
 const fetchDataAuto = (store, link, lastDataArg) => {
   let lastDateNumber = null;
