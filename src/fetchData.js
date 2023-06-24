@@ -56,7 +56,7 @@ const fetchDataAuto = (store, link, lastDataArg) => {
 };
 
 const fetchData = (store, link) => { // они должны просто заполнять нужный store
-  const feedback = document.querySelector('.lng-feedback');
+  const feedback = document.querySelector('#form-result');
 
   axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
     .then((response) => { // проверка на удачный response
@@ -96,7 +96,7 @@ const fetchData = (store, link) => { // они должны просто зап�
       console.error(error);
     })
     .finally(() => {
-      const submitButton = document.querySelector('.lng-button');
+      const submitButton = document.querySelector('#send');
       submitButton.disabled = false;
     });
 };

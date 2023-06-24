@@ -2,7 +2,6 @@ import i18next from 'i18next';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import render from './render.js';
-// import { renderFeed, renderPosts } from './renderModule/renderContents.js';
 import { renderFeed, renderPosts } from './view.js';
 
 const formController = () => {
@@ -47,8 +46,8 @@ const formController = () => {
   const form = document.querySelector('form');
   const input = form.querySelector('#query');
   const isSubmit = false; // нужен для отслеживания если input имеет класс is-invalid
-  const feedback = document.querySelector('.lng-feedback');
-  const submitButton = document.querySelector('.lng-button');
+  const feedback = document.querySelector('#form-result');
+  const submitButton = document.querySelector('#send');
 
   input.addEventListener('input', (event) => {
     rssSchema.validate(event.target.value)
