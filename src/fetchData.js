@@ -1,6 +1,10 @@
 import axios from 'axios';
 import i18next from 'i18next';
-import parser from './parserRSS.js';
+
+const parser = (response) => {
+  const domParser = new DOMParser();
+  return domParser.parseFromString(response.data.contents, 'application/xml');
+};
 
 const pickOnlyNewPosts = (posts, lastDateNumber) => {
   const newPosts = posts.filter((post) => {

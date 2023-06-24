@@ -1,3 +1,31 @@
+import i18next from 'i18next';
+
+const renderContainer = () => {
+  const postsEl = document.querySelector('.posts');
+  const feedsEl = document.querySelector('.feeds');
+
+const postsContent = `
+  <div class="card border-0">
+  <div class="card-body">
+    <h2 class="lng-posts card-title h4">${i18next.t('posts')}</h2>
+    </div>
+  </div>
+  <ul class="container-list list-group border-0 rounded-0"></ul>
+`;
+
+const feedsContent = `
+  <div class="card border-0">
+    <div class="card-body">
+      <h2 class="lng-feeds card-title h4">${i18next.t('feeds')}</h2>
+      <ul class="container-feeds list-group border-0 rounded-0"></ul>
+    </div>
+  </div>
+`;
+
+postsEl.innerHTML = postsContent;
+feedsEl.innerHTML = feedsContent;
+};
+
 const renderFeed = (feed) => {
   const containerFeeds = document.querySelector('.container-feeds');
   const { title, description } = feed;
@@ -75,12 +103,18 @@ const renderFeed = (feed) => {
       });
 
       const li = document.createElement('li');
-      li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+      li.classList.add(
+        'list-group-item',
+        'd-flex',
+        'justify-content-between',
+        'align-items-start',
+        'border-0',
+        'border-end-0',
+      );
       li.appendChild(titleTag);
       li.appendChild(descriptionTag);
 
       container.prepend(li);
     });
   };
-
-export { renderFeed, renderPosts };
+  export { renderContainer, renderFeed, renderPosts };

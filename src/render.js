@@ -1,9 +1,10 @@
-import initContainer from './renderModule/initContainer.js';
-import fetchData from './renderModule/fetchData.js';
+// import initContainer from './renderModule/initContainer.js';
+import fetchData from './fetchData.js';
+import { renderContainer } from './view.js';
 
 const render = (store, link) => {
   if (!store.initContainer) {
-    initContainer();
+    renderContainer();
     store.initContainer = true;
   }
 

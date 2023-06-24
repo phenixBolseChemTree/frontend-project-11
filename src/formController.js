@@ -2,7 +2,8 @@ import i18next from 'i18next';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import render from './render.js';
-import { renderFeed, renderPosts } from './renderModule/renderContents.js';
+// import { renderFeed, renderPosts } from './renderModule/renderContents.js';
+import { renderFeed, renderPosts } from './view.js';
 
 const formController = () => {
   const initialStoreValues = {
