@@ -1,11 +1,9 @@
 import i18next from 'i18next';
 
-// сдесь мы должны добавлять
-const initData = () => {
+const initContainer = () => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
 
-// Создаем содержимое для добавления в элементы
 const postsContent = `
   <div class="card border-0">
   <div class="card-body">
@@ -24,9 +22,8 @@ const feedsContent = `
   </div>
 `;
 
-// Добавляем содержимое в элементы
 postsEl.innerHTML = postsContent;
 feedsEl.innerHTML = feedsContent;
 };
 
-export default initData;
+export default initContainer;

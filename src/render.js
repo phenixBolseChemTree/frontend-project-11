@@ -1,15 +1,13 @@
-import initData from './renderModule/initData.js';
+import initContainer from './renderModule/initContainer.js';
 import fetchData from './renderModule/fetchData.js';
 
-let isInitDataCalled = false; // Флаг для отслеживания вызова initData
-
 const render = (store, link) => {
-  if (!isInitDataCalled) {
-    initData();
-    isInitDataCalled = true; // Устанавливаем флаг, чтобы initData больше не вызывалась
+  if (!store.initContainer) {
+    initContainer();
+    store.initContainer = true;
   }
 
-  fetchData(store, link); // задача этого кода просто заполнить store
+  fetchData(store, link);
 };
 
 export default render;

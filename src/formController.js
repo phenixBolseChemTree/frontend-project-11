@@ -10,6 +10,7 @@ const formController = () => {
     posts: [],
     links: [],
     openPosts: [],
+    initContainer: false,
   };
 
   let iter = 1;
