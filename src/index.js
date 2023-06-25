@@ -1,11 +1,27 @@
 import './styles.scss';
 import 'bootstrap';
-import i18next from 'i18next';
 import onChange from 'on-change';
 import * as yup from 'yup';
+import axios from 'axios';
+import i18next from 'i18next';
 import i18nInit from './i18n';
-import render from './render.js';
-import { renderFeed, renderPosts } from './view.js';
+import fetchRSS from './fetchRSS';
+import { renderFeed, renderPosts, renderContainer } from './render';
+
+const parser = (response) => {
+  const domParser = new DOMParser();
+  return domParser.parseFromString(response.data.contents, 'application/xml');
+};
+
+const pickOnlyNewPosts = (posts, lastDateNumber) => {
+  const newPosts = posts.filter((post) => {
+    if (new Date(post.pubDate) > lastDateNumber) {
+      return true;
+    }
+    return false;
+  });
+  return newPosts;
+};
 
 i18nInit();
 
@@ -13,9 +29,13 @@ const app = () => {
   const initialStoreValues = {
     feed: [],
     posts: [],
-    links: [],
-    openPosts: [],
-    initContainer: false,
+    visitedPosts: [],
+    form: {
+      isFormSubmitted: false,
+      submittionError: null,
+      validationError: null,
+      isLoading: false,
+    },
   };
 
   const store = onChange(initialStoreValues, (path, value) => {
@@ -24,59 +44,203 @@ const app = () => {
       renderFeed(lastFeed);
     }
     if (path === 'posts') {
-      console.log('пришли вот эти данные (posts) !!!!', value);
       renderPosts(store); // отображает посты на странице
     }
+
+    if (path === 'form') {
+      // добавить или убрать класс ошибки на инпуте
+      const queryElement = document.querySelector('#query');
+
+      const isError = value.submittionError || value.validationError;
+
+      if (path.isFormSubmitted && isError) {
+        queryElement.classList.add('is-invalid');
+      } else {
+        queryElement.classList.remove('is-invalid');
+      }
+
+      // добавить или убрать вывод ошибки
+      const formResultEl = document.querySelector('#form-result');
+
+      const showError = (text) => {
+        formResultEl.classList.add('text-danger');
+        formResultEl.classList.remove('text-success');
+        formResultEl.textContent = i18next.t(text);
+      };
+
+      const showSuccess = (text) => {
+        formResultEl.classList.remove('text-danger');
+        formResultEl.classList.add('text-success');
+        formResultEl.textContent = i18next.t(text);
+      };
+
+      // Success
+      if (value.isFormSubmitted && !isError) {
+        showSuccess('successfulScenario');
+      }
+
+      // Dublicate
+      if (value.isFormSubmitted && value.validationError === 'DUBLICATE_ERROR') {
+        showError('duplicateRSSlink');
+      }
+
+      // Not valid RSS
+      if (value.isFormSubmitted && value.submittionError === 'UNVALID_SSR') {
+        showError('doesentVolidRSS');
+      }
+
+      // Validation error
+      if (value.isFormSubmitted && value.validationError === 'VALIDATION_ERROR') {
+        showError('InvalidRSSlink');
+      }
+    }
+
+    // ВРЕМЕННО, КАК ЗАКОНЧУ УДАЛИТЬ
+
+    const debugEl = document.querySelector('#debug');
+
+    if (debugEl) {
+      debugEl.innerHTML = JSON.stringify(store);
+    }
   });
+
+  const fetchDataAuto = (store, link, lastDataArg) => {
+    let lastDateNumber = null;
+    let newPosts = [];
+    axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
+      .then((response) => {
+        if (response.status === 200) {
+          const domXML = parser(response);
+          return domXML;
+        }
+      })
+      .then((data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
+        title: nodeItem.querySelector('title').innerHTML,
+        description: nodeItem.querySelector('description').innerHTML,
+        link: nodeItem.querySelector('link').innerHTML,
+        pubDate: nodeItem.querySelector('pubDate').innerHTML,
+      })))
+      .then((data) => { // массив всех постов из API
+        if (data.length !== 0) { // посты есть
+          newPosts = (pickOnlyNewPosts(data, lastDataArg)).reverse();
+          if (newPosts.length !== 0) { // есть новые данные
+            store.posts.push(...newPosts); // вот наша магия !!!!
+            const currentlastData = (data[0]).pubDate; // данные есть новая дата
+            lastDateNumber = Date.parse(currentlastData);
+          } else {
+            lastDateNumber = lastDataArg;
+          }
+        } else {
+          lastDateNumber = lastDataArg;
+        }
+      })
+      .catch((error) => {
+        store.form = {
+          ...store.form,
+          submittionError: 'UNVALID_SSR',
+        };
+      })
+      .finally(() => {
+        setTimeout(() => fetchDataAuto(store, link, lastDateNumber), 5000); // id === indexArr
+      });
+  };
 
   const rssSchema = yup.string().url().required();
-  const form = document.querySelector('form');
-  const input = form.querySelector('#query');
-  const isSubmit = false; // нужен для отслеживания если input имеет класс is-invalid
-  const feedback = document.querySelector('#form-result');
-  const submitButton = document.querySelector('#send');
+  const formElement = document.querySelector('form');
+  const queryElement = formElement.querySelector('#query');
 
-  input.addEventListener('input', (event) => {
-    rssSchema.validate(event.target.value)
-      .then(() => {
-        input.classList.remove('is-invalid');
+  const validateQuery = (text) => {
+    if (store.feed.map(({ link }) => link).includes(text)) {
+      store.form = {
+        ...store.form,
+        validationError: 'DUBLICATE_ERROR',
+      };
+
+      return new Promise(() => { });
+    }
+
+    return rssSchema.validate(text)
+      .then((link) => {
+        store.form = {
+          ...store.form,
+          validationError: null,
+        };
+
+        return link;
       })
-      .catch(() => {
-        if (isSubmit) {
-          input.classList.add('is-invalid');
-        }
+      .catch((err) => {
+        store.form = {
+          ...store.form,
+          validationError: 'VALIDATION_ERROR',
+        };
       });
+  };
+
+  queryElement.addEventListener('input', (event) => {
+    validateQuery(event.target.value);
   });
 
-  form.addEventListener('submit', (event) => {
+  formElement.addEventListener('submit', (event) => {
     event.preventDefault();
-    submitButton.disabled = true;
-    const formData = new FormData(form);
-    const queryValue = formData.get('query');
-    if (queryValue) {
-      rssSchema.validate(queryValue)
-        .then((resolve) => {
-          if (!store.links.includes(resolve)) {
-            input.classList.remove('is-invalid');
-            render(store, resolve);
-            // event.target.reset();
-            input.focus();
-          } else {
-            feedback.textContent = i18next.t('duplicateRSSlink');
-            feedback.classList.remove('text-success');
-            feedback.classList.add('text-danger');
-            input.classList.add('is-invalid');
-            submitButton.disabled = false;
-          }
-        })
-        .catch((e) => {
-          console.log('my error', e);
-          feedback.textContent = i18next.t('InvalidRSSlink');
-          feedback.classList.remove('text-success');
-          feedback.classList.add('text-danger');
-          input.classList.add('is-invalid');
-        });
-    }
+
+    const query = event.target[0].value;
+
+    store.form = {
+      ...store.form,
+      isLoading: true,
+      isFormSubmitted: true,
+    };
+
+    validateQuery(query)
+      .then((link) => {
+        if (!link) {
+          return;
+        }
+
+        if (!store.feed.length) {
+          renderContainer();
+          store.initContainer = true;
+        }
+
+        fetchRSS(link)
+          .then((data) => {
+            const error = data?.data?.status?.error?.code;
+            if (error) {
+              store.form = {
+                ...store.form,
+                submittionError: error,
+              };
+              return;
+            }
+
+            if (data.data.status.http_code === 200) {
+              const domXML = parser(data);
+              const title = domXML.querySelector('title').textContent;
+              const description = domXML.querySelector('description').textContent;
+              store.feed.push({ title, description, link });
+
+              const posts = [...domXML.querySelectorAll('item')].map((nodeItem) => ({
+                title: nodeItem.querySelector('title').innerHTML,
+                description: nodeItem.querySelector('description').innerHTML,
+                link: nodeItem.querySelector('link').innerHTML,
+                pubDate: nodeItem.querySelector('pubDate').innerHTML,
+              }));
+
+              store.posts.push(...posts.reverse());
+
+              const lastData = (posts[posts.length - 1]).pubDate;
+              const lastDateNumber = Date.parse(lastData);
+              setTimeout(() => fetchDataAuto(store, link, lastDateNumber), 5000);
+            }
+          })
+          .finally(() => {
+            store.form = {
+              ...store.form,
+              isFormSubmitted: true,
+              isLoading: false,
+            };
+          });
+      });
   });
 };
 
