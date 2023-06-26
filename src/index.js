@@ -25,7 +25,7 @@ const pickOnlyNewPosts = (posts, lastDateNumber) => {
 
 i18nInit();
 
-const app = () => {
+// const app = () => {
   const initialStoreValues = {
     feed: [],
     posts: [],
@@ -44,15 +44,15 @@ const app = () => {
       renderFeed(lastFeed);
     }
     if (path === 'posts') {
-      renderPosts(store); // отображает посты на странице
+      renderPosts(store);
     }
 
     if (path === 'form') {
-      // добавить или убрать класс ошибки на инпуте
       const queryElement = document.querySelector('#query');
 
       const isError = value.submittionError || value.validationError;
 
+      // если форма была отправлена и нет ошибок
       if (path.isFormSubmitted && isError) {
         queryElement.classList.add('is-invalid');
       } else {
@@ -104,7 +104,7 @@ const app = () => {
     }
   });
 
-  const fetchDataAuto = (store, link, lastDataArg) => {
+  const fetchRSSAuto = (store, link, lastDataArg) => {
     let lastDateNumber = null;
     let newPosts = [];
     axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
@@ -141,7 +141,7 @@ const app = () => {
         };
       })
       .finally(() => {
-        setTimeout(() => fetchDataAuto(store, link, lastDateNumber), 5000); // id === indexArr
+        setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000); // id === indexArr
       });
   };
 
@@ -230,7 +230,7 @@ const app = () => {
 
               const lastData = (posts[posts.length - 1]).pubDate;
               const lastDateNumber = Date.parse(lastData);
-              setTimeout(() => fetchDataAuto(store, link, lastDateNumber), 5000);
+              setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
             }
           })
           .finally(() => {
@@ -242,6 +242,6 @@ const app = () => {
           });
       });
   });
-};
+// };
 
-app();
+// app();
