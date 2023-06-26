@@ -2,8 +2,8 @@ const translations = {
   ru: {
     translation: {
       successfulScenario: 'RSS успешно загружен',
-      duplicateRSSlink: 'Дублирующийся адрес RSS',
-      InvalidRSSlink: 'Некорректный адрес RSS',
+      duplicateRSSlink: 'RSS уже существует',
+      InvalidRSSlink: 'Ссылка должна быть валидным URL',
       doesentVolidRSS: 'Ресурс не содержит валидный RSS',
       h1: 'RSS агрегатор',
       p: 'Начните читать RSS сегодня! Это легко, это красиво.',

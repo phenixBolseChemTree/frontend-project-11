@@ -52,7 +52,6 @@ const store = onChange(initialStoreValues, (path, value) => {
 
     const isError = value.submittionError || value.validationError;
 
-    // если форма была отправлена и нет ошибок
     if (path.isFormSubmitted && isError) {
       queryElement.classList.add('is-invalid');
     } else {
@@ -175,7 +174,7 @@ const validateQuery = (text) => {
 };
 
 queryElement.addEventListener('input', (event) => {
-  validateQuery(event.target.value);
+  // validateQuery(event.target.value);
 });
 
 formElement.addEventListener('submit', (event) => {
