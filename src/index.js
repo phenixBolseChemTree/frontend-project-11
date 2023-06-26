@@ -40,8 +40,7 @@ const initialStoreValues = {
 
 const store = onChange(initialStoreValues, (path, value) => {
   if (path === 'feed') {
-    const lastFeed = value[value.length - 1];
-    renderFeed(lastFeed);
+    renderFeed(value[value.length - 1]);
   }
   if (path === 'posts') {
     renderPosts(store);
@@ -58,7 +57,7 @@ const store = onChange(initialStoreValues, (path, value) => {
       queryElement.classList.remove('is-invalid');
     }
 
-    // добавить или убрать вывод ошибки
+    // принимает слово об результате кода и выводит его
     const formResultEl = document.querySelector('#form-result');
 
     const showError = (text) => {
@@ -234,6 +233,3 @@ formElement.addEventListener('submit', (event) => {
         });
     });
 });
-// };
-
-// app();

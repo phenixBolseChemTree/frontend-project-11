@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 
+// создает контейнер 1 раз
 const renderContainer = () => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
@@ -26,6 +27,7 @@ const renderContainer = () => {
   feedsEl.innerHTML = feedsContent;
 };
 
+// создает 1 фид
 const renderFeed = (feed) => {
   const containerFeeds = document.querySelector('.container-feeds');
   const { title, description } = feed;
@@ -46,6 +48,7 @@ const renderFeed = (feed) => {
   containerFeeds.prepend(liTag);
 };
 
+// добавляет посты в нужный тег
 const renderPosts = (store) => {
   const container = document.querySelector('.container-list');
   container.innerHTML = '';
@@ -116,4 +119,5 @@ const renderPosts = (store) => {
     container.prepend(li);
   });
 };
+
 export { renderContainer, renderFeed, renderPosts };
