@@ -2,7 +2,6 @@ import './styles.scss';
 import 'bootstrap';
 import onChange from 'on-change';
 import * as yup from 'yup';
-import axios from 'axios';
 import i18next from 'i18next';
 import i18nInit from './i18n';
 import fetchRSS from './fetchRSS';
@@ -25,7 +24,6 @@ const pickOnlyNewPosts = (posts, lastDateNumber) => {
 
 i18nInit();
 
-// const app = () => {
 const initialStoreValues = {
   feed: [],
   posts: [],
@@ -34,7 +32,7 @@ const initialStoreValues = {
     isFormSubmitted: false,
     submittionError: null,
     validationError: null,
-    isLoading: false,
+    // isLoading: false,
   },
 };
 
@@ -67,24 +65,24 @@ const store = onChange(initialStoreValues, (path, value) => {
     };
 
     // Success
-    if (value.isFormSubmitted && !isError) {
+    if (!isError) {
       formResultEl.classList.remove('text-danger');
       formResultEl.classList.add('text-success');
       formResultEl.textContent = i18next.t('successfulScenario');
     }
 
     // Dublicate
-    if (value.isFormSubmitted && value.validationError === 'DUBLICATE_ERROR') {
+    if (value.validationError === 'DUBLICATE_ERROR') {
       showError('duplicateRSSlink');
     }
 
     // Not valid RSS
-    if (value.isFormSubmitted && value.submittionError === 'UNVALID_SSR') {
+    if (value.submittionError === 'UNVALID_SSR') {
       showError('doesentVolidRSS');
     }
 
     // Validation error
-    if (value.isFormSubmitted && value.validationError === 'VALIDATION_ERROR') {
+    if (value.validationError === 'VALIDATION_ERROR') {
       showError('InvalidRSSlink');
     }
   }
@@ -105,10 +103,10 @@ const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) =>
   pubDate: nodeItem.querySelector('pubDate').innerHTML,
 }));
 
-const fetchRSSAuto = (link, lastDataArg) => {
+const fetchRSSAuto = (store, link, lastDataArg) => {
   let lastDateNumber = null;
   let newPosts = [];
-  axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
+  fetchRSS(link)
     .then((response) => {
       if (response.status === 200) {
         const domXML = parser(response);
@@ -131,10 +129,10 @@ const fetchRSSAuto = (link, lastDataArg) => {
       }
     })
     .catch(() => {
-      store.form = {
-        ...store.form,
-        submittionError: 'UNVALID_SSR',
-      };
+      // store.form = {
+      //   ...store.form,
+      // //   submittionError: 'UNVALID_SSR',
+      // };
     })
     .finally(() => {
       setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000); // id === indexArr
@@ -144,6 +142,7 @@ const fetchRSSAuto = (link, lastDataArg) => {
 const rssSchema = yup.string().url().required();
 const formElement = document.querySelector('form');
 const queryElement = formElement.querySelector('#query');
+const btnPrimary = document.querySelector('.btn-primary');
 
 const validateQuery = (text) => {
   if (store.feed.map(({ link }) => link).includes(text)) {
@@ -178,12 +177,13 @@ queryElement.addEventListener('input', () => {
 
 formElement.addEventListener('submit', (event) => {
   event.preventDefault();
+  btnPrimary.disabled = true;
 
   const query = event.target[0].value;
 
   store.form = {
     ...store.form,
-    isLoading: true,
+    // isLoading: true,
     isFormSubmitted: true,
   };
 
@@ -191,11 +191,6 @@ formElement.addEventListener('submit', (event) => {
     .then((link) => {
       if (!link) {
         return;
-      }
-
-      if (!store.feed.length) {
-        renderContainer();
-        store.initContainer = true;
       }
 
       fetchRSS(link)
@@ -213,6 +208,9 @@ formElement.addEventListener('submit', (event) => {
             const domXML = parser(data);
             const title = domXML.querySelector('title').textContent;
             const description = domXML.querySelector('description').textContent;
+            if (!store.feed.length) { // создает контейнер если нет постов
+              renderContainer();
+            }
             store.feed.push({ title, description, link });
 
             const posts = parseData(domXML);
@@ -225,11 +223,12 @@ formElement.addEventListener('submit', (event) => {
           }
         })
         .finally(() => {
-          store.form = {
-            ...store.form,
-            isFormSubmitted: true,
-            isLoading: false,
-          };
+          btnPrimary.disabled = false;
+          // store.form = {
+          //   ...store.form,
+          //   isFormSubmitted: true,
+          //   // isLoading: false,
+          // };
         });
     });
 });
