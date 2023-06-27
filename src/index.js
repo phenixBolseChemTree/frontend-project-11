@@ -105,7 +105,7 @@ const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) =>
   pubDate: nodeItem.querySelector('pubDate').innerHTML,
 }));
 
-const fetchRSSAuto = (store, link, lastDataArg) => {
+const fetchRSSAuto = (link, lastDataArg) => {
   let lastDateNumber = null;
   let newPosts = [];
   axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`)
@@ -130,7 +130,7 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
         lastDateNumber = lastDataArg;
       }
     })
-    .catch((error) => {
+    .catch(() => {
       store.form = {
         ...store.form,
         submittionError: 'UNVALID_SSR',
@@ -164,7 +164,7 @@ const validateQuery = (text) => {
 
       return link;
     })
-    .catch((err) => {
+    .catch(() => {
       store.form = {
         ...store.form,
         validationError: 'VALIDATION_ERROR',
@@ -172,7 +172,7 @@ const validateQuery = (text) => {
     });
 };
 
-queryElement.addEventListener('input', (event) => {
+queryElement.addEventListener('input', () => {
   // validateQuery(event.target.value);
 });
 
