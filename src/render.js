@@ -63,7 +63,7 @@ const renderPosts = (store) => {
 
     // формируем данные description
     const descriptionTag = document.createElement('button');
-    descriptionTag.textContent = 'Просмотр';
+    descriptionTag.textContent = i18next.t('check');
     if (store.visitedPosts.includes(index)) {
       titleTag.classList.add('fw-normal', 'text-secondary');
     } else {

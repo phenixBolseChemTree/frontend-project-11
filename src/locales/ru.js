@@ -4,8 +4,11 @@ export default {
       successfulScenario: 'RSS успешно загружен',
       duplicateRSSlink: 'RSS уже существует',
       InvalidRSSlink: 'Ссылка должна быть валидным URL',
-      doesentVolidRSS: 'Ресурс не содержит валидный RSS',
+      invalidRSS: 'Ресурс не содержит валидный RSS',
       doesentEmpty: 'Поле не должно быть пустым',
+      feeds: 'Фиды',
+      posts: 'Посты',
+      check: 'Просмотр',
     },
   },
 };
