@@ -10,10 +10,6 @@ import { renderFeed, renderPosts, renderContainer } from './render';
 const parser = (response) => {
   const domParser = new DOMParser();
   const parseData = domParser.parseFromString(response.data.contents, 'application/xml');
-  const parseError = parseData.querySelector('parsererror');
-  if (parseError) {
-    throw new Error('parseError');
-  }
   return parseData;
 };
 
@@ -35,6 +31,7 @@ const initialStoreValues = {
   links: [],
   visitedPosts: [],
   feedback: null,
+  isLoading: false,
   form: {
     isFormSubmitted: false,
     submittionError: null,
@@ -68,6 +65,15 @@ const store = onChange(initialStoreValues, (path, value) => {
       formResultEl.textContent = i18next.t(text);
     };
     showFeedback(value);
+  }
+
+  if (path === 'isLoading') {
+    const btn = document.querySelector('.btn-primary');
+    if (value === true) {
+      btn.disabled = true;
+    } else {
+      btn.disabled = false;
+    }
   }
   // // ВРЕМЕННО, КАК ЗАКОНЧУ УДАЛИТЬ
 
@@ -118,7 +124,7 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
 const rssSchema = yup.string().url().required();
 const formElement = document.querySelector('form');
 const queryElement = formElement.querySelector('#query');
-const btnPrimary = document.querySelector('.btn-primary');
+// const btnPrimary = document.querySelector('.btn-primary');
 
 queryElement.addEventListener('input', () => {
   // validateQuery(event.target.value);
@@ -126,7 +132,8 @@ queryElement.addEventListener('input', () => {
 
 formElement.addEventListener('submit', (event) => {
   event.preventDefault();
-  btnPrimary.disabled = true;
+  // btnPrimary.disabled = true;
+  store.isLoading = true;
 
   const query = event.target[0].value;
 
@@ -144,7 +151,7 @@ formElement.addEventListener('submit', (event) => {
               if (!store.feed.length) { // создает контейнер если нет постов
                 renderContainer();
               }
-              store.feed.push({ title, description, link });
+              store.feed.push({ title, description });
 
               store.links.push(link);
 
@@ -162,7 +169,8 @@ formElement.addEventListener('submit', (event) => {
             }
           })
           .finally(() => {
-            btnPrimary.disabled = false;
+            // btnPrimary.disabled = false;
+            // store.isLoading = false;
           });
       } else {
         store.feedback = 'duplicateRSSlink';
@@ -170,6 +178,7 @@ formElement.addEventListener('submit', (event) => {
     } catch (error) {
       store.feedback = 'InvalidRSSlink';
     }
+    store.isLoading = false;
   };
 
   processRss(query);
