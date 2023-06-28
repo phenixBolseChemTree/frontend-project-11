@@ -152,7 +152,7 @@ btnEl?.addEventListener('click', (event) => {
 
             const response = data?.data ? data.data : data;
 
-            if (response.status.http_code === 200 || response.status === 200) {
+            if (response.status === 200 || response?.status.http_code === 200) {
               if (response.status.content_type !== 'application/rss+xml; charset=utf-8') {
                 store.feedback = 'invalidRSS';
               } else {
