@@ -37,6 +37,7 @@ const initialStoreValues = {
     submittionError: null,
     validationError: null,
   },
+  lastResponse: null,
 };
 
 const store = onChange(initialStoreValues, (path, value) => {
@@ -131,7 +132,7 @@ queryElement.addEventListener('input', () => {
   // validateQuery(event.target.value);
 });
 
-const btnEl = document.querySelector('#send')
+const btnEl = document.querySelector('#send');
 
 btnEl?.addEventListener('click', (event) => {
   event.preventDefault();
@@ -147,6 +148,8 @@ btnEl?.addEventListener('click', (event) => {
       if (!store.links.includes(link)) {
         fetchRSS(link)
           .then((data) => {
+            store.lastResponse = data;
+
             if (data?.data?.status?.http_code === 200) {
               const domXML = parser(data);
               const title = domXML.querySelector('title').textContent;
@@ -186,57 +189,3 @@ btnEl?.addEventListener('click', (event) => {
 
   processRss(query);
 });
-
-// formElement.addEventListener('submit', (event) => {
-//   event.preventDefault();
-//   // btnPrimary.disabled = true;
-//   store.isLoading = true;
-
-//   const query = event.target[0].value;
-
-//   const processRss = async (link) => {
-//     try {
-//       await rssSchema.validate(link);
-
-//       if (!store.links.includes(link)) {
-//         fetchRSS(link)
-//           .then((data) => {
-//             if (data.data.status.http_code === 200) {
-//               const domXML = parser(data);
-//               const title = domXML.querySelector('title').textContent;
-//               const description = domXML.querySelector('description').textContent;
-//               if (!store.feed.length) { // создает контейнер если нет постов
-//                 renderContainer();
-//               }
-//               store.feed.push({ title, description });
-
-//               store.links.push(link);
-
-//               const posts = parseData(domXML);
-
-//               store.posts.push(...posts.reverse());
-
-//               const lastData = (posts[posts.length - 1]).pubDate;
-//               const lastDateNumber = Date.parse(lastData);
-
-//               store.feedback = 'successfulScenario';
-//               setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
-//             } else {
-//               store.feedback = 'doesentVolidRSS';
-//             }
-//           })
-//           .finally(() => {
-//             // btnPrimary.disabled = false;
-//             // store.isLoading = false;
-//           });
-//       } else {
-//         store.feedback = 'duplicateRSSlink';
-//       }
-//     } catch (error) {
-//       store.feedback = 'InvalidRSSlink';
-//     }
-//     store.isLoading = false;
-//   };
-
-//   processRss(query);
-// });
