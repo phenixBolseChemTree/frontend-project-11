@@ -140,7 +140,6 @@ btnEl?.addEventListener('click', (event) => {
   store.isLoading = true;
 
   const query = document.querySelector('#query').value;
-
   const processRss = async (link) => {
     try {
       await rssSchema.validate(link);
@@ -177,6 +176,7 @@ btnEl?.addEventListener('click', (event) => {
           .finally(() => {
             // btnPrimary.disabled = false;
             // store.isLoading = false;
+            queryElement.value = '';
           });
       } else {
         store.feedback = 'duplicateRSSlink';
