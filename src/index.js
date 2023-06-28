@@ -148,8 +148,8 @@ btnEl?.addEventListener('click', (event) => {
       if (!store.links.includes(link)) {
         fetchRSS(link)
           .then((data) => {
-            store.lastResponse = data;
             store.lastResponse = JSON.stringify(data);
+
             if (data?.data?.status?.http_code === 200) {
               const domXML = parser(data);
               const title = domXML.querySelector('title').textContent;
