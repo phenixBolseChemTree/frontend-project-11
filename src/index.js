@@ -147,7 +147,7 @@ btnEl?.addEventListener('click', (event) => {
       if (!store.links.includes(link)) {
         fetchRSS(link)
           .then((data) => {
-            if (data.data.status.http_code === 200) {
+            if (data?.data?.status?.http_code === 200) {
               const domXML = parser(data);
               const title = domXML.querySelector('title').textContent;
               const description = domXML.querySelector('description').textContent;
