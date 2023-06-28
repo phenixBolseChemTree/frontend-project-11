@@ -1,4 +1,4 @@
-const translations = {
+export default {
   ru: {
     translation: {
       successfulScenario: 'RSS успешно загружен',
@@ -9,5 +9,3 @@ const translations = {
     },
   },
 };
-
-export default translations;
