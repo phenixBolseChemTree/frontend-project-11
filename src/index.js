@@ -75,6 +75,14 @@ const store = onChange(initialStoreValues, (path, value) => {
       btn.disabled = false;
     }
   }
+
+  // // ВРЕМЕННО, КАК ЗАКОНЧУ УДАЛИТЬ
+
+  const debugEl = document.querySelector('#debug');
+
+  if (debugEl) {
+    debugEl.innerHTML = JSON.stringify(store);
+  }
 });
 
 const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
@@ -123,7 +131,7 @@ queryElement.addEventListener('input', () => {
   // validateQuery(event.target.value);
 });
 
-const btnEl = document.querySelector('#send');
+const btnEl = document.querySelector('#send')
 
 btnEl?.addEventListener('click', (event) => {
   event.preventDefault();
@@ -139,7 +147,7 @@ btnEl?.addEventListener('click', (event) => {
       if (!store.links.includes(link)) {
         fetchRSS(link)
           .then((data) => {
-            if (data?.data?.status?.http_code === 200) {
+            if (data.data.status.http_code === 200) {
               const domXML = parser(data);
               const title = domXML.querySelector('title').textContent;
               const description = domXML.querySelector('description').textContent;
