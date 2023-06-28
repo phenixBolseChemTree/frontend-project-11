@@ -9,7 +9,12 @@ import { renderFeed, renderPosts, renderContainer } from './render';
 
 const parser = (response) => {
   const domParser = new DOMParser();
-  return domParser.parseFromString(response.data.contents, 'application/xml');
+  const parseData = domParser.parseFromString(response.data.contents, 'application/xml');
+  const parseError = parseData.querySelector('parsererror');
+  if (parseError) {
+    throw new Error('parseError');
+  }
+  return parseData;
 };
 
 const pickOnlyNewPosts = (posts, lastDateNumber) => {
@@ -27,12 +32,13 @@ i18nInit();
 const initialStoreValues = {
   feed: [],
   posts: [],
+  links: [],
   visitedPosts: [],
+  feedback: null,
   form: {
     isFormSubmitted: false,
     submittionError: null,
     validationError: null,
-    // isLoading: false,
   },
 };
 
@@ -45,49 +51,25 @@ const store = onChange(initialStoreValues, (path, value) => {
   }
 
   if (path === 'form') {
-    const queryElement = document.querySelector('#query');
-
-    const isError = value.submittionError || value.validationError;
-
-    if (path.isFormSubmitted && isError) {
-      queryElement.classList.add('is-invalid');
-    } else {
-      queryElement.classList.remove('is-invalid');
-    }
-
-    // принимает слово об результате кода и выводит его
-    const formResultEl = document.querySelector('#form-result');
-
-    const showError = (text) => {
-      formResultEl.classList.add('text-danger');
-      formResultEl.classList.remove('text-success');
-      formResultEl.textContent = i18next.t(text);
-    };
-
-    // Success
-    if (!isError) {
-      formResultEl.classList.remove('text-danger');
-      formResultEl.classList.add('text-success');
-      formResultEl.textContent = i18next.t('successfulScenario');
-    }
-
-    // Dublicate
-    if (value.validationError === 'DUBLICATE_ERROR') {
-      showError('duplicateRSSlink');
-    }
-
-    // Not valid RSS
-    if (value.submittionError === 'UNVALID_SSR') {
-      showError('doesentVolidRSS');
-    }
-
-    // Validation error
-    if (value.validationError === 'VALIDATION_ERROR') {
-      showError('InvalidRSSlink');
-    }
+    console.log('вызвалась форма');
   }
 
-  // ВРЕМЕННО, КАК ЗАКОНЧУ УДАЛИТЬ
+  if (path === 'feedback') {
+    const formResultEl = document.querySelector('#form-result');
+
+    const showFeedback = (text) => {
+      if (text !== 'successfulScenario') {
+        formResultEl.classList.add('text-danger');
+        formResultEl.classList.remove('text-success');
+      } else {
+        formResultEl.classList.remove('text-danger');
+        formResultEl.classList.add('text-success');
+      }
+      formResultEl.textContent = i18next.t(text);
+    };
+    showFeedback(value);
+  }
+  // // ВРЕМЕННО, КАК ЗАКОНЧУ УДАЛИТЬ
 
   const debugEl = document.querySelector('#debug');
 
@@ -128,12 +110,6 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
         lastDateNumber = lastDataArg;
       }
     })
-    .catch(() => {
-      // store.form = {
-      //   ...store.form,
-      // //   submittionError: 'UNVALID_SSR',
-      // };
-    })
     .finally(() => {
       setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000); // id === indexArr
     });
@@ -143,33 +119,6 @@ const rssSchema = yup.string().url().required();
 const formElement = document.querySelector('form');
 const queryElement = formElement.querySelector('#query');
 const btnPrimary = document.querySelector('.btn-primary');
-
-const validateQuery = (text) => {
-  if (store.feed.map(({ link }) => link).includes(text)) {
-    store.form = {
-      ...store.form,
-      validationError: 'DUBLICATE_ERROR',
-    };
-
-    return new Promise(() => { });
-  }
-
-  return rssSchema.validate(text)
-    .then((link) => {
-      store.form = {
-        ...store.form,
-        validationError: null,
-      };
-
-      return link;
-    })
-    .catch(() => {
-      store.form = {
-        ...store.form,
-        validationError: 'VALIDATION_ERROR',
-      };
-    });
-};
 
 queryElement.addEventListener('input', () => {
   // validateQuery(event.target.value);
@@ -181,54 +130,47 @@ formElement.addEventListener('submit', (event) => {
 
   const query = event.target[0].value;
 
-  store.form = {
-    ...store.form,
-    // isLoading: true,
-    isFormSubmitted: true,
+  const processRss = async (link) => {
+    try {
+      await rssSchema.validate(link);
+
+      if (!store.links.includes(link)) {
+        fetchRSS(link)
+          .then((data) => {
+            if (data.data.status.http_code === 200) {
+              const domXML = parser(data);
+              const title = domXML.querySelector('title').textContent;
+              const description = domXML.querySelector('description').textContent;
+              if (!store.feed.length) { // создает контейнер если нет постов
+                renderContainer();
+              }
+              store.feed.push({ title, description, link });
+
+              store.links.push(link);
+
+              const posts = parseData(domXML);
+
+              store.posts.push(...posts.reverse());
+
+              const lastData = (posts[posts.length - 1]).pubDate;
+              const lastDateNumber = Date.parse(lastData);
+
+              store.feedback = 'successfulScenario';
+              setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
+            } else {
+              store.feedback = 'doesentVolidRSS';
+            }
+          })
+          .finally(() => {
+            btnPrimary.disabled = false;
+          });
+      } else {
+        store.feedback = 'duplicateRSSlink';
+      }
+    } catch (error) {
+      store.feedback = 'InvalidRSSlink';
+    }
   };
 
-  validateQuery(query)
-    .then((link) => {
-      if (!link) {
-        return;
-      }
-
-      fetchRSS(link)
-        .then((data) => {
-          const error = data?.data?.status?.error?.code;
-          if (error) {
-            store.form = {
-              ...store.form,
-              submittionError: error,
-            };
-            return;
-          }
-
-          if (data.data.status.http_code === 200) {
-            const domXML = parser(data);
-            const title = domXML.querySelector('title').textContent;
-            const description = domXML.querySelector('description').textContent;
-            if (!store.feed.length) { // создает контейнер если нет постов
-              renderContainer();
-            }
-            store.feed.push({ title, description, link });
-
-            const posts = parseData(domXML);
-
-            store.posts.push(...posts.reverse());
-
-            const lastData = (posts[posts.length - 1]).pubDate;
-            const lastDateNumber = Date.parse(lastData);
-            setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
-          }
-        })
-        .finally(() => {
-          btnPrimary.disabled = false;
-          // store.form = {
-          //   ...store.form,
-          //   isFormSubmitted: true,
-          //   // isLoading: false,
-          // };
-        });
-    });
+  processRss(query);
 });

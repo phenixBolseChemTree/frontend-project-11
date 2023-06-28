@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 // import yup from 'yup';
-import translations from './localization/i18resours.js';
+import translations from './locales/ru.js';
 
 export default () => {
   i18next.init({
