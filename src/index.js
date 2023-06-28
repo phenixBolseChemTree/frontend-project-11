@@ -140,6 +140,7 @@ btnEl?.addEventListener('click', (event) => {
   store.isLoading = true;
 
   const query = document.querySelector('#query').value;
+
   const processRss = async (link) => {
     try {
       await rssSchema.validate(link);
@@ -149,26 +150,32 @@ btnEl?.addEventListener('click', (event) => {
           .then((data) => {
             store.lastResponse = JSON.stringify(data);
 
-            if (data?.data?.status?.http_code === 200 || data?.status === 200) {
-              const domXML = parser(data);
-              const title = domXML.querySelector('title').textContent;
-              const description = domXML.querySelector('description').textContent;
-              if (!store.feed.length) { // создает контейнер если нет постов
-                renderContainer();
+            const response = data?.data ? data.data : data;
+
+            if (response.status.http_code === 200 || response.status === 200) {
+              if (response.status.content_type !== 'application/rss+xml; charset=utf-8') {
+                store.feedback = 'doesentVolidRSS';
+              } else {
+                const domXML = parser(data);
+                const title = domXML.querySelector('title').textContent;
+                const description = domXML.querySelector('description').textContent;
+                if (!store.feed.length) { // создает контейнер если нет постов
+                  renderContainer();
+                }
+                store.feed.push({ title, description });
+
+                store.links.push(link);
+
+                const posts = parseData(domXML);
+
+                store.posts.push(...posts.reverse());
+
+                const lastData = (posts[posts.length - 1]).pubDate;
+                const lastDateNumber = Date.parse(lastData);
+
+                store.feedback = 'successfulScenario';
+                setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
               }
-              store.feed.push({ title, description });
-
-              store.links.push(link);
-
-              const posts = parseData(domXML);
-
-              store.posts.push(...posts.reverse());
-
-              const lastData = (posts[posts.length - 1]).pubDate;
-              const lastDateNumber = Date.parse(lastData);
-
-              store.feedback = 'successfulScenario';
-              setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
             } else {
               store.feedback = 'doesentVolidRSS';
             }
@@ -176,7 +183,6 @@ btnEl?.addEventListener('click', (event) => {
           .finally(() => {
             // btnPrimary.disabled = false;
             // store.isLoading = false;
-            queryElement.value = '';
           });
       } else {
         store.feedback = 'duplicateRSSlink';
