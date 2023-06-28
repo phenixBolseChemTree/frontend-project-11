@@ -154,7 +154,7 @@ btnEl?.addEventListener('click', (event) => {
 
             if (response.status.http_code === 200 || response.status === 200) {
               if (response.status.content_type !== 'application/rss+xml; charset=utf-8') {
-                store.feedback = 'doesentVolidRSS';
+                store.feedback = 'invalidRSS';
               } else {
                 const domXML = parser(data);
                 const title = domXML.querySelector('title').textContent;
@@ -177,7 +177,7 @@ btnEl?.addEventListener('click', (event) => {
                 setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
               }
             } else {
-              store.feedback = 'doesentVolidRSS';
+              store.feedback = 'invalidRSS';
             }
           })
           .finally(() => {
