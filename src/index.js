@@ -150,7 +150,7 @@ btnEl?.addEventListener('click', (event) => {
           .then((data) => {
             store.lastResponse = JSON.stringify(data);
 
-            if (data?.data?.status?.http_code === 200) {
+            if (data?.data?.status?.http_code === 200 || data?.status === 200) {
               const domXML = parser(data);
               const title = domXML.querySelector('title').textContent;
               const description = domXML.querySelector('description').textContent;
