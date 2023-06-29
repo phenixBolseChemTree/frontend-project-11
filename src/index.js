@@ -124,6 +124,7 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
 };
 
 const rssSchema = yup.string().url().required();
+
 const formElement = document.querySelector('form');
 const queryElement = formElement.querySelector('#query');
 // const btnPrimary = document.querySelector('.btn-primary');
@@ -150,9 +151,12 @@ btnEl?.addEventListener('click', (event) => {
           .then((data) => {
             // store.lastResponse = JSON.stringxify(data);
             // store.lastResponse = data;
-            store.lastResponse = parser(data);
+            // JSON.stringify(data)
 
             const response = data?.data ? data.data : data;
+
+            store.lastResponse = { qwert: response };
+            // console.log(response);
 
             if (response.status === 200 || response?.status?.http_code === 200) {
               if (response.status.content_type !== 'application/rss+xml; charset=utf-8') {
@@ -193,6 +197,7 @@ btnEl?.addEventListener('click', (event) => {
     } catch (error) {
       store.feedback = 'InvalidRSSlink';
     }
+
     store.isLoading = false;
   };
 
