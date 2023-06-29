@@ -148,7 +148,9 @@ btnEl?.addEventListener('click', (event) => {
       if (!store.links.includes(link)) {
         fetchRSS(link)
           .then((data) => {
-            store.lastResponse = JSON.stringify(data);
+            // store.lastResponse = JSON.stringxify(data);
+            // store.lastResponse = data;
+            store.lastResponse = parser(data);
 
             const response = data?.data ? data.data : data;
 
@@ -183,6 +185,7 @@ btnEl?.addEventListener('click', (event) => {
           .finally(() => {
             // btnPrimary.disabled = false;
             // store.isLoading = false;
+            queryElement.value = '';
           });
       } else {
         store.feedback = 'duplicateRSSlink';
