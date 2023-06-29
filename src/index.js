@@ -155,10 +155,10 @@ btnEl?.addEventListener('click', (event) => {
 
             const response = data?.data ? data.data : data;
 
-            store.lastResponse = { qwert: response };
+            store.lastResponse = { qwert: data };
             // console.log(response);
 
-            if (response.status === 200 || response?.status?.http_code === 200) {
+            if (response.status === 200 || response?.status?.http_code === 200) { // проверка статус
               if (response.status.content_type !== 'application/rss+xml; charset=utf-8') {
                 store.feedback = 'invalidRSS';
               } else {
