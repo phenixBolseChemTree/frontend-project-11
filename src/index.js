@@ -150,18 +150,17 @@ btnEl?.addEventListener('click', (event) => {
         fetchRSS(link)
           .then((data) => {
             // store.lastResponse = JSON.stringxify(data);
-            // store.lastResponse = data;
+            console.log(data);
+            store.lastResponse = data;
             // JSON.stringify(data)
 
             const response = data?.data ? data.data : data;
 
-            store.lastResponse = { qwert: data };
+            // store.lastResponse = { qwert: data, status: data?.status,  };
             // console.log(response);
 
-            if (response.status === 200 || response?.status?.http_code === 200) { // проверка статус
-              if (response.status.content_type !== 'application/rss+xml; charset=utf-8') {
-                store.feedback = 'invalidRSS';
-              } else {
+            if (data.status === 200 || data?.status?.http_code === 200) { // проверка статус
+              if (response.status.content_type === 'application/rss+xml; charset=utf-8' || response.status.content_type === 'text/xml') {
                 const domXML = parser(data);
                 const title = domXML.querySelector('title').textContent;
                 const description = domXML.querySelector('description').textContent;
@@ -181,6 +180,8 @@ btnEl?.addEventListener('click', (event) => {
 
                 store.feedback = 'successfulScenario';
                 setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
+              } else {
+                store.feedback = 'invalidRSS';
               }
             } else {
               store.feedback = 'invalidRSS';
