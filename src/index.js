@@ -10,6 +10,10 @@ import { renderFeed, renderPosts, renderContainer } from './render';
 const parser = (response) => {
   const domParser = new DOMParser();
   const parseData = domParser.parseFromString(response.data.contents, 'application/xml');
+  if (parseData.querySelector('parsererror')) {
+    // throw new Error('ParserError');
+    return 'invalidRSS';// если ошибка парсинга то мы вернем текст ошибки
+  }
   return parseData;
 };
 
@@ -154,14 +158,15 @@ btnEl?.addEventListener('click', (event) => {
             store.lastResponse = data;
             // JSON.stringify(data)
 
-            const response = data?.data ? data.data : data;
+            // const response = data?.data ? data.data : data;
 
             // store.lastResponse = { qwert: data, status: data?.status,  };
             // console.log(response);
 
             if (data.status === 200 || data?.status?.http_code === 200) { // проверка статус
-              if (true) {
-                const domXML = parser(data);
+              const domXML = parser(data);
+              if (domXML !== 'invalidRSS') {
+                // const domXML = parser(data);
                 const title = domXML.querySelector('title').textContent;
                 const description = domXML.querySelector('description').textContent;
                 if (!store.feed.length) { // создает контейнер если нет постов
