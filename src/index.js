@@ -160,7 +160,7 @@ btnEl?.addEventListener('click', (event) => {
             // console.log(response);
 
             if (data.status === 200 || data?.status?.http_code === 200) { // проверка статус
-              if (response.status.content_type === 'application/rss+xml; charset=utf-8' || response.status.content_type === 'text/xml') {
+              if (response?.status?.content_type === 'application/rss+xml; charset=utf-8' || response.status?.headers?.content_type === 'text/xml') {
                 const domXML = parser(data);
                 const title = domXML.querySelector('title').textContent;
                 const description = domXML.querySelector('description').textContent;
