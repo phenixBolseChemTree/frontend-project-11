@@ -53,7 +53,7 @@ const renderPosts = (store) => {
   const container = document.querySelector('.container-list');
   container.innerHTML = '';
   store.posts.forEach((item, index) => {
-    const { title, link } = item; // description тут пока что не нужен
+    const { title, link, description } = item; // description тут пока что не нужен
 
     // формируем данные title
     const titleTag = document.createElement('a');
@@ -88,9 +88,6 @@ const renderPosts = (store) => {
     descriptionTag.setAttribute('data-bs-target', '#modal');
 
     descriptionTag.addEventListener('click', () => {
-      const id = descriptionTag.getAttribute('data-id');
-      const { title, description, link } = store.posts[id]; // тут берет значение а так не надо
-
       const modalTitle = document.querySelector('.modal-title');
       const modalBody = document.querySelector('.modal-body');
       const fullArticleLink = document.querySelector('.full-article');

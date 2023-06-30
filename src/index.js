@@ -96,7 +96,7 @@ const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) =>
   pubDate: nodeItem.querySelector('pubDate').innerHTML,
 }));
 
-const fetchRSSAuto = (store, link, lastDataArg) => {
+const fetchRSSAuto = (_store, link, lastDataArg) => {
   let lastDateNumber = null;
   let newPosts = [];
   fetchRSS(link)
@@ -106,13 +106,14 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
         console.log('!!!domXML!!!', domXML);
         return domXML;
       }
+      return response;
     })
     .then((data) => parseData(data))
     .then((data) => { // массив всех постов из API
       if (data.length !== 0) { // посты есть
         newPosts = (pickOnlyNewPosts(data, lastDataArg)).reverse();
         if (newPosts.length !== 0) { // есть новые данные
-          store.posts.push(...newPosts); // вот наша магия !!!!
+          _store.posts.push(...newPosts); // вот наша магия !!!!
           const currentlastData = (data[0]).pubDate; // данные есть новая дата
           lastDateNumber = Date.parse(currentlastData);
         } else {
@@ -121,12 +122,13 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
       } else {
         lastDateNumber = lastDataArg;
       }
+      return data;
     })
     .catch((e) => {
       console.log('invalidRSS', e);
     })
     .finally(() => {
-      setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000); // id === indexArr
+      setTimeout(() => fetchRSSAuto(_store, link, lastDateNumber), 5000); // id === indexArr
     });
 };
 
