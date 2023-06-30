@@ -82,11 +82,11 @@ const store = onChange(initialStoreValues, (path, value) => {
 
   // // ВРЕМЕННО, КАК ЗАКОНЧУ УДАЛИТЬ
 
-  const debugEl = document.querySelector('#debug');
+  // const debugEl = document.querySelector('#debug');
 
-  if (debugEl) {
-    debugEl.innerHTML = JSON.stringify(store);
-  }
+  // if (debugEl) {
+  //   debugEl.innerHTML = JSON.stringify(store);
+  // }
 });
 
 const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
@@ -103,6 +103,7 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
     .then((response) => {
       if (response.status === 200) {
         const domXML = parser(response);
+        console.log('!!!domXML!!!', domXML);
         return domXML;
       }
     })
@@ -120,6 +121,9 @@ const fetchRSSAuto = (store, link, lastDataArg) => {
       } else {
         lastDateNumber = lastDataArg;
       }
+    })
+    .catch((e) => {
+      console.log('invalidRSS', e);
     })
     .finally(() => {
       setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000); // id === indexArr
