@@ -1,6 +1,5 @@
 import i18next from 'i18next';
 
-// создает контейнер 1 раз
 const renderContainer = () => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
@@ -48,20 +47,17 @@ const renderFeed = (feed) => {
   containerFeeds.prepend(liTag);
 };
 
-// добавляет посты в нужный тег
 const renderPosts = (store) => {
   const container = document.querySelector('.container-list');
   container.innerHTML = '';
   store.posts.forEach((item, index) => {
-    const { title, link, description } = item; // description тут пока что не нужен
+    const { title, link, description } = item;
 
-    // формируем данные title
     const titleTag = document.createElement('a');
     titleTag.textContent = title;
     titleTag.setAttribute('href', link);
     titleTag.setAttribute('target', '_blank');
 
-    // формируем данные description
     const descriptionTag = document.createElement('button');
     descriptionTag.textContent = i18next.t('check');
     if (store.visitedPosts.includes(index)) {
@@ -70,7 +66,7 @@ const renderPosts = (store) => {
       titleTag.classList.add('fw-bold');
     }
 
-    const handleClick = () => { // позволяет сделать ссылку серой
+    const handleClick = () => {
       titleTag.classList.remove('fw-bold');
       titleTag.classList.add('fw-normal', 'text-secondary');
     };
@@ -83,7 +79,7 @@ const renderPosts = (store) => {
     descriptionTag.addEventListener('click', handleClick);
 
     descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    descriptionTag.setAttribute('data-id', index); // для выбора description
+    descriptionTag.setAttribute('data-id', index);
     descriptionTag.setAttribute('data-bs-toggle', 'modal');
     descriptionTag.setAttribute('data-bs-target', '#modal');
 

@@ -79,14 +79,6 @@ const store = onChange(initialStoreValues, (path, value) => {
       btn.disabled = false;
     }
   }
-
-  // // ВРЕМЕННО, КАК ЗАКОНЧУ УДАЛИТЬ
-
-  // const debugEl = document.querySelector('#debug');
-
-  // if (debugEl) {
-  //   debugEl.innerHTML = JSON.stringify(store);
-  // }
 });
 
 const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
@@ -103,18 +95,17 @@ const fetchRSSAuto = (_store, link, lastDataArg) => {
     .then((response) => {
       if (response.status === 200) {
         const domXML = parser(response);
-        console.log('!!!domXML!!!', domXML);
         return domXML;
       }
       return response;
     })
     .then((data) => parseData(data))
-    .then((data) => { // массив всех постов из API
-      if (data.length !== 0) { // посты есть
+    .then((data) => {
+      if (data.length !== 0) {
         newPosts = (pickOnlyNewPosts(data, lastDataArg)).reverse();
-        if (newPosts.length !== 0) { // есть новые данные
-          _store.posts.push(...newPosts); // вот наша магия !!!!
-          const currentlastData = (data[0]).pubDate; // данные есть новая дата
+        if (newPosts.length !== 0) {
+          _store.posts.push(...newPosts);
+          const currentlastData = (data[0]).pubDate;
           lastDateNumber = Date.parse(currentlastData);
         } else {
           lastDateNumber = lastDataArg;
@@ -128,7 +119,7 @@ const fetchRSSAuto = (_store, link, lastDataArg) => {
       console.log('invalidRSS', e);
     })
     .finally(() => {
-      setTimeout(() => fetchRSSAuto(_store, link, lastDateNumber), 5000); // id === indexArr
+      setTimeout(() => fetchRSSAuto(_store, link, lastDateNumber), 5000);
     });
 };
 
@@ -136,11 +127,6 @@ const rssSchema = yup.string().url().required();
 
 const formElement = document.querySelector('form');
 const queryElement = formElement.querySelector('#query');
-// const btnPrimary = document.querySelector('.btn-primary');
-
-// queryElement.addEventListener('input', () => {
-// validateQuery(event.target.value);
-// });
 
 const form = document.querySelector('.text-body');
 
@@ -157,36 +143,21 @@ form.addEventListener('submit', (event) => {
       if (!store.links.includes(link)) {
         fetchRSS(link)
           .then((data) => {
-            // store.lastResponse = JSON.stringxify(data);
-            console.log(data);
             store.lastResponse = data;
-            // JSON.stringify(data)
-
-            // const response = data?.data ? data.data : data;
-
-            // store.lastResponse = { qwert: data, status: data?.status,  };
-            // console.log(response);
-
-            if (data.status === 200 || data?.status?.http_code === 200) { // проверка статус
+            if (data.status === 200 || data?.status?.http_code === 200) {
               const domXML = parser(data);
               if (domXML !== 'invalidRSS') {
-                // const domXML = parser(data);
                 const title = domXML.querySelector('title').textContent;
                 const description = domXML.querySelector('description').textContent;
-                if (!store.feed.length) { // создает контейнер если нет постов
+                if (!store.feed.length) {
                   renderContainer();
                 }
                 store.feed.push({ title, description });
-
                 store.links.push(link);
-
                 const posts = parseData(domXML);
-
                 store.posts.push(...posts.reverse());
-
                 const lastData = (posts[posts.length - 1]).pubDate;
                 const lastDateNumber = Date.parse(lastData);
-
                 store.feedback = 'successfulScenario';
                 setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
               } else {
