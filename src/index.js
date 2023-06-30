@@ -11,8 +11,7 @@ const parser = (response) => {
   const domParser = new DOMParser();
   const parseData = domParser.parseFromString(response.data.contents, 'application/xml');
   if (parseData.querySelector('parsererror')) {
-    // throw new Error('ParserError');
-    return 'invalidRSS';// если ошибка парсинга то мы вернем текст ошибки
+    return 'invalidRSS';
   }
   return parseData;
 };
@@ -133,15 +132,14 @@ const formElement = document.querySelector('form');
 const queryElement = formElement.querySelector('#query');
 // const btnPrimary = document.querySelector('.btn-primary');
 
-queryElement.addEventListener('input', () => {
-  // validateQuery(event.target.value);
-});
+// queryElement.addEventListener('input', () => {
+// validateQuery(event.target.value);
+// });
 
-const btnEl = document.querySelector('#send');
+const form = document.querySelector('.text-body');
 
-btnEl?.addEventListener('click', (event) => {
+form.addEventListener('submit', (event) => {
   event.preventDefault();
-  // btnPrimary.disabled = true;
   store.isLoading = true;
 
   const query = document.querySelector('#query').value;
@@ -191,6 +189,9 @@ btnEl?.addEventListener('click', (event) => {
             } else {
               store.feedback = 'invalidRSS';
             }
+          })
+          .catch(() => {
+            store.feedback = 'networkError';
           })
           .finally(() => {
             // btnPrimary.disabled = false;
