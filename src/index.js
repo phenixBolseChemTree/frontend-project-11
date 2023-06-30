@@ -136,53 +136,53 @@ form.addEventListener('submit', (event) => {
 
   const query = document.querySelector('#query').value;
 
-  const processRss = async (link) => {
-    try {
-      await rssSchema.validate(link);
-
-      if (!store.links.includes(link)) {
-        fetchRSS(link)
-          .then((data) => {
-            store.lastResponse = data;
-            if (data.status === 200 || data?.status?.http_code === 200) {
-              const domXML = parser(data);
-              if (domXML !== 'invalidRSS') {
-                const title = domXML.querySelector('title').textContent;
-                const description = domXML.querySelector('description').textContent;
-                if (!store.feed.length) {
-                  renderContainer();
+  const processRss = (link) => {
+    rssSchema.validate(link)
+      .then(() => {
+        if (!store.links.includes(link)) {
+          fetchRSS(link)
+            .then((data) => {
+              store.lastResponse = data;
+              if (data.status === 200 || data?.status?.http_code === 200) {
+                const domXML = parser(data);
+                if (domXML !== 'invalidRSS') {
+                  const title = domXML.querySelector('title').textContent;
+                  const description = domXML.querySelector('description').textContent;
+                  if (!store.feed.length) {
+                    renderContainer();
+                  }
+                  store.feed.push({ title, description });
+                  store.links.push(link);
+                  const posts = parseData(domXML);
+                  store.posts.push(...posts.reverse());
+                  const lastData = posts[posts.length - 1].pubDate;
+                  const lastDateNumber = Date.parse(lastData);
+                  store.feedback = 'successfulScenario';
+                  setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
+                } else {
+                  store.feedback = 'invalidRSS';
                 }
-                store.feed.push({ title, description });
-                store.links.push(link);
-                const posts = parseData(domXML);
-                store.posts.push(...posts.reverse());
-                const lastData = (posts[posts.length - 1]).pubDate;
-                const lastDateNumber = Date.parse(lastData);
-                store.feedback = 'successfulScenario';
-                setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
               } else {
                 store.feedback = 'invalidRSS';
               }
-            } else {
-              store.feedback = 'invalidRSS';
-            }
-          })
-          .catch(() => {
-            store.feedback = 'networkError';
-          })
-          .finally(() => {
-            // btnPrimary.disabled = false;
-            // store.isLoading = false;
-            queryElement.value = '';
-          });
-      } else {
-        store.feedback = 'duplicateRSSlink';
-      }
-    } catch (error) {
-      store.feedback = 'InvalidRSSlink';
-    }
+            })
+            .catch(() => {
+              store.feedback = 'networkError';
+            })
+            .finally(() => {
+              queryElement.value = '';
+              store.isLoading = false;
+            });
+        } else {
+          store.feedback = 'duplicateRSSlink';
+          store.isLoading = false;
+        }
+      })
+      .catch(() => {
+        store.feedback = 'InvalidRSSlink';
+      });
 
-    store.isLoading = false;
+    // store.isLoading = false;
   };
 
   processRss(query);
