@@ -4,28 +4,10 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import i18nInit from './i18n';
 import fetchRSS from './fetchRSS';
+import { parser, pickOnlyNewPosts, parseData } from './process';
 import { renderFeed, renderPosts, renderContainer } from './render';
 
 const app = () => {
-  const parser = (response) => {
-    const domParser = new DOMParser();
-    const parseData = domParser.parseFromString(response.data.contents, 'application/xml');
-    if (parseData.querySelector('parsererror')) {
-      return 'invalidRSS';
-    }
-    return parseData;
-  };
-
-  const pickOnlyNewPosts = (posts, lastDateNumber) => {
-    const newPosts = posts.filter((post) => {
-      if (new Date(post.pubDate) > lastDateNumber) {
-        return true;
-      }
-      return false;
-    });
-    return newPosts;
-  };
-
   i18nInit();
 
   const initialStoreValues = {
@@ -35,12 +17,20 @@ const app = () => {
     visitedPosts: [],
     feedback: null,
     isLoading: false,
-    form: {
-      isFormSubmitted: false,
-      submittionError: null,
-      validationError: null,
-    },
     lastResponse: null,
+  };
+
+  const formResultEl = document.querySelector('#form-result');
+
+  const showFeedback = (text) => {
+    if (text !== 'successfulScenario') {
+      formResultEl.classList.add('text-danger');
+      formResultEl.classList.remove('text-success');
+    } else {
+      formResultEl.classList.remove('text-danger');
+      formResultEl.classList.add('text-success');
+    }
+    formResultEl.textContent = i18next.t(text);
   };
 
   const store = onChange(initialStoreValues, (path, value) => {
@@ -51,23 +41,7 @@ const app = () => {
       renderPosts(store);
     }
 
-    if (path === 'form') {
-      console.log('вызвалась форма');
-    }
-
     if (path === 'feedback') {
-      const formResultEl = document.querySelector('#form-result');
-
-      const showFeedback = (text) => {
-        if (text !== 'successfulScenario') {
-          formResultEl.classList.add('text-danger');
-          formResultEl.classList.remove('text-success');
-        } else {
-          formResultEl.classList.remove('text-danger');
-          formResultEl.classList.add('text-success');
-        }
-        formResultEl.textContent = i18next.t(text);
-      };
       showFeedback(value);
     }
 
@@ -81,14 +55,7 @@ const app = () => {
     }
   });
 
-  const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
-    title: nodeItem.querySelector('title').innerHTML,
-    description: nodeItem.querySelector('description').innerHTML,
-    link: nodeItem.querySelector('link').innerHTML,
-    pubDate: nodeItem.querySelector('pubDate').innerHTML,
-  }));
-
-  const fetchRSSAuto = (_store, link, lastDataArg) => {
+  const processRssAuto = (_store, link, lastDataArg) => {
     let lastDateNumber = lastDataArg;
     let newPosts = [];
     fetchRSS(link)
@@ -115,7 +82,7 @@ const app = () => {
         console.log('invalidRSS', e);
       })
       .finally(() => {
-        setTimeout(() => fetchRSSAuto(_store, link, lastDateNumber), 5000);
+        setTimeout(() => processRssAuto(_store, link, lastDateNumber), 5000);
       });
   };
 
@@ -154,7 +121,7 @@ const app = () => {
                     const lastData = posts[posts.length - 1].pubDate;
                     const lastDateNumber = Date.parse(lastData);
                     store.feedback = 'successfulScenario';
-                    setTimeout(() => fetchRSSAuto(store, link, lastDateNumber), 5000);
+                    setTimeout(() => processRssAuto(store, link, lastDateNumber), 5000);
                   } else {
                     store.feedback = 'invalidRSS';
                   }
@@ -177,8 +144,6 @@ const app = () => {
         .catch(() => {
           store.feedback = 'InvalidRSSlink';
         });
-
-      // store.isLoading = false;
     };
 
     processRss(query);
