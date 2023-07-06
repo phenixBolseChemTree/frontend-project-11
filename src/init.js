@@ -3,12 +3,11 @@ import onChange from 'on-change';
 import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
-import { parser, pickOnlyNewPosts, parseData } from './process';
+import { pickOnlyNewPosts, parserV2 } from './process';
 import { renderFeed, renderPosts, renderContainer } from './render';
 import translations from './locales/ru';
 
 const app = () => {
-  // i18nInit();
   i18next.init({
     lng: 'ru',
     resources: translations,
@@ -66,22 +65,21 @@ const app = () => {
       fetchRSS(link)
         .then((response) => {
           if (response.status === 200) {
-            const domXML = parser(response);
-            return domXML;
+            const parsedData = parserV2(response);
+            return parsedData;
           }
-          return response;
+          return response; // здесь может быть ошибка!!!
         })
-        .then((data) => parseData(data))
-        .then((data) => {
-          if (data.length !== 0) {
-            newPosts = pickOnlyNewPosts(data, lastDataArg).reverse();
+        .then(({ posts }) => {
+          if (posts.length !== 0) {
+            newPosts = pickOnlyNewPosts(posts, lastDataArg).reverse();
             if (newPosts.length !== 0) {
               _store.posts.push(...newPosts);
-              const currentlastData = data[0].pubDate;
+              const currentlastData = posts[0].pubDate;
               lastDateNumber = Date.parse(currentlastData);
             }
           }
-          return data;
+          return posts;
         })
         .catch((e) => {
           console.log('invalidRSS', e);
@@ -112,16 +110,14 @@ const app = () => {
                 .then((data) => {
                   store.lastResponse = data;
                   if (data.status === 200 || data?.status?.http_code === 200) {
-                    const domXML = parser(data);
-                    if (domXML !== 'invalidRSS') {
-                      const title = domXML.querySelector('title').textContent;
-                      const description = domXML.querySelector('description').textContent;
+                    const parsedData = parserV2(data);
+                    if (parsedData !== 'invalidRSS') {
+                      const { title, description, posts } = parsedData;
                       if (!store.feed.length) {
                         renderContainer();
                       }
                       store.feed.push({ title, description });
                       store.links.push(link);
-                      const posts = parseData(domXML);
                       store.posts.push(...posts.reverse());
                       const lastData = posts[posts.length - 1].pubDate;
                       const lastDateNumber = Date.parse(lastData);

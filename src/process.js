@@ -1,10 +1,22 @@
-const parser = (response) => {
+const parserV2 = (response) => { // потом долавим флаг означабщий поверение для 1 запросса и нет
   const domParser = new DOMParser();
-  const parseData = domParser.parseFromString(response.data.contents, 'application/xml');
-  if (parseData.querySelector('parsererror')) {
+  const parsed = domParser.parseFromString(response.data.contents, 'application/xml');
+  if (parsed.querySelector('parsererror')) {
     return 'invalidRSS';
   }
-  return parseData;
+  const title = parsed.querySelector('title').textContent;
+  const description = parsed.querySelector('description').textContent;
+  const posts = [...parsed.querySelectorAll('item')].map((nodeItem) => ({
+    title: nodeItem.querySelector('title').innerHTML,
+    description: nodeItem.querySelector('description').innerHTML,
+    link: nodeItem.querySelector('link').innerHTML,
+    pubDate: nodeItem.querySelector('pubDate').innerHTML,
+  }));
+  console.log({
+    title, description, posts,
+  });
+  // return parsed;
+  return { title, description, posts };
 };
 
 const pickOnlyNewPosts = (posts, lastDateNumber) => {
@@ -24,4 +36,4 @@ const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) =>
   pubDate: nodeItem.querySelector('pubDate').innerHTML,
 }));
 
-export { parser, pickOnlyNewPosts, parseData };
+export { pickOnlyNewPosts, parseData, parserV2 };
