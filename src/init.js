@@ -12,7 +12,7 @@ const app = () => {
     lng: 'ru',
     resources: translations,
   }).then(() => {
-    const initialStoreValues = {
+    const initialStoreModel = {
       feed: [],
       posts: [],
       links: [],
@@ -35,7 +35,7 @@ const app = () => {
       formResultEl.textContent = i18next.t(text);
     };
 
-    const store = onChange(initialStoreValues, (path, value) => {
+    const store = onChange(initialStoreModel, (path, value) => {
       if (path === 'feed') {
         renderFeed(value[value.length - 1]);
       }

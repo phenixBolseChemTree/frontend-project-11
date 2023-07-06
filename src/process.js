@@ -29,11 +29,4 @@ const pickOnlyNewPosts = (posts, lastDateNumber) => {
   return newPosts;
 };
 
-const parseData = (data) => [...data.querySelectorAll('item')].map((nodeItem) => ({
-  title: nodeItem.querySelector('title').innerHTML,
-  description: nodeItem.querySelector('description').innerHTML,
-  link: nodeItem.querySelector('link').innerHTML,
-  pubDate: nodeItem.querySelector('pubDate').innerHTML,
-}));
-
-export { pickOnlyNewPosts, parseData, parserV2 };
+export { pickOnlyNewPosts, parserV2 };
