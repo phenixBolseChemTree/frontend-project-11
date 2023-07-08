@@ -4,9 +4,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import { pickOnlyNewPosts, parserV2 } from './process';
-import {
-  renderFeed, renderPosts, renderContainer, renderModal,
-} from './render';
+import view from './view';
 import translations from './locales/ru';
 
 const app = () => {
@@ -40,10 +38,10 @@ const app = () => {
 
     const store = onChange(initialStoreModel, (path, value) => {
       if (path === 'feed') {
-        renderFeed(value[value.length - 1]);
+        view.renderFeed(value[value.length - 1]);
       }
       if (path === 'posts') {
-        renderPosts(store);
+        view.renderPosts(store);
         // каждый раз когда рендерятся посты нужно вешать н
       }
 
@@ -53,10 +51,6 @@ const app = () => {
 
       if (path === 'liChildTarget') {
         handleChildLi(value);
-      }
-
-      if (path === 'modalVisitedPost') {
-        console.log(store.modalVisitedPost);
       }
 
       if (path === 'isLoading') {
@@ -78,7 +72,7 @@ const app = () => {
         const targetContent = store.posts[id];
         const { title, description, link } = targetContent ?? {};
 
-        renderModal(title, description, link);
+        view.renderModal(title, description, link);
 
         store.visitedPosts.push(link);
         a.classList.remove('fw-bold');
@@ -151,7 +145,7 @@ const app = () => {
                     if (parsedData !== 'invalidRSS') {
                       const { title, description, posts } = parsedData;
                       if (!store.feed.length) {
-                        renderContainer();
+                        view.renderContainer();
                         const containerListEl = document.querySelector('.container-list');
                         containerListEl.addEventListener('click', (e) => {
                           store.liChildTarget = e;

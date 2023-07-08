@@ -1,4 +1,4 @@
-import app from './init';
+import app from './app';
 import 'bootstrap';
 
 app();
