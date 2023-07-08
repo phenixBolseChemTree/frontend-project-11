@@ -12,10 +12,6 @@ const parserV2 = (response) => { // потом долавим флаг озна�
     link: nodeItem.querySelector('link').innerHTML,
     pubDate: nodeItem.querySelector('pubDate').innerHTML,
   }));
-  console.log({
-    title, description, posts,
-  });
-  // return parsed;
   return { title, description, posts };
 };
 

@@ -4,7 +4,9 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import { pickOnlyNewPosts, parserV2 } from './process';
-import { renderFeed, renderPosts, renderContainer } from './render';
+import {
+  renderFeed, renderPosts, renderContainer, renderModal,
+} from './render';
 import translations from './locales/ru';
 
 const app = () => {
@@ -20,6 +22,7 @@ const app = () => {
       feedback: null,
       isLoading: false,
       lastResponse: null,
+      liChildTarget: null,
     };
 
     const formResultEl = document.querySelector('#form-result');
@@ -41,10 +44,19 @@ const app = () => {
       }
       if (path === 'posts') {
         renderPosts(store);
+        // каждый раз когда рендерятся посты нужно вешать н
       }
 
       if (path === 'feedback') {
         showFeedback(value);
+      }
+
+      if (path === 'liChildTarget') {
+        handleChildLi(value);
+      }
+
+      if (path === 'modalVisitedPost') {
+        console.log(store.modalVisitedPost);
       }
 
       if (path === 'isLoading') {
@@ -56,6 +68,30 @@ const app = () => {
         }
       }
     });
+
+    const handleChildLi = (e) => {
+      if (e.target.tagName === 'BUTTON') {
+        const button = e.target;
+        const a = button.previousElementSibling;
+
+        const { id } = e.target.dataset;
+        const targetContent = store.posts[id];
+        const { title, description, link } = targetContent ?? {};
+
+        renderModal(title, description, link);
+
+        store.visitedPosts.push(link);
+        a.classList.remove('fw-bold');
+        a.classList.add('fw-normal', 'text-secondary');
+        // console.log(title, description, link);
+      } else {
+        const a = e.target;
+        const link = a.href;
+        store.visitedPosts.push(link);
+        a.classList.remove('fw-bold');
+        a.classList.add('fw-normal', 'text-secondary');
+      }
+    };
 
     const fetchRSS = (link) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`);
 
@@ -96,6 +132,7 @@ const app = () => {
 
     const form = document.querySelector('.text-body');
 
+    // ----------------
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.isLoading = true;
@@ -115,6 +152,12 @@ const app = () => {
                       const { title, description, posts } = parsedData;
                       if (!store.feed.length) {
                         renderContainer();
+                        const containerListEl = document.querySelector('.container-list');
+                        containerListEl.addEventListener('click', (e) => {
+                          store.liChildTarget = e;
+                          // console.log('Позднее связывание работает!!!', store.posts[id]);
+                          // нужно передавать id в функцию с модальным окном и работать там
+                        });
                       }
                       store.feed.push({ title, description });
                       store.links.push(link);

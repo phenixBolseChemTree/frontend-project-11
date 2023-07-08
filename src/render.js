@@ -26,7 +26,6 @@ const renderContainer = () => {
   feedsEl.innerHTML = feedsContent;
 };
 
-// создает 1 фид
 const renderFeed = (feed) => {
   const containerFeeds = document.querySelector('.container-feeds');
   const { title, description } = feed;
@@ -51,7 +50,7 @@ const renderPosts = (store) => {
   const container = document.querySelector('.container-list');
   container.innerHTML = '';
   store.posts.forEach((item, index) => {
-    const { title, link, description } = item;
+    const { title, link } = item;
 
     const titleTag = document.createElement('a');
     titleTag.textContent = title;
@@ -60,42 +59,16 @@ const renderPosts = (store) => {
 
     const descriptionTag = document.createElement('button');
     descriptionTag.textContent = i18next.t('check');
-    if (store.visitedPosts.includes(index)) {
+    if (store.visitedPosts.includes(link)) {
       titleTag.classList.add('fw-normal', 'text-secondary');
     } else {
       titleTag.classList.add('fw-bold');
     }
 
-    const handleClick = () => {
-      titleTag.classList.remove('fw-bold');
-      titleTag.classList.add('fw-normal', 'text-secondary');
-    };
-
-    titleTag.addEventListener('click', () => {
-      store.visitedPosts.push(index);
-    });
-
-    titleTag.addEventListener('click', handleClick);
-    descriptionTag.addEventListener('click', handleClick);
-
     descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     descriptionTag.setAttribute('data-id', index);
     descriptionTag.setAttribute('data-bs-toggle', 'modal');
     descriptionTag.setAttribute('data-bs-target', '#modal');
-
-    descriptionTag.addEventListener('click', () => {
-      const modalTitle = document.querySelector('.modal-title');
-      const modalBody = document.querySelector('.modal-body');
-      const fullArticleLink = document.querySelector('.full-article');
-
-      modalTitle.textContent = title;
-      modalBody.textContent = description;
-      fullArticleLink.setAttribute('href', link);
-
-      store.visitedPosts.push(index);
-      titleTag.classList.remove('fw-bold');
-      titleTag.classList.add('fw-normal', 'text-secondary');
-    });
 
     const li = document.createElement('li');
     li.classList.add(
@@ -113,4 +86,16 @@ const renderPosts = (store) => {
   });
 };
 
-export { renderContainer, renderFeed, renderPosts };
+const renderModal = (title, description, link) => {
+  const modalTitle = document.querySelector('.modal-title');
+  const modalBody = document.querySelector('.modal-body');
+  const fullArticleLink = document.querySelector('.full-article');
+
+  modalTitle.textContent = title;
+  modalBody.textContent = description;
+  fullArticleLink.setAttribute('href', link);
+};
+
+export {
+  renderContainer, renderFeed, renderPosts, renderModal,
+};
