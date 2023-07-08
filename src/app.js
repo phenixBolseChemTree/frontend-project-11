@@ -36,34 +36,7 @@ const app = () => {
       formResultEl.textContent = i18next.t(text);
     };
 
-    const store = onChange(initialStoreModel, (path, value) => {
-      if (path === 'feed') {
-        view.renderFeed(value[value.length - 1]);
-      }
-      if (path === 'posts') {
-        view.renderPosts(store);
-        // каждый раз когда рендерятся посты нужно вешать н
-      }
-
-      if (path === 'feedback') {
-        showFeedback(value);
-      }
-
-      if (path === 'liChildTarget') {
-        handleChildLi(value);
-      }
-
-      if (path === 'isLoading') {
-        const btn = document.querySelector('.btn-primary');
-        if (value === true) {
-          btn.disabled = true;
-        } else {
-          btn.disabled = false;
-        }
-      }
-    });
-
-    const handleChildLi = (e) => {
+    const handleChildLi = (e, store) => {
       if (e.target.tagName === 'BUTTON') {
         const button = e.target;
         const a = button.previousElementSibling;
@@ -86,6 +59,33 @@ const app = () => {
         a.classList.add('fw-normal', 'text-secondary');
       }
     };
+
+    const store = onChange(initialStoreModel, (path, value) => {
+      if (path === 'feed') {
+        view.renderFeed(value[value.length - 1]);
+      }
+      if (path === 'posts') {
+        view.renderPosts(store);
+        // каждый раз когда рендерятся посты нужно вешать н
+      }
+
+      if (path === 'feedback') {
+        showFeedback(value);
+      }
+
+      if (path === 'liChildTarget') {
+        handleChildLi(value, store);
+      }
+
+      if (path === 'isLoading') {
+        const btn = document.querySelector('.btn-primary');
+        if (value === true) {
+          btn.disabled = true;
+        } else {
+          btn.disabled = false;
+        }
+      }
+    });
 
     const fetchRSS = (link) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`);
 
