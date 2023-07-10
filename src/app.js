@@ -87,12 +87,21 @@ const app = () => {
       }
     });
 
-    const fetchRSS = (link) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`);
+    const fetchProxyRSS = (link) => {
+      const url = new URL('https://allorigins.hexlet.app/get');
+      url.searchParams.append('url', link);
+      url.searchParams.append('disableCache', 'true');
+
+      return axios.get(url.toString());
+    };
+
+    // const fetchRSS = (link) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`);
 
     const processRssAuto = (_store, link, lastDataArg) => {
       let lastDateNumber = lastDataArg;
       let newPosts = [];
-      fetchRSS(link)
+      // fetchRSS(link)
+      fetchProxyRSS(link)
         .then((response) => {
           if (response.status === 200) {
             const parsedData = parserV2(response);
@@ -137,7 +146,7 @@ const app = () => {
         rssSchema.validate(link)
           .then(() => {
             if (!store.links.includes(link)) {
-              fetchRSS(link)
+              fetchProxyRSS(link)
                 .then((data) => {
                   store.lastResponse = data;
                   if (data.status === 200 || data?.status?.http_code === 200) {
