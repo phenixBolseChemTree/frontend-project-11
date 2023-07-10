@@ -4,7 +4,9 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
-import view from './view';
+import {
+  renderFeed, renderPosts, renderContainer, showFeedback, handleChildLi,
+} from './view';
 import translations from './locales/ru';
 
 const app = () => {
@@ -23,49 +25,12 @@ const app = () => {
       liChildTarget: null,
     };
 
-    const formResultEl = document.querySelector('#form-result');
-
-    const showFeedback = (text) => {
-      if (text !== 'successfulScenario') {
-        formResultEl.classList.add('text-danger');
-        formResultEl.classList.remove('text-success');
-      } else {
-        formResultEl.classList.remove('text-danger');
-        formResultEl.classList.add('text-success');
-      }
-      formResultEl.textContent = i18next.t(text);
-    };
-
-    const handleChildLi = (e, store) => {
-      if (e.target.tagName === 'BUTTON') {
-        const button = e.target;
-        const a = button.previousElementSibling;
-
-        const { id } = e.target.dataset;
-        const targetContent = store.posts[id];
-        const { title, description, link } = targetContent ?? {};
-
-        view.renderModal(title, description, link);
-
-        store.visitedPosts.push(link);
-        a.classList.remove('fw-bold');
-        a.classList.add('fw-normal', 'text-secondary');
-        // console.log(title, description, link);
-      } else {
-        const a = e.target;
-        const link = a.href;
-        store.visitedPosts.push(link);
-        a.classList.remove('fw-bold');
-        a.classList.add('fw-normal', 'text-secondary');
-      }
-    };
-
     const store = onChange(initialStoreModel, (path, value) => {
       if (path === 'feed') {
-        view.renderFeed(value[value.length - 1]);
+        renderFeed(value[value.length - 1]);
       }
       if (path === 'posts') {
-        view.renderPosts(store);
+        renderPosts(store);
       }
 
       if (path === 'feedback') {
@@ -73,6 +38,7 @@ const app = () => {
       }
 
       if (path === 'liChildTarget') {
+        console.log('event.target: ', value.target);
         handleChildLi(value, store);
       }
 
@@ -112,7 +78,8 @@ const app = () => {
         })
         .then(({ posts }) => {
           if (posts.length !== 0) {
-            newPosts = getNewPosts(posts, _store.posts);
+            newPosts = getNewPosts(posts, _store.posts).reverse();
+            console.log('!!!newPosts!!!', newPosts);
             if (newPosts.length !== 0) {
               _store.posts.push(...newPosts);
             }
@@ -153,19 +120,15 @@ const app = () => {
                     if (parsedData !== 'invalidRSS') {
                       const { title, description, posts } = parsedData;
                       if (!store.feed.length) {
-                        view.renderContainer();
+                        renderContainer();
                         const containerListEl = document.querySelector('.container-list');
                         containerListEl.addEventListener('click', (e) => {
                           store.liChildTarget = e;
-                          // console.log('Позднее связывание работает!!!', store.posts[id]);
-                          // нужно передавать id в функцию с модальным окном и работать там
                         });
                       }
                       store.feed.push({ title, description });
                       store.links.push(link);
                       store.posts.push(...posts.reverse());
-                      // const lastData = posts[posts.length - 1].pubDate;
-                      // const lastDateNumber = Date.parse(lastData);
                       store.feedback = 'successfulScenario';
                       setTimeout(() => processRssAuto(store, link), 5000);
                     } else {
