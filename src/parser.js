@@ -1,4 +1,4 @@
-const parserV2 = (response) => { // потом долавим флаг означабщий поверение для 1 запросса и нет
+const parser = (response) => {
   const domParser = new DOMParser();
   const parsed = domParser.parseFromString(response.data.contents, 'application/xml');
   if (parsed.querySelector('parsererror')) {
@@ -15,14 +15,4 @@ const parserV2 = (response) => { // потом долавим флаг озна�
   return { title, description, posts };
 };
 
-const pickOnlyNewPosts = (posts, lastDateNumber) => {
-  const newPosts = posts.filter((post) => {
-    if (new Date(post.pubDate) > lastDateNumber) {
-      return true;
-    }
-    return false;
-  });
-  return newPosts;
-};
-
-export { pickOnlyNewPosts, parserV2 };
+export default parser;

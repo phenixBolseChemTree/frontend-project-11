@@ -3,7 +3,7 @@ import onChange from 'on-change';
 import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
-import { pickOnlyNewPosts, parserV2 } from './process';
+import parserV2 from './parser';
 import view from './view';
 import translations from './locales/ru';
 
@@ -66,7 +66,6 @@ const app = () => {
       }
       if (path === 'posts') {
         view.renderPosts(store);
-        // каждый раз когда рендерятся посты нужно вешать н
       }
 
       if (path === 'feedback') {
@@ -95,12 +94,14 @@ const app = () => {
       return axios.get(url.toString());
     };
 
-    // const fetchRSS = (link) => axios.get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}&disableCache=true`);
+    const getNewPosts = (newPosts, posts) => {
+      const existingLinks = new Set(posts.map((post) => post.link));
+      const filteredPosts = newPosts.filter((post) => !existingLinks.has(post.link));
+      return filteredPosts;
+    };
 
-    const processRssAuto = (_store, link, lastDataArg) => {
-      let lastDateNumber = lastDataArg;
+    const processRssAuto = (_store, link) => {
       let newPosts = [];
-      // fetchRSS(link)
       fetchProxyRSS(link)
         .then((response) => {
           if (response.status === 200) {
@@ -111,11 +112,9 @@ const app = () => {
         })
         .then(({ posts }) => {
           if (posts.length !== 0) {
-            newPosts = pickOnlyNewPosts(posts, lastDataArg).reverse();
+            newPosts = getNewPosts(posts, _store.posts);
             if (newPosts.length !== 0) {
               _store.posts.push(...newPosts);
-              const currentlastData = posts[0].pubDate;
-              lastDateNumber = Date.parse(currentlastData);
             }
           }
           return posts;
@@ -124,7 +123,7 @@ const app = () => {
           console.log('invalidRSS', e);
         })
         .finally(() => {
-          setTimeout(() => processRssAuto(_store, link, lastDateNumber), 5000);
+          setTimeout(() => processRssAuto(_store, link), 5000);
         });
     };
 
@@ -165,10 +164,10 @@ const app = () => {
                       store.feed.push({ title, description });
                       store.links.push(link);
                       store.posts.push(...posts.reverse());
-                      const lastData = posts[posts.length - 1].pubDate;
-                      const lastDateNumber = Date.parse(lastData);
+                      // const lastData = posts[posts.length - 1].pubDate;
+                      // const lastDateNumber = Date.parse(lastData);
                       store.feedback = 'successfulScenario';
-                      setTimeout(() => processRssAuto(store, link, lastDateNumber), 5000);
+                      setTimeout(() => processRssAuto(store, link), 5000);
                     } else {
                       store.feedback = 'invalidRSS';
                     }
