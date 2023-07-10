@@ -3,7 +3,7 @@ import onChange from 'on-change';
 import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
-import parserV2 from './parser';
+import parserV2 from './parse';
 import view from './view';
 import translations from './locales/ru';
 
