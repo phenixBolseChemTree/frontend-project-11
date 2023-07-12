@@ -126,6 +126,9 @@ const app = () => {
                           store.liChildTarget = e;
                         });
                       }
+                      // вместо прямых вызовов нужно делать все через view
+                      // нужно делать типо так? view(store)
+                      // watchedState.feed.push({title, description})
                       store.feed.push({ title, description });
                       store.links.push(link);
                       store.posts.push(...posts.reverse());
