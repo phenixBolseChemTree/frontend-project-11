@@ -1,16 +1,11 @@
-import i18next from 'i18next';
-
-// мне нужно слепить здесь функцию и сделать так что бы она
-// 1 раз: initContainer event
-// для многоразовых рендеров типо фидбека можно проверять со старым значением previous
-const renderContainer = () => {
+const renderContainer = (store, i18n) => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
 
   const postsContent = `
     <div class="card border-0">
     <div class="card-body">
-      <h2 class="card-title h4">${i18next.t('posts')}</h2>
+      ${store.posts?.length ? `<h2 class="card-title h4">${i18n.t('posts')}</h2>` : ''}
       </div>
     </div>
     <ul class="container-list list-group border-0 rounded-0"></ul>
@@ -19,8 +14,13 @@ const renderContainer = () => {
   const feedsContent = `
     <div class="card border-0">
       <div class="card-body">
-        <h2 class="card-title h4">${i18next.t('feeds')}</h2>
-        <ul class="container-feeds list-group border-0 rounded-0"></ul>
+        ${store.feed?.length ? `<h2 class="card-title h4">${i18n.t('feeds')}</h2>` : ''}
+        <ul class="container-feeds list-group border-0 rounded-0">
+          ${store.feed.map((feedItem) => `<li class="list-group-item border-0 border-end-0">
+          <h3 class="h6 m-0">${feedItem.title}</h3>
+          <p class="m-0 small text-black-50">${feedItem.description}</p>
+          </li>`).join('')}
+        </ul>
       </div>
     </div>
   `;
@@ -29,7 +29,8 @@ const renderContainer = () => {
   feedsEl.innerHTML = feedsContent;
 };
 
-const renderFeed = (feed) => {
+const renderFeed = (store) => {
+  const { feed } = store;
   const containerFeeds = document.querySelector('.container-feeds');
   const { title, description } = feed;
   const titleTeg = document.createElement('h3');
@@ -49,25 +50,25 @@ const renderFeed = (feed) => {
   containerFeeds.prepend(liTag);
 };
 
-const renderPosts = (store) => {
+const renderPosts = (store, i18n) => {
   const container = document.querySelector('.container-list');
-  container.innerHTML = '';
   store.posts.forEach((item, index) => {
-    const { title, link } = item;
+    const { title, link, id } = item;
 
     const titleTag = document.createElement('a');
     titleTag.textContent = title;
     titleTag.setAttribute('href', link);
     titleTag.setAttribute('target', '_blank');
-
-    const descriptionTag = document.createElement('button');
-    descriptionTag.textContent = i18next.t('check');
-    if (store.visitedPosts.includes(link)) {
+    titleTag.setAttribute('data-link', index);
+    // мне нужно проверить что в массиве нет такого id
+    console.log('id', id);
+    if (Array.from(store.visitedPosts).includes(id)) {
       titleTag.classList.add('fw-normal', 'text-secondary');
     } else {
       titleTag.classList.add('fw-bold');
     }
-
+    const descriptionTag = document.createElement('button');
+    descriptionTag.textContent = i18n.t('check');
     descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     descriptionTag.setAttribute('data-id', index);
     descriptionTag.setAttribute('data-bs-toggle', 'modal');
@@ -85,21 +86,27 @@ const renderPosts = (store) => {
     li.appendChild(titleTag);
     li.appendChild(descriptionTag);
 
+    // if (!store.visitedPosts.includes(item.id)) {
+    //   // console.log('!!!item.id', item);
+    //   li.classList.add('text-secondary');
+    // }
+
     container.prepend(li);
   });
 };
 
-const showFeedback = (text) => {
+const showFeedback = (store, i18n) => {
+  const { feedback } = store;
   const formResultEl = document.querySelector('#form-result');
 
-  if (text !== 'successfulScenario') {
+  if (feedback !== 'successfulScenario') {
     formResultEl.classList.add('text-danger');
     formResultEl.classList.remove('text-success');
   } else {
     formResultEl.classList.remove('text-danger');
     formResultEl.classList.add('text-success');
   }
-  formResultEl.textContent = i18next.t(text);
+  formResultEl.textContent = i18n.t(feedback);
 };
 
 const openModal = (title, description, link) => {
@@ -112,30 +119,52 @@ const openModal = (title, description, link) => {
   fullArticleLink.setAttribute('href', link);
 };
 
-const handleChildLi = (e, store) => {
-  if (e.target.tagName === 'BUTTON') {
-    const button = e.target;
-    const a = button.previousElementSibling;
+const handleChildLi = (store) => {
+  console.log('!!!handleChildLi', store.liChildTarget?.target);
 
-    const { id } = e.target.dataset;
-    const targetContent = store.posts[id];
-    const { title, description, link } = targetContent ?? {};
+  const { liChildTarget } = store;
 
-    openModal(title, description, link);
-
-    store.visitedPosts.push(link);
-    a.classList.remove('fw-bold');
-    a.classList.add('fw-normal', 'text-secondary');
-    // console.log(title, description, link);
-  } else {
-    const a = e.target;
-    const link = a.href;
-    store.visitedPosts.push(link);
-    a.classList.remove('fw-bold');
-    a.classList.add('fw-normal', 'text-secondary');
+  if (!liChildTarget) {
+    return;
   }
+
+  const id = store.liChildTarget;
+  const targetContent = store.posts[id];
+  const { title, description, link } = targetContent ?? {};
+
+  openModal(title, description, link);
+
+  // if (liChildTarget.target.tagName === 'BUTTON') {
+
+  // console.log(title, description, link);
+  // } else {
+  //   const a = liChildTarget.target;
+  //   const link = a.href;
+  //   store.visitedPosts.push(link);
+  //   a.classList.remove('fw-bold');
+  //   a.classList.add('fw-normal', 'text-secondary');
+  // }
 };
 
 export {
   renderContainer, renderFeed, renderPosts, showFeedback, handleChildLi,
 };
+
+const render = (store, i18n) => {
+  renderContainer(store, i18n);
+  renderFeed(store, i18n);
+  renderPosts(store, i18n);
+  showFeedback(store, i18n);
+  handleChildLi(store, i18n);
+
+  if (store.isLoading === 'isLoading') {
+    const btn = document.querySelector('.btn-primary');
+    if (store.isLoading === true) {
+      btn.disabled = true;
+    } else {
+      btn.disabled = false;
+    }
+  }
+};
+
+export default render;
