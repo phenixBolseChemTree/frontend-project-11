@@ -66,7 +66,6 @@ const app = () => {
     };
 
     const store = onChange(initialStoreModel, () => {
-      // console.log('triger', value);
       render(store, i18next);
     });
 
@@ -86,19 +85,13 @@ const app = () => {
     containerListEl.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
       const link = e.target.getAttribute('data-link');
-
       if (id) {
-        console.log('id', id);
         store.modalId = id;
-        console.log(Array.from(store.visitedPosts));
         if (!Array.from(store.visitedPosts).includes(id)) {
           store.visitedPosts.push(id);
         }
       }
-
       if (link) {
-        console.log('link', link);
-        console.log(Array.from(store.visitedPosts));
         if (!Array.from(store.visitedPosts).includes(link)) {
           store.visitedPosts.push(link);
         }
@@ -128,15 +121,6 @@ const app = () => {
                       store.feed.push({ title, description });
                       store.links.push(link);
                       store.posts.push(...posts.reverse());
-
-                      // const form = {
-                      //   feed: [...store.feed, { title, description }],
-                      //   links: [...store.links, link],
-                      //   posts: [...store.posts, ...posts.reverse()],
-                      // };
-                      // store.form = form;
-
-                      // onChange(data);
                       store.feedback = 'successfulScenario';
                       setTimeout(() => processRssAuto(store, link), 5000);
                     } else {
