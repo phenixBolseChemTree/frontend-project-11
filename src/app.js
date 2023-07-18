@@ -62,10 +62,11 @@ const app = () => {
       isLoading: false,
       lastResponse: null,
       liChildTarget: null,
+      modalId: '',
     };
 
-    const store = onChange(initialStoreModel, (path, value) => {
-      console.log('triger', value);
+    const store = onChange(initialStoreModel, () => {
+      // console.log('triger', value);
       render(store, i18next);
     });
 
@@ -87,11 +88,20 @@ const app = () => {
       const link = e.target.getAttribute('data-link');
 
       if (id) {
-        store.liChildTarget = id;
+        console.log('id', id);
+        store.modalId = id;
+        console.log(Array.from(store.visitedPosts));
+        if (!Array.from(store.visitedPosts).includes(id)) {
+          store.visitedPosts.push(id);
+        }
       }
 
       if (link) {
-        store.visitedPosts.push(link);
+        console.log('link', link);
+        console.log(Array.from(store.visitedPosts));
+        if (!Array.from(store.visitedPosts).includes(link)) {
+          store.visitedPosts.push(link);
+        }
       }
     });
 

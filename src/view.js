@@ -52,17 +52,16 @@ const renderFeed = (store) => {
 
 const renderPosts = (store, i18n) => {
   const container = document.querySelector('.container-list');
-  store.posts.forEach((item, index) => {
+  const visitedPost = Array.from(store.visitedPosts);
+  store.posts.forEach((item) => {
     const { title, link, id } = item;
 
     const titleTag = document.createElement('a');
     titleTag.textContent = title;
     titleTag.setAttribute('href', link);
     titleTag.setAttribute('target', '_blank');
-    titleTag.setAttribute('data-link', index);
-    // мне нужно проверить что в массиве нет такого id
-    console.log('id', id);
-    if (Array.from(store.visitedPosts).includes(id)) {
+    titleTag.setAttribute('data-link', id);
+    if (visitedPost.includes(String(id))) {
       titleTag.classList.add('fw-normal', 'text-secondary');
     } else {
       titleTag.classList.add('fw-bold');
@@ -70,7 +69,7 @@ const renderPosts = (store, i18n) => {
     const descriptionTag = document.createElement('button');
     descriptionTag.textContent = i18n.t('check');
     descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    descriptionTag.setAttribute('data-id', index);
+    descriptionTag.setAttribute('data-id', id);
     descriptionTag.setAttribute('data-bs-toggle', 'modal');
     descriptionTag.setAttribute('data-bs-target', '#modal');
 
@@ -85,12 +84,6 @@ const renderPosts = (store, i18n) => {
     );
     li.appendChild(titleTag);
     li.appendChild(descriptionTag);
-
-    // if (!store.visitedPosts.includes(item.id)) {
-    //   // console.log('!!!item.id', item);
-    //   li.classList.add('text-secondary');
-    // }
-
     container.prepend(li);
   });
 };
@@ -119,35 +112,11 @@ const openModal = (title, description, link) => {
   fullArticleLink.setAttribute('href', link);
 };
 
-const handleChildLi = (store) => {
-  console.log('!!!handleChildLi', store.liChildTarget?.target);
-
-  const { liChildTarget } = store;
-
-  if (!liChildTarget) {
-    return;
-  }
-
-  const id = store.liChildTarget;
-  const targetContent = store.posts[id];
+const modalShow = (store) => {
+  const { modalId, posts } = store;
+  const targetContent = posts[modalId];
   const { title, description, link } = targetContent ?? {};
-
   openModal(title, description, link);
-
-  // if (liChildTarget.target.tagName === 'BUTTON') {
-
-  // console.log(title, description, link);
-  // } else {
-  //   const a = liChildTarget.target;
-  //   const link = a.href;
-  //   store.visitedPosts.push(link);
-  //   a.classList.remove('fw-bold');
-  //   a.classList.add('fw-normal', 'text-secondary');
-  // }
-};
-
-export {
-  renderContainer, renderFeed, renderPosts, showFeedback, handleChildLi,
 };
 
 const render = (store, i18n) => {
@@ -155,7 +124,7 @@ const render = (store, i18n) => {
   renderFeed(store, i18n);
   renderPosts(store, i18n);
   showFeedback(store, i18n);
-  handleChildLi(store, i18n);
+  modalShow(store, i18n);
 
   if (store.isLoading === 'isLoading') {
     const btn = document.querySelector('.btn-primary');
