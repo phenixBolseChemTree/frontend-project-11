@@ -49,12 +49,13 @@ const processRssAuto = (_store, link) => {
 };
 
 const app = () => {
-  i18next.init({
+  const i18nextInstance = i18next.createInstance();
+  i18nextInstance.init({
     lng: 'ru',
     resources: translations,
   }).then(() => {
     const initialStoreModel = {
-      feed: [],
+      feeds: [],
       posts: [],
       links: [],
       visitedPosts: [],
@@ -66,10 +67,8 @@ const app = () => {
     };
 
     const store = onChange(initialStoreModel, () => {
-      render(store, i18next);
+      render(store, i18nextInstance);
     });
-
-    render(store, i18next);
 
     const rssSchema = yup.string().url().required();
 
@@ -118,7 +117,7 @@ const app = () => {
 
                     if (parsedData !== 'invalidRSS') {
                       const { title, description, posts } = parsedData;
-                      store.feed.push({ title, description });
+                      store.feeds.push({ title, description });
                       store.links.push(link);
                       store.posts.push(...posts.reverse());
                       store.feedback = 'successfulScenario';

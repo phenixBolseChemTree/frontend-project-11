@@ -14,9 +14,9 @@ const renderContainer = (store, i18n) => {
   const feedsContent = `
     <div class="card border-0">
       <div class="card-body">
-        ${store.feed?.length ? `<h2 class="card-title h4">${i18n.t('feeds')}</h2>` : ''}
+        ${store.feeds?.length ? `<h2 class="card-title h4">${i18n.t('feeds')}</h2>` : ''}
         <ul class="container-feeds list-group border-0 rounded-0">
-          ${store.feed.map((feedItem) => `<li class="list-group-item border-0 border-end-0">
+          ${store.feeds.map((feedItem) => `<li class="list-group-item border-0 border-end-0">
           <h3 class="h6 m-0">${feedItem.title}</h3>
           <p class="m-0 small text-black-50">${feedItem.description}</p>
           </li>`).join('')}
@@ -29,10 +29,10 @@ const renderContainer = (store, i18n) => {
   feedsEl.innerHTML = feedsContent;
 };
 
-const renderFeed = (store) => {
-  const { feed } = store;
+const renderFeeds = (store) => {
+  const { feeds } = store;
   const containerFeeds = document.querySelector('.container-feeds');
-  const { title, description } = feed;
+  const { title, description } = feeds;
   const titleTeg = document.createElement('h3');
   titleTeg.classList.add('h6', 'm-0');
   titleTeg.textContent = title;
@@ -121,7 +121,7 @@ const modalShow = (store) => {
 
 const render = (store, i18n) => {
   renderContainer(store, i18n);
-  renderFeed(store, i18n);
+  renderFeeds(store, i18n);
   renderPosts(store, i18n);
   showFeedback(store, i18n);
   modalShow(store, i18n);
