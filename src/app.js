@@ -72,8 +72,8 @@ const app = () => {
 
     const rssSchema = yup.string().url().required();
 
-    const formElement = document.querySelector('form');
-    const queryElement = formElement.querySelector('#query');
+    // const formElement = document.querySelector('form');
+    // const queryElement = formElement.querySelector('#query');
 
     const form = document.querySelector('.text-body');
 
@@ -133,7 +133,6 @@ const app = () => {
                   store.feedback = 'networkError';
                 })
                 .finally(() => {
-                  queryElement.value = '';
                   store.isLoading = false;
                 });
             } else {

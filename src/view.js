@@ -119,21 +119,25 @@ const modalShow = (store) => {
   openModal(title, description, link);
 };
 
+const isLoading = (store) => {
+  const btn = document.querySelector('.btn-primary');
+  if (store.isLoading) { // если да
+    btn.disabled = true;
+  } else {
+    btn.disabled = false;
+    const formElement = document.querySelector('form');
+    const queryElement = formElement.querySelector('#query');
+    queryElement.value = '';
+  }
+};
+
 const render = (store, i18n) => {
   renderContainer(store, i18n);
   renderFeeds(store, i18n);
   renderPosts(store, i18n);
   showFeedback(store, i18n);
   modalShow(store, i18n);
-
-  if (store.isLoading === 'isLoading') {
-    const btn = document.querySelector('.btn-primary');
-    if (store.isLoading === true) {
-      btn.disabled = true;
-    } else {
-      btn.disabled = false;
-    }
-  }
+  isLoading(store, i18n);
 };
 
 export default render;
