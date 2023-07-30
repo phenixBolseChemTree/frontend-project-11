@@ -21,24 +21,39 @@ const getNewPosts = (newPosts, posts) => {
   return filteredPosts;
 };
 
+const getId = (() => {
+  let id = -1;
+  return () => {
+    id += 1;
+    return id;
+  };
+})();
+
 const processRssAuto = (_store, link) => {
   let newPosts = [];
   fetchProxyRSS(link)
     .then((response) => {
       if (response.status === 200) {
-        const parsedData = parserV2(response);
-        return parsedData;
+        const domParser = new DOMParser();
+        const data = domParser.parseFromString(response.data.contents, 'application/xml');
+        const parsedData = parserV2(data);
+        const { posts } = parsedData;
+        // на этом этапе ставим id в данные с парсера -------------------------------
+        // const postsWithId = posts.map(post => (
+        //   return { post }
+        // ))
+        // проходимся по постам и добавляем к постам id
+
+        if (posts.length !== 0) {
+          newPosts = getNewPosts(posts, _store.posts).reverse();
+          if (newPosts.length !== 0) {
+            _store.posts.push(...newPosts);
+          }
+        }
+        return posts;
+        // new
       }
       return response; // здесь может быть ошибка!!!
-    })
-    .then(({ posts }) => {
-      if (posts.length !== 0) {
-        newPosts = getNewPosts(posts, _store.posts).reverse();
-        if (newPosts.length !== 0) {
-          _store.posts.push(...newPosts);
-        }
-      }
-      return posts;
     })
     .catch((e) => {
       console.log('invalidRSS', e);
@@ -79,7 +94,7 @@ const app = () => {
 
     const containerListEl = document.querySelector('.posts');
 
-    console.log('!!!containerListEl', containerListEl);
+    // console.log('!!!containerListEl', containerListEl);
 
     containerListEl.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
@@ -109,14 +124,18 @@ const app = () => {
           .then(() => {
             if (!store.links.includes(link)) {
               fetchProxyRSS(link)
-                .then((data) => {
-                  store.lastResponse = data;
-                  if (data.status === 200 || data?.status?.http_code === 200) {
+                .then((response) => {
+                  store.lastResponse = response;
+                  if (response.status === 200 || response?.status?.http_code === 200) {
+                    const domParser = new DOMParser();
+                    const data = domParser.parseFromString(response.data.contents, 'application/xml');
                     const parsedData = parserV2(data);
-                    console.log('!!!postsINIT+', parsedData);
 
                     if (parsedData !== 'invalidRSS') {
                       const { title, description, posts } = parsedData;
+                      // на этом этапе ставим id в данные с парсера -------------------------------
+                      console.log('обрабатываем эти посты!!!', posts);
+
                       store.feeds.push({ title, description });
                       store.links.push(link);
                       store.posts.push(...posts.reverse());
@@ -130,6 +149,8 @@ const app = () => {
                   }
                 })
                 .catch(() => {
+                  // сдесь еще нужно обробатывать 1 ошибку из parserV2
+                  // или вынести преобразование и что то глобально поменять
                   store.feedback = 'networkError';
                 })
                 .finally(() => {
