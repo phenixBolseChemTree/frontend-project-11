@@ -29,38 +29,47 @@ const getId = (() => {
   };
 })();
 
-const processRssAuto = (_store, link) => {
-  let newPosts = [];
-  fetchProxyRSS(link)
-    .then((response) => {
-      if (response.status === 200) {
-        const domParser = new DOMParser();
-        const data = domParser.parseFromString(response.data.contents, 'application/xml');
-        const parsedData = parserV2(data);
-        const { posts } = parsedData;
-        // на этом этапе ставим id в данные с парсера -------------------------------
-        // const postsWithId = posts.map(post => (
-        //   return { post }
-        // ))
-        // проходимся по постам и добавляем к постам id
+// const processRssAuto = (_store, link) => {
+//   let newPosts = [];
+//   fetchProxyRSS(link)
+//     .then((response) => {
+//       if (response.status === 200) {
+//         const domParser = new DOMParser();
+//         const data = domParser.parseFromString(response.data.contents, 'application/xml');
+//         const parsedData = parserV2(data);
+//         const { posts } = parsedData;
+//         // на этом этапе ставим id в данные с парсера -------------------------------
+//         // const postsWithId = posts.map(post => (
+//         //   return { post }
+//         // ))
+//         // проходимся по постам и добавляем к постам id
 
-        if (posts.length !== 0) {
-          newPosts = getNewPosts(posts, _store.posts).reverse();
-          if (newPosts.length !== 0) {
-            _store.posts.push(...newPosts);
-          }
-        }
-        return posts;
-        // new
-      }
-      return response; // здесь может быть ошибка!!!
-    })
-    .catch((e) => {
-      console.log('invalidRSS', e);
-    })
-    .finally(() => {
-      setTimeout(() => processRssAuto(_store, link), 5000);
-    });
+//         if (posts.length !== 0) {
+//           newPosts = getNewPosts(posts, _store.posts).reverse();
+//           if (newPosts.length !== 0) {
+//             _store.posts.push(...newPosts);
+//           }
+//         }
+//         return posts;
+//         // new
+//       }
+//       return response; // здесь может быть ошибка!!!
+//     })
+//     .catch((e) => {
+//       console.log('invalidRSS', e);
+//     })
+//     .finally(() => {
+//       // Запускать цикл обновления постов нужно один раз независимо от сабмита,
+//       // иначе на каждый сабмит будет запускаться еще один цикл обновления
+//       // можно пушить новые посты в
+//       setTimeout(() => processRssAuto(_store, link), 5000);
+//     });
+// };
+
+const processRssAuto = (_store, link) => {
+  // считывать ссылки в links (и проверять нет ли новых постов)
+  // попробовать хранить посты в отдельных массивах
+
 };
 
 const app = () => {
@@ -83,6 +92,7 @@ const app = () => {
 
     const store = onChange(initialStoreModel, () => {
       render(store, i18nextInstance);
+      console.log('!!!store.posts', store.posts);
     });
 
     const rssSchema = yup.string().url().required();
@@ -138,7 +148,7 @@ const app = () => {
 
                       store.feeds.push({ title, description });
                       store.links.push(link);
-                      store.posts.push(...posts.reverse());
+                      store.posts.push([...posts.reverse()]);
                       store.feedback = 'successfulScenario';
                       setTimeout(() => processRssAuto(store, link), 5000);
                     } else {

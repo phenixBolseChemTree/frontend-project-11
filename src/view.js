@@ -53,38 +53,40 @@ const renderFeeds = (store) => {
 const renderPosts = (store, i18n) => {
   const container = document.querySelector('.container-list');
   const visitedPost = Array.from(store.visitedPosts);
-  store.posts.forEach((item) => {
-    const { title, link, id } = item;
+  store.posts.forEach((array) => {
+    array.forEach((item) => {
+      const { title, link, id } = item;
 
-    const titleTag = document.createElement('a');
-    titleTag.textContent = title;
-    titleTag.setAttribute('href', link);
-    titleTag.setAttribute('target', '_blank');
-    titleTag.setAttribute('data-link', id);
-    if (visitedPost.includes(String(id))) {
-      titleTag.classList.add('fw-normal', 'text-secondary');
-    } else {
-      titleTag.classList.add('fw-bold');
-    }
-    const descriptionTag = document.createElement('button');
-    descriptionTag.textContent = i18n.t('check');
-    descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    descriptionTag.setAttribute('data-id', id);
-    descriptionTag.setAttribute('data-bs-toggle', 'modal');
-    descriptionTag.setAttribute('data-bs-target', '#modal');
+      const titleTag = document.createElement('a');
+      titleTag.textContent = title;
+      titleTag.setAttribute('href', link);
+      titleTag.setAttribute('target', '_blank');
+      titleTag.setAttribute('data-link', id);
+      if (visitedPost.includes(String(id))) {
+        titleTag.classList.add('fw-normal', 'text-secondary');
+      } else {
+        titleTag.classList.add('fw-bold');
+      }
+      const descriptionTag = document.createElement('button');
+      descriptionTag.textContent = i18n.t('check');
+      descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+      descriptionTag.setAttribute('data-id', id);
+      descriptionTag.setAttribute('data-bs-toggle', 'modal');
+      descriptionTag.setAttribute('data-bs-target', '#modal');
 
-    const li = document.createElement('li');
-    li.classList.add(
-      'list-group-item',
-      'd-flex',
-      'justify-content-between',
-      'align-items-start',
-      'border-0',
-      'border-end-0',
-    );
-    li.appendChild(titleTag);
-    li.appendChild(descriptionTag);
-    container.prepend(li);
+      const li = document.createElement('li');
+      li.classList.add(
+        'list-group-item',
+        'd-flex',
+        'justify-content-between',
+        'align-items-start',
+        'border-0',
+        'border-end-0',
+      );
+      li.appendChild(titleTag);
+      li.appendChild(descriptionTag);
+      container.prepend(li);
+    });
   });
 };
 
