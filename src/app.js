@@ -63,9 +63,6 @@ const app = () => {
               const data = domParser.parseFromString(response.data.contents, 'application/xml');
               const parsedData = parserV2(data);
               const { posts } = parsedData;
-              // на этом этапе ставим id в данные с парсера -------------------------------
-              // проходимся по постам и добавляем к постам id
-
               if (posts.length !== 0) {
                 newPosts = getNewPosts(posts.reverse(), _store.posts);
                 if (newPosts.length !== 0) {
@@ -128,20 +125,12 @@ const app = () => {
                     const parsedData = parserV2(data);
                     if (parsedData !== 'invalidRSS') {
                       const { title, description, posts } = parsedData;
-                      // дать постам id ------------------
                       const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
                       const postsWithId = postsIdRev;
-
-                      // console.log('!!!postsWithId', postsWithId);
-                      // на этом этапе ставим id в данные с парсера -------------------------------
-                      // console.log('обрабатываем эти посты!!!', posts);
-
                       store.feeds.push({ title, description });
                       store.links.push(link);
                       store.posts.push(...postsWithId);
                       store.feedback = 'successfulScenario';
-                      // setTimeout(() => processRssAuto(store, link), 5000);
-                      // записать в finaly и сделать условие если не равно пустому
                     } else {
                       store.feedback = 'invalidRSS';
                     }
