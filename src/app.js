@@ -40,6 +40,7 @@ const app = () => {
       posts: [],
       links: [],
       visitedPosts: [],
+      autoAddNewPosts: false,
       feedback: null,
       isLoading: false,
       lastResponse: null,
@@ -52,6 +53,7 @@ const app = () => {
     });
 
     const autoAddNewPosts = (_store) => {
+      console.log('отработал!');
       const { links } = _store;
       const linksArr = Array.from(links);
       linksArr.forEach((link) => {
@@ -82,7 +84,7 @@ const app = () => {
       setTimeout(() => autoAddNewPosts(_store), 5000);
     };
 
-    autoAddNewPosts(store);
+    // autoAddNewPosts(store);
 
     const rssSchema = yup.string().url().required();
     const form = document.querySelector('.text-body');
@@ -128,8 +130,12 @@ const app = () => {
                       const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
                       const postsWithId = postsIdRev;
                       store.feeds.push({ title, description });
-                      store.links.push(link);
                       store.posts.push(...postsWithId);
+                      store.links.push(link);
+                      if (store.autoAddNewPosts === false) {
+                        store.autoAddNewPosts = true;
+                        autoAddNewPosts(store);
+                      }
                       store.feedback = 'successfulScenario';
                     } else {
                       store.feedback = 'invalidRSS';
