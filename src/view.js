@@ -66,12 +66,12 @@ const renderPosts = (store, i18n) => {
     } else {
       titleTag.classList.add('fw-bold');
     }
-    const buttonTag = document.createElement('button');
-    buttonTag.textContent = i18n.t('check');
-    buttonTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    buttonTag.setAttribute('data-id', id);
-    buttonTag.setAttribute('data-bs-toggle', 'modal');
-    buttonTag.setAttribute('data-bs-target', '#modal');
+    const descriptionTag = document.createElement('button');
+    descriptionTag.textContent = i18n.t('check');
+    descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    descriptionTag.setAttribute('data-id', id);
+    descriptionTag.setAttribute('data-bs-toggle', 'modal');
+    descriptionTag.setAttribute('data-bs-target', '#modal');
 
     const li = document.createElement('li');
     li.classList.add(
@@ -83,7 +83,7 @@ const renderPosts = (store, i18n) => {
       'border-end-0',
     );
     li.appendChild(titleTag);
-    li.appendChild(buttonTag);
+    li.appendChild(descriptionTag);
     container.prepend(li);
   });
 };
