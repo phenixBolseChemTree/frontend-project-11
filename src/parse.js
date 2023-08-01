@@ -1,6 +1,7 @@
 const parser = (data) => {
   if (data.querySelector('parsererror')) {
-    return 'invalidRSS';
+    throw new Error('invalidRSS');
+    // return 'invalidRSS';
   }
   const title = data.querySelector('title').textContent;
   const description = data.querySelector('description').textContent;

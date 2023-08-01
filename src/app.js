@@ -144,7 +144,10 @@ const app = () => {
                     store.feedback = 'invalidRSS';
                   }
                 })
-                .catch(() => {
+                .catch((e) => {
+                  if (e === 'invalidRSS') {
+                    store.feedback = 'invalidRSS';
+                  }
                   // сдесь еще нужно обробатывать 1 ошибку из parserV2
                   // или вынести преобразование и что то глобально поменять
                   store.feedback = 'networkError';
