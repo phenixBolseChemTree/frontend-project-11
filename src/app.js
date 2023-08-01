@@ -66,11 +66,11 @@ const getId = (() => {
 //     });
 // };
 
-const processRssAuto = (_store, link) => {
-  // считывать ссылки в links (и проверять нет ли новых постов)
-  // попробовать хранить посты в отдельных массивах
-
-};
+// const processRssAuto = (_store, _link) => {
+//   console.log('_store.links.length', _store.links.length);
+//   // считывать ссылки в links (и проверять нет ли новых постов)
+//   // попробовать хранить посты в отдельных массивах
+// };
 
 const app = () => {
   const i18nextInstance = i18next.createInstance();
@@ -92,22 +92,56 @@ const app = () => {
 
     const store = onChange(initialStoreModel, () => {
       render(store, i18nextInstance);
-      console.log('!!!store.posts', store.posts);
     });
 
+    const autoAddNewPosts = (_store) => {
+      const { links, posts } = _store;
+      const linksArr = Array.from(links);
+      if (linksArr.length) {
+        // console.log(Array.from(store.links));
+        console.log('!!!posts', posts);
+        console.log('!!!links', links);
+        linksArr.forEach((link) => {
+          let newPosts = [];
+          fetchProxyRSS(link)
+            .then((response) => {
+              if (response.status === 200) {
+                const domParser = new DOMParser();
+                const data = domParser.parseFromString(response.data.contents, 'application/xml');
+                const parsedData = parserV2(data);
+                const { posts } = parsedData;
+                // на этом этапе ставим id в данные с парсера -------------------------------
+                // проходимся по постам и добавляем к постам id
+
+                if (posts.length !== 0) {
+                  newPosts = getNewPosts(posts.reverse(), _store.posts);
+                  if (newPosts.length !== 0) {
+                    const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
+                    _store.posts.push(...postsWithId);
+                  }
+                }
+                return posts;
+              }
+              return response; // здесь может быть ошибка!!!
+            })
+            .catch((e) => {
+              console.log('invalidRSS', e);
+            });
+        });
+      }
+      // if (_store.links)
+      setTimeout(() => autoAddNewPosts(_store), 5000);
+    };
+
+    autoAddNewPosts(store);
+
     const rssSchema = yup.string().url().required();
-
-    // const formElement = document.querySelector('form');
-    // const queryElement = formElement.querySelector('#query');
-
     const form = document.querySelector('.text-body');
-
     const containerListEl = document.querySelector('.posts');
-
-    // console.log('!!!containerListEl', containerListEl);
 
     containerListEl.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
+      console.log('takeID', id);
       const link = e.target.getAttribute('data-link');
       if (id) {
         store.modalId = id;
@@ -140,17 +174,22 @@ const app = () => {
                     const domParser = new DOMParser();
                     const data = domParser.parseFromString(response.data.contents, 'application/xml');
                     const parsedData = parserV2(data);
-
                     if (parsedData !== 'invalidRSS') {
                       const { title, description, posts } = parsedData;
+                      // дать постам id ------------------
+                      const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+                      const postsWithId = postsIdRev;
+
+                      // console.log('!!!postsWithId', postsWithId);
                       // на этом этапе ставим id в данные с парсера -------------------------------
-                      console.log('обрабатываем эти посты!!!', posts);
+                      // console.log('обрабатываем эти посты!!!', posts);
 
                       store.feeds.push({ title, description });
                       store.links.push(link);
-                      store.posts.push([...posts.reverse()]);
+                      store.posts.push(...postsWithId);
                       store.feedback = 'successfulScenario';
-                      setTimeout(() => processRssAuto(store, link), 5000);
+                      // setTimeout(() => processRssAuto(store, link), 5000);
+                      // записать в finaly и сделать условие если не равно пустому
                     } else {
                       store.feedback = 'invalidRSS';
                     }
