@@ -4,8 +4,8 @@ const renderContainer = (store, i18n) => {
 
   const postsContent = `
     <div class="card border-0">
-    <div class="card-body">
-      ${store.posts?.length ? `<h2 class="card-title h4">${i18n.t('posts')}</h2>` : ''}
+      <div class="card-body">
+        ${store.posts?.length ? `<h2 class="card-title h4">${i18n.t('posts')}</h2>` : ''}
       </div>
     </div>
     <ul class="container-list list-group border-0 rounded-0"></ul>
@@ -17,8 +17,8 @@ const renderContainer = (store, i18n) => {
         ${store.feeds?.length ? `<h2 class="card-title h4">${i18n.t('feeds')}</h2>` : ''}
         <ul class="container-feeds list-group border-0 rounded-0">
           ${store.feeds.map((feedItem) => `<li class="list-group-item border-0 border-end-0">
-          <h3 class="h6 m-0">${feedItem.title}</h3>
-          <p class="m-0 small text-black-50">${feedItem.description}</p>
+            <h3 class="h6 m-0">${feedItem.title}</h3>
+            <p class="m-0 small text-black-50">${feedItem.description}</p>
           </li>`).join('')}
         </ul>
       </div>
@@ -31,8 +31,8 @@ const renderContainer = (store, i18n) => {
 
 const renderFeeds = (store) => {
   const { feeds } = store;
-  const containerFeeds = document.querySelector('.container-feeds');
   const { title, description } = feeds;
+  const containerFeeds = document.querySelector('.container-feeds');
   const titleTeg = document.createElement('h3');
   titleTeg.classList.add('h6', 'm-0');
   titleTeg.textContent = title;
