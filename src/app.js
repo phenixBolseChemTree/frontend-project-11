@@ -41,6 +41,7 @@ const app = () => {
       links: [],
       visitedPosts: [],
       autoAddNewPosts: false,
+      writing: '',
       feedback: null,
       isLoading: false,
       lastResponse: null,
@@ -107,12 +108,18 @@ const app = () => {
       }
     });
 
+    const query = document.querySelector('#query');
+    const inputElement = document.getElementById('query');
+
+    query.addEventListener('input', (e) => {
+      store.writing = e.target.value;
+      inputElement.value = store.writing; // Обновляем значение поля ввода
+      console.log('store.writing', store.writing);
+    });
     // ----------------
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.isLoading = true;
-
-      const query = document.querySelector('#query').value;
 
       const processRss = (link) => {
         rssSchema.validate(link)
@@ -154,6 +161,7 @@ const app = () => {
                 })
                 .finally(() => {
                   store.isLoading = false;
+                  store.writing = '';
                 });
             } else {
               store.feedback = 'duplicateRSSlink';
@@ -166,7 +174,7 @@ const app = () => {
           });
       };
 
-      processRss(query);
+      processRss(query.value);
     });
   });
 };

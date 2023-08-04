@@ -2,38 +2,52 @@ const renderContainer = (store, i18n) => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
 
-  postsEl.textContent = '';
-  feedsEl.textContent = '';
-
-  const postsContent = `
-    <div class="card border-0">
-      <div class="card-body">
-        ${store.posts?.length ? `<h2 class="card-title h4">${i18n.t('posts')}</h2>` : ''}
-      </div>
-    </div>
-    <ul class="container-list list-group border-0 rounded-0"></ul>
-  `;
-
-  const feedsContent = `
-    <div class="card border-0">
-      <div class="card-body">
-        ${store.feeds?.length ? `<h2 class="card-title h4">${i18n.t('feeds')}</h2>` : ''}
-        <ul class="container-feeds list-group border-0 rounded-0"></ul>
-      </div>
-    </div>
-  `;
-
-  const postsContainer = document.createElement('div');
-  postsContainer.innerHTML = postsContent;
-  while (postsContainer.firstChild) {
-    postsEl.appendChild(postsContainer.firstChild);
+  // Очистка контейнеров перед заполнением
+  while (postsEl.firstChild) {
+    postsEl.removeChild(postsEl.firstChild);
+  }
+  while (feedsEl.firstChild) {
+    feedsEl.removeChild(feedsEl.firstChild);
   }
 
-  const feedsContainer = document.createElement('div');
-  feedsContainer.innerHTML = feedsContent;
-  while (feedsContainer.firstChild) {
-    feedsEl.appendChild(feedsContainer.firstChild);
-  }
+  const createCard = (title) => {
+    const card = document.createElement('div');
+    card.className = 'card border-0';
+
+    const cardBody = document.createElement('div');
+    cardBody.className = 'card-body';
+
+    if (title) {
+      const cardTitle = document.createElement('h2');
+      cardTitle.className = 'card-title h4';
+      cardTitle.textContent = title;
+      cardBody.appendChild(cardTitle);
+    }
+
+    card.appendChild(cardBody);
+
+    return card;
+  };
+
+  const postsContent = createCard(store.posts?.length ? i18n.t('posts') : null);
+  const postsList = document.createElement('ul');
+  postsList.className = 'container-list list-group border-0 rounded-0';
+  postsContent.appendChild(postsList);
+  postsEl.appendChild(postsContent);
+
+  const feedsContent = createCard(store.feeds?.length ? i18n.t('feeds') : null);
+  const feedsList = document.createElement('ul');
+  feedsList.className = 'container-feeds list-group border-0 rounded-0';
+  feedsContent.appendChild(feedsList);
+  feedsEl.appendChild(feedsContent);
+};
+
+const renderInput = (store) => {
+  const query = document.querySelector('#query');
+  const text = store.writing;
+  // console.log('text', text);
+  // console.log('query', query);
+  query.value = text;
 };
 
 const renderFeeds = (store) => {
@@ -145,6 +159,7 @@ const render = (store, i18n) => {
   showFeedback(store, i18n);
   modalShow(store, i18n);
   isLoading(store, i18n);
+  renderInput(store, i18n);
 };
 
 export default render;
