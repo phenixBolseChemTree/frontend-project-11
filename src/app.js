@@ -75,7 +75,7 @@ const app = () => {
               }
               return posts;
             }
-            return response; // здесь может быть ошибка!!!
+            return response;
           })
           .catch((e) => {
             console.log('invalidRSS', e);
@@ -84,8 +84,6 @@ const app = () => {
 
       setTimeout(() => autoAddNewPosts(_store), 5000);
     };
-
-    // autoAddNewPosts(store);
 
     const rssSchema = yup.string().url().required();
     const form = document.querySelector('.text-body');
@@ -113,9 +111,9 @@ const app = () => {
 
     query.addEventListener('input', (e) => {
       store.writing = e.target.value;
-      inputElement.value = store.writing; // Обновляем значение поля ввода
-      console.log('store.writing', store.writing);
+      inputElement.value = store.writing;
     });
+
     // ----------------
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -172,7 +170,6 @@ const app = () => {
             store.isLoading = false;
           });
       };
-
       processRss(query.value);
     });
   });

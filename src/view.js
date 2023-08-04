@@ -2,7 +2,6 @@ const renderContainer = (store, i18n) => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
 
-  // Очистка контейнеров перед заполнением
   while (postsEl.firstChild) {
     postsEl.removeChild(postsEl.firstChild);
   }
@@ -45,8 +44,6 @@ const renderContainer = (store, i18n) => {
 const renderInput = (store) => {
   const query = document.querySelector('#query');
   const text = store.writing;
-  // console.log('text', text);
-  // console.log('query', query);
   query.value = text;
 };
 
