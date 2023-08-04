@@ -152,12 +152,11 @@ const app = () => {
                   }
                 })
                 .catch((e) => {
-                  if (e === 'invalidRSS') {
+                  if (e.message === 'invalidRSS') {
                     store.feedback = 'invalidRSS';
+                  } else {
+                    store.feedback = 'networkError';
                   }
-                  // сдесь еще нужно обробатывать 1 ошибку из parserV2
-                  // или вынести преобразование и что то глобально поменять
-                  store.feedback = 'networkError';
                 })
                 .finally(() => {
                   store.isLoading = false;
