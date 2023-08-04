@@ -2,6 +2,9 @@ const renderContainer = (store, i18n) => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
 
+  postsEl.textContent = '';
+  feedsEl.textContent = '';
+
   const postsContent = `
     <div class="card border-0">
       <div class="card-body">
@@ -15,39 +18,43 @@ const renderContainer = (store, i18n) => {
     <div class="card border-0">
       <div class="card-body">
         ${store.feeds?.length ? `<h2 class="card-title h4">${i18n.t('feeds')}</h2>` : ''}
-        <ul class="container-feeds list-group border-0 rounded-0">
-          ${store.feeds.map((feedItem) => `<li class="list-group-item border-0 border-end-0">
-            <h3 class="h6 m-0">${feedItem.title}</h3>
-            <p class="m-0 small text-black-50">${feedItem.description}</p>
-          </li>`).join('')}
-        </ul>
+        <ul class="container-feeds list-group border-0 rounded-0"></ul>
       </div>
     </div>
   `;
 
-  postsEl.innerHTML = postsContent;
-  feedsEl.innerHTML = feedsContent;
+  const postsContainer = document.createElement('div');
+  postsContainer.innerHTML = postsContent;
+  while (postsContainer.firstChild) {
+    postsEl.appendChild(postsContainer.firstChild);
+  }
+
+  const feedsContainer = document.createElement('div');
+  feedsContainer.innerHTML = feedsContent;
+  while (feedsContainer.firstChild) {
+    feedsEl.appendChild(feedsContainer.firstChild);
+  }
 };
 
 const renderFeeds = (store) => {
-  const { feeds } = store;
-  const { title, description } = feeds;
-  const containerFeeds = document.querySelector('.container-feeds');
-  const titleTeg = document.createElement('h3');
-  titleTeg.classList.add('h6', 'm-0');
-  titleTeg.textContent = title;
+  const container = document.querySelector('.container-feeds');
+  store.feeds.forEach(({ title, description }) => {
+    const titleTeg = document.createElement('h3');
+    titleTeg.classList.add('h6', 'm-0');
+    titleTeg.textContent = title;
 
-  const descriptionTag = document.createElement('p');
-  descriptionTag.classList.add('m-0', 'small', 'text-black-50');
-  descriptionTag.textContent = description;
+    const descriptionTag = document.createElement('p');
+    descriptionTag.classList.add('m-0', 'small', 'text-black-50');
+    descriptionTag.textContent = description;
 
-  const liTag = document.createElement('li');
-  liTag.classList.add('list-group-item', 'border-0', 'border-end-0');
+    const liTag = document.createElement('li');
+    liTag.classList.add('list-group-item', 'border-0', 'border-end-0');
 
-  liTag.appendChild(titleTeg);
-  liTag.appendChild(descriptionTag);
+    liTag.appendChild(titleTeg);
+    liTag.appendChild(descriptionTag);
 
-  containerFeeds.prepend(liTag);
+    container.prepend(liTag);
+  });
 };
 
 const renderPosts = (store, i18n) => {

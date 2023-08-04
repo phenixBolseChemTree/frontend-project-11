@@ -162,6 +162,7 @@ const app = () => {
           })
           .catch(() => {
             store.feedback = 'InvalidRSSlink';
+            store.isLoading = false;
           });
       };
 
