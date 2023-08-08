@@ -61,21 +61,18 @@ const app = () => {
         let newPosts = [];
         fetchProxyRSS(link)
           .then((response) => {
-            if (response.status === 200) {
-              const domParser = new DOMParser();
-              const data = domParser.parseFromString(response.data.contents, 'application/xml');
-              const parsedData = parserV2(data);
-              const { posts } = parsedData;
-              if (posts.length !== 0) {
-                newPosts = getNewPosts(posts.reverse(), _store.posts);
-                if (newPosts.length !== 0) {
-                  const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
-                  _store.posts.push(...postsWithId);
-                }
+            const domParser = new DOMParser();
+            const data = domParser.parseFromString(response.data.contents, 'application/xml');
+            const parsedData = parserV2(data);
+            const { posts } = parsedData;
+            if (posts.length !== 0) {
+              newPosts = getNewPosts(posts.reverse(), _store.posts);
+              if (newPosts.length !== 0) {
+                const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
+                _store.posts.push(...postsWithId);
               }
-              return posts;
             }
-            return response;
+            return posts;
           })
           .catch((e) => {
             console.log('invalidRSS', e);
@@ -126,25 +123,21 @@ const app = () => {
               fetchProxyRSS(link)
                 .then((response) => {
                   store.lastResponse = response;
-                  if (response.status === 200 || response?.status?.http_code === 200) {
-                    const domParser = new DOMParser();
-                    const data = domParser.parseFromString(response.data.contents, 'application/xml');
-                    const parsedData = parserV2(data);
-                    if (parsedData !== 'invalidRSS') {
-                      const { title, description, posts } = parsedData;
-                      const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
-                      const postsWithId = postsIdRev;
-                      store.feeds.push({ title, description });
-                      store.posts.push(...postsWithId);
-                      store.links.push(link);
-                      if (store.autoAddNewPosts === false) {
-                        store.autoAddNewPosts = true;
-                        autoAddNewPosts(store);
-                      }
-                      store.feedback = 'successfulScenario';
-                    } else {
-                      store.feedback = 'invalidRSS';
+                  const domParser = new DOMParser();
+                  const data = domParser.parseFromString(response.data.contents, 'application/xml');
+                  const parsedData = parserV2(data);
+                  if (parsedData !== 'invalidRSS') {
+                    const { title, description, posts } = parsedData;
+                    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+                    const postsWithId = postsIdRev;
+                    store.feeds.push({ title, description });
+                    store.posts.push(...postsWithId);
+                    store.links.push(link);
+                    if (store.autoAddNewPosts === false) {
+                      store.autoAddNewPosts = true;
+                      autoAddNewPosts(store);
                     }
+                    store.feedback = 'successfulScenario';
                   } else {
                     store.feedback = 'invalidRSS';
                   }
