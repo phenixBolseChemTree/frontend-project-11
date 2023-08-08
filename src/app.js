@@ -61,9 +61,12 @@ const app = () => {
         let newPosts = [];
         fetchProxyRSS(link)
           .then((response) => {
-            const domParser = new DOMParser();
-            const data = domParser.parseFromString(response.data.contents, 'application/xml');
+            // console.log('AUTOresponseAUTO', response);
+            // const domParser = new DOMParser();
+            const data = JSON.stringify(response);
             const parsedData = parserV2(data);
+            // const data = domParser.parseFromString(response.data.contents, 'application/xml');
+            // const parsedData = parserV2(data);
             const { posts } = parsedData;
             if (posts.length !== 0) {
               newPosts = getNewPosts(posts.reverse(), _store.posts);
@@ -122,9 +125,10 @@ const app = () => {
             if (!store.links.includes(link)) {
               fetchProxyRSS(link)
                 .then((response) => {
+                  // console.log('response', response.data.contents);
+                  // console.log(JSON.stringify(response.data.contents));
                   store.lastResponse = response;
-                  const domParser = new DOMParser();
-                  const data = domParser.parseFromString(response.data.contents, 'application/xml');
+                  const data = JSON.stringify(response);
                   const parsedData = parserV2(data);
                   if (parsedData !== 'invalidRSS') {
                     const { title, description, posts } = parsedData;
@@ -143,9 +147,10 @@ const app = () => {
                   }
                 })
                 .catch((e) => {
+                  console.log('error', e);
                   if (e.message === 'invalidRSS') {
                     store.feedback = 'invalidRSS';
-                  } else {
+                  } else if (e.message === 'networkError') {
                     store.feedback = 'networkError';
                   }
                 })
