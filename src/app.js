@@ -84,7 +84,39 @@ const app = () => {
       setTimeout(() => autoAddNewPosts(_store), 5000);
     };
 
-    const rssSchema = yup.string().url().required();
+    const rssSchema = yup.string().test(
+      'is-valid-rss',
+      'invalidRSS',
+      (link) => new Promise((resolve) => {
+        if (!yup.string().url().isValidSync(link)) {
+          store.feedback = 'invalidRSS';
+          store.isLoading = false;
+          return;
+        }
+
+        if (store.links.includes(link)) {
+          store.feedback = 'duplicateRSSlink';
+          store.isLoading = false;
+          return;
+        }
+
+        fetchProxyRSS(link)
+          .then((response) => {
+            if (response.status === 200) {
+              store.feedback = 'successfulScenario';
+              resolve(true);
+            } else {
+              store.feedback = 'invalidRSS';
+              store.isLoading = false;
+            }
+          })
+          .catch(() => {
+            store.feedback = 'networkError';
+            store.isLoading = false;
+          });
+      }),
+    );
+
     const form = document.querySelector('.text-body');
     const containerListEl = document.querySelector('.posts');
 
@@ -115,50 +147,30 @@ const app = () => {
       const processRss = (link) => {
         rssSchema.validate(link)
           .then(() => {
-            if (!store.links.includes(link)) {
+            if (store.feedback === 'successfulScenario') {
               fetchProxyRSS(link)
                 .then((response) => {
                   store.lastResponse = response;
                   const data = JSON.stringify(response);
                   const parsedData = parserV2(data);
-                  if (parsedData !== 'invalidRSS') {
-                    const { title, description, posts } = parsedData;
-                    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
-                    const postsWithId = postsIdRev;
-                    store.feeds.push({ title, description });
-                    store.posts.push(...postsWithId);
-                    store.links.push(link);
-                    if (store.autoAddNewPosts === false) {
-                      store.autoAddNewPosts = true;
-                      autoAddNewPosts(store);
-                    }
-                    store.feedback = 'successfulScenario';
-                  } else {
-                    store.feedback = 'invalidRSS';
-                  }
-                })
-                .catch((e) => {
-                  console.log('error', e);
-                  if (e.message === 'invalidRSS') {
-                    store.feedback = 'invalidRSS';
-                  } else if (e.message === 'networkError') {
-                    store.feedback = 'networkError';
+                  const { title, description, posts } = parsedData;
+                  const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+                  const postsWithId = postsIdRev;
+                  store.feeds.push({ title, description });
+                  store.posts.push(...postsWithId);
+                  store.links.push(link);
+                  if (store.autoAddNewPosts === false) {
+                    store.autoAddNewPosts = true;
+                    autoAddNewPosts(store);
                   }
                 })
                 .finally(() => {
                   store.isLoading = false;
-                  store.writing = '';
                 });
-            } else {
-              store.feedback = 'duplicateRSSlink';
-              store.isLoading = false;
             }
-          })
-          .catch(() => {
-            store.feedback = 'InvalidRSSlink';
-            store.isLoading = false;
           });
       };
+
       processRss(query.value);
     });
   });
