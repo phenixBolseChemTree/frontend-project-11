@@ -106,7 +106,6 @@ const app = () => {
     });
 
     const query = document.querySelector('#query');
-    const inputElement = document.getElementById('query');
 
     // ----------------
     form.addEventListener('submit', (event) => {
