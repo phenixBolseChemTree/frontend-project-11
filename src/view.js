@@ -41,12 +41,6 @@ const renderContainer = (store, i18n) => {
   feedsEl.appendChild(feedsContent);
 };
 
-const renderInput = (store) => {
-  const query = document.querySelector('#query');
-  const text = store.writing;
-  query.value = text;
-};
-
 const renderFeeds = (store) => {
   const container = document.querySelector('.container-feeds');
   store.feeds.forEach(({ title, description }) => {
@@ -156,7 +150,6 @@ const render = (store, i18n) => {
   showFeedback(store, i18n);
   modalShow(store, i18n);
   isLoading(store, i18n);
-  renderInput(store, i18n);
 };
 
 export default render;

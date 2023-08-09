@@ -41,7 +41,6 @@ const app = () => {
       links: [],
       visitedPosts: [],
       autoAddNewPosts: false,
-      writing: '',
       feedback: null,
       isLoading: false,
       lastResponse: null,
@@ -109,11 +108,6 @@ const app = () => {
     const query = document.querySelector('#query');
     const inputElement = document.getElementById('query');
 
-    query.addEventListener('input', (e) => {
-      store.writing = e.target.value;
-      inputElement.value = store.writing;
-    });
-
     // ----------------
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -125,8 +119,6 @@ const app = () => {
             if (!store.links.includes(link)) {
               fetchProxyRSS(link)
                 .then((response) => {
-                  // console.log('response', response.data.contents);
-                  // console.log(JSON.stringify(response.data.contents));
                   store.lastResponse = response;
                   const data = JSON.stringify(response);
                   const parsedData = parserV2(data);
