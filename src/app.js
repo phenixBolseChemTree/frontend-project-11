@@ -101,7 +101,10 @@ const app = () => {
 
         fetchProxyRSS(link)
           .then((response) => {
-            if (response.status === 200 || response?.status?.http_code === 200) {
+            console.log('response.status === 200', response.status === 200);
+            console.log('response?.data?.status?.http_code === 200', response?.data?.status?.http_code === 200);
+            console.log('response.data.status.content_type.includes("application/rss+xml")', response?.data?.status?.content_type.includes('application/rss+xml'));
+            if (response.status === 200 && response?.data?.status?.content_type.includes('application/rss+xml')) {
               store.feedback = 'successfulScenario';
               console.log('response', response);
               resolve(true);
