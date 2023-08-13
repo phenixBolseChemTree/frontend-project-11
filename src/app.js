@@ -44,6 +44,7 @@ const app = () => {
       isLoading: false,
       lastResponse: null,
       liChildTarget: null,
+      response: '',
       modalId: '',
     };
 
@@ -101,10 +102,8 @@ const app = () => {
 
         fetchProxyRSS(link)
           .then((response) => {
-            console.log('response.status === 200', response.status === 200);
-            console.log('response?.data?.status?.http_code === 200', response?.data?.status?.http_code === 200);
-            console.log('response.data.status.content_type.includes("application/rss+xml")', response?.data?.status?.content_type.includes('application/rss+xml'));
             if (response.status === 200 && response?.data?.status?.content_type.includes('application/rss+xml')) {
+              store.response = response;
               store.feedback = 'successfulScenario';
               console.log('response', response);
               resolve(true);
@@ -150,24 +149,25 @@ const app = () => {
         rssSchema.validate(link)
           .then(() => {
             if (store.feedback === 'successfulScenario') {
-              fetchProxyRSS(link)
-                .then((response) => {
-                  store.lastResponse = response;
-                  const data = JSON.stringify(response);
-                  const parsedData = parserV2(data);
-                  const { title, description, posts } = parsedData;
-                  const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
-                  const postsWithId = postsIdRev;
-                  store.feeds.push({ title, description, link });
-                  store.posts.push(...postsWithId);
-                  if (store.autoAddNewPosts === false) {
-                    store.autoAddNewPosts = true;
-                    autoAddNewPosts(store);
-                  }
-                })
-                .finally(() => {
-                  store.isLoading = false;
-                });
+              const { response } = store;
+              try {
+                store.lastResponse = response;
+                const data = JSON.stringify(response);
+                const parsedData = parserV2(data);
+                const { title, description, posts } = parsedData;
+                const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+                const postsWithId = postsIdRev;
+                store.feeds.push({ title, description, link });
+                store.posts.push(...postsWithId);
+                if (store.autoAddNewPosts === false) {
+                  store.autoAddNewPosts = true;
+                  autoAddNewPosts(store);
+                }
+              } catch (e) {
+                console.log('error in parser or get id', e);
+              } finally {
+                store.isLoading = false;
+              }
             }
           });
       };

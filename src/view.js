@@ -133,21 +133,21 @@ const modalShow = (store) => {
 
 const isLoading = (store) => {
   const btn = document.querySelector('.btn-primary');
-  if (store.isLoading) { // если да
+  if (store.isLoading) {
     btn.disabled = true;
   } else {
     btn.disabled = false;
-    // const formElement = document.querySelector('form');
-    // const queryElement = formElement.querySelector('#query');
-    // queryElement.value = '';
+    const formElement = document.querySelector('form');
+    const queryElement = formElement.querySelector('#query');
+    queryElement.value = '';
   }
 };
 
-const debug = (store) => {
-  const h1 = document.querySelector('.lead');
-  const text = JSON.stringify(store.feeds);
-  h1.textContent = text;
-};
+// const debug = (store) => {
+//   const h1 = document.querySelector('.lead');
+//   const text = JSON.stringify(store.feeds);
+//   h1.textContent = text;
+// };
 
 const render = (store, i18n) => {
   renderContainer(store, i18n);
@@ -156,7 +156,7 @@ const render = (store, i18n) => {
   showFeedback(store, i18n);
   modalShow(store, i18n);
   isLoading(store, i18n);
-  debug(store, i18n);
+  // debug(store, i18n);
 };
 
 export default render;
