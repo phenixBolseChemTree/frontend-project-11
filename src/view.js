@@ -155,8 +155,10 @@ const render = (store, i18n) => {
   renderPosts(store, i18n);
   showFeedback(store, i18n);
   modalShow(store, i18n);
-  isLoading(store, i18n);
+  // isLoading(store, i18n);
   // debug(store, i18n);
 };
 
-export default render;
+// export default render;
+
+export { render, isLoading };

@@ -4,7 +4,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
-import render from './view';
+import { render, isLoading } from './view';
 import translations from './locales/ru';
 
 const fetchProxyRSS = (link) => {
@@ -48,8 +48,12 @@ const app = () => {
       modalId: '',
     };
 
-    const store = onChange(initialStoreModel, () => {
+    const store = onChange(initialStoreModel, (path) => {
       render(store, i18nextInstance);
+      if (path === 'isLoading') {
+        console.log('сработал isLoading!');
+        isLoading(store, i18nextInstance);
+      }
     });
 
     const autoAddNewPosts = (_store) => {
