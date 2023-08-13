@@ -84,7 +84,7 @@ const app = () => {
       setTimeout(() => autoAddNewPosts(_store), 5000);
     };
 
-    const rssSchema = yup.string().test(
+    const rssSchema = yup.string().url().test(
       'is-valid-rss',
       'invalidRSS',
       (link) => new Promise((resolve) => {
