@@ -40,6 +40,7 @@ const app = () => {
       posts: [],
       visitedPosts: [],
       autoAddNewPosts: false,
+      container: false,
       feedback: null,
       isLoading: false,
       lastResponse: null,
@@ -51,13 +52,11 @@ const app = () => {
     const store = onChange(initialStoreModel, (path) => {
       render(store, i18nextInstance);
       if (path === 'isLoading') {
-        console.log('сработал isLoading!');
         isLoading(store, i18nextInstance);
       }
     });
 
     const autoAddNewPosts = (_store) => {
-      console.log('отработал!');
       const linksFromFeeds = _store.feeds
         .filter((feed) => feed.link)
         .map((feed) => feed.link);
@@ -109,7 +108,6 @@ const app = () => {
             if (response.status === 200 && response?.data?.status?.content_type.includes('application/rss+xml')) {
               store.response = response;
               store.feedback = 'successfulScenario';
-              console.log('response', response);
               resolve(true);
             } else {
               store.feedback = 'invalidRSS';
@@ -145,6 +143,7 @@ const app = () => {
 
     const query = document.querySelector('#query');
 
+    // renderContainer(store, i18nextInstance);
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.isLoading = true;
