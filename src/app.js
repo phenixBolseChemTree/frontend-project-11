@@ -15,12 +15,6 @@ const fetchProxyRSS = (link) => {
   return axios.get(url.toString());
 };
 
-const getNewPosts = (newPosts, posts) => {
-  const existingLinks = new Set(posts.map((post) => post.link));
-  const filteredPosts = newPosts.filter((post) => !existingLinks.has(post.link));
-  return filteredPosts;
-};
-
 const getId = (() => {
   let id = -1;
   return () => {
@@ -28,6 +22,12 @@ const getId = (() => {
     return id;
   };
 })();
+
+const getNewPosts = (newPosts, posts) => {
+  const existingLinks = new Set(posts.map((post) => post.link));
+  const filteredPosts = newPosts.filter((post) => !existingLinks.has(post.link));
+  return filteredPosts;
+};
 
 const app = () => {
   const i18nextInstance = i18next.createInstance();
@@ -38,7 +38,6 @@ const app = () => {
     const initialStoreModel = {
       feeds: [],
       posts: [],
-      links: [],
       visitedPosts: [],
       autoAddNewPosts: false,
       feedback: null,
@@ -54,18 +53,15 @@ const app = () => {
 
     const autoAddNewPosts = (_store) => {
       console.log('отработал!');
-      const { links } = _store;
-      const linksArr = Array.from(links);
-      linksArr.forEach((link) => {
+      const linksFromFeeds = _store.feeds
+        .filter((feed) => feed.link)
+        .map((feed) => feed.link);
+      linksFromFeeds.forEach((link) => {
         let newPosts = [];
         fetchProxyRSS(link)
           .then((response) => {
-            // console.log('AUTOresponseAUTO', response);
-            // const domParser = new DOMParser();
             const data = JSON.stringify(response);
             const parsedData = parserV2(data);
-            // const data = domParser.parseFromString(response.data.contents, 'application/xml');
-            // const parsedData = parserV2(data);
             const { posts } = parsedData;
             if (posts.length !== 0) {
               newPosts = getNewPosts(posts.reverse(), _store.posts);
@@ -94,7 +90,10 @@ const app = () => {
           return;
         }
 
-        if (store.links.includes(link)) {
+        const linkFromFeeds = store.feeds
+          .filter((feed) => feed.link)
+          .map((feed) => feed.link);
+        if (linkFromFeeds.includes(link)) {
           store.feedback = 'duplicateRSSlink';
           store.isLoading = false;
           return;
@@ -102,8 +101,9 @@ const app = () => {
 
         fetchProxyRSS(link)
           .then((response) => {
-            if (response.status === 200) {
+            if (response.status === 200 || response?.status?.http_code === 200) {
               store.feedback = 'successfulScenario';
+              console.log('response', response);
               resolve(true);
             } else {
               store.feedback = 'invalidRSS';
@@ -139,7 +139,6 @@ const app = () => {
 
     const query = document.querySelector('#query');
 
-    // ----------------
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.isLoading = true;
@@ -156,9 +155,8 @@ const app = () => {
                   const { title, description, posts } = parsedData;
                   const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
                   const postsWithId = postsIdRev;
-                  store.feeds.push({ title, description });
+                  store.feeds.push({ title, description, link });
                   store.posts.push(...postsWithId);
-                  store.links.push(link);
                   if (store.autoAddNewPosts === false) {
                     store.autoAddNewPosts = true;
                     autoAddNewPosts(store);
@@ -170,7 +168,6 @@ const app = () => {
             }
           });
       };
-
       processRss(query.value);
     });
   });
