@@ -137,9 +137,9 @@ const isLoading = (store) => {
     btn.disabled = true;
   } else {
     btn.disabled = false;
-    const formElement = document.querySelector('form');
-    const queryElement = formElement.querySelector('#query');
-    queryElement.value = '';
+    // const formElement = document.querySelector('form');
+    // const queryElement = formElement.querySelector('#query');
+    // queryElement.value = '';
   }
 };
 
