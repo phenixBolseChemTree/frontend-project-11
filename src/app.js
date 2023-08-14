@@ -105,16 +105,17 @@ const app = () => {
 
         fetchProxyRSS(link)
           .then((response) => {
-            if (response?.data?.status?.content_type.includes('application/rss+xml')) {
-              store.response = response;
-              store.feedback = 'successfulScenario';
-              resolve(true);
-            } else {
-              store.feedback = 'invalidRSS';
-              store.isLoading = false;
-            }
+            // if (response?.data?.status?.content_type.includes('application/rss+xml')) {
+            store.response = response;
+            store.feedback = 'successfulScenario';
+            resolve(true);
+            // } else {
+            // store.feedback = 'invalidRSS';
+            // store.isLoading = false;
+            // }
           })
-          .catch(() => {
+          .catch((e) => {
+            console.log('ошибка отловленна: ', e);
             store.feedback = 'networkError';
             store.isLoading = false;
           });
