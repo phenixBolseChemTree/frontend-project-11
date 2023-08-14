@@ -87,38 +87,32 @@ const app = () => {
     const rssSchema = yup.string().url().test(
       'is-valid-rss',
       'invalidRSS',
-      (link) => new Promise((resolve) => {
-        if (!yup.string().url().isValidSync(link)) {
+      (link) => fetchProxyRSS(link)
+        .then((response) => {
+          const linkFromFeeds = store.feeds
+            .filter((feed) => feed.link)
+            .map((feed) => feed.link);
+
+          if (linkFromFeeds.includes(link)) {
+            store.feedback = 'duplicateRSSlink';
+            store.isLoading = false;
+            return false;
+          }
+
+          if (response.status === 200) {
+            store.response = response;
+            store.feedback = 'successfulScenario';
+            return true;
+          }
           store.feedback = 'invalidRSS';
           store.isLoading = false;
-          return;
-        }
-
-        const linkFromFeeds = store.feeds
-          .filter((feed) => feed.link)
-          .map((feed) => feed.link);
-        if (linkFromFeeds.includes(link)) {
-          store.feedback = 'duplicateRSSlink';
+          return false;
+        })
+        .catch(() => {
+          store.feedback = 'invalidRSS';
           store.isLoading = false;
-          return;
-        }
-
-        fetchProxyRSS(link)
-          .then((response) => {
-            if (response.status === 200) {
-              store.response = response;
-              store.feedback = 'successfulScenario';
-              resolve(true);
-            } else {
-              store.feedback = 'invalidRSS';
-              store.isLoading = false;
-            }
-          })
-          .catch(() => {
-            store.feedback = 'networkError';
-            store.isLoading = false;
-          });
-      }),
+          return false;
+        }),
     );
 
     const form = document.querySelector('.text-body');
