@@ -114,9 +114,8 @@ const app = () => {
             // store.isLoading = false;
             // }
           })
-          .catch((e) => {
-            console.log('ошибка отловленна: ', e);
-            store.feedback = 'networkError';
+          .catch(() => {
+            store.feedback = 'invalidRSS';
             store.isLoading = false;
           });
       }),
@@ -144,7 +143,6 @@ const app = () => {
 
     const query = document.querySelector('#query');
 
-    // renderContainer(store, i18nextInstance);
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.isLoading = true;
