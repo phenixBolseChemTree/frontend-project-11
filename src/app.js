@@ -88,7 +88,7 @@ const app = () => {
       'invalidRSS',
       (link) => new Promise((resolve) => {
         if (!yup.string().url().isValidSync(link)) {
-          store.feedback = 'invalidRSS';
+          store.feedback = 'InvalidRSSlink';
           store.isLoading = false;
           return;
         }
