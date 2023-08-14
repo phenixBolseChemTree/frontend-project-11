@@ -173,7 +173,7 @@ const app = () => {
                 }
               })
               .catch(() => {
-                store.feedback = 'InvalidRSS';
+                store.feedback = 'Ресурс не содержит валидный RSS';
               })
               .finally(() => {
                 store.isLoading = false;
