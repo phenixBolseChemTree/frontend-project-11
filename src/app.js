@@ -110,7 +110,7 @@ const app = () => {
         // store.feedback = 'successfulScenario';
         const rssSchemaSucess = yup.string().url().required();
         if (rssSchemaSucess.validate(link)) {
-          store.feedback = 'successfulScenario';
+          // store.feedback = 'successfulScenario';
           resolve(true);
         }
         // } else {
@@ -163,6 +163,7 @@ const app = () => {
                 const parsedData = parserV2(data);
                 const { title, description, posts } = parsedData;
                 const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+                store.feedback = 'successfulScenario';
                 const postsWithId = postsIdRev;
                 store.feeds.push({ title, description, link });
                 store.posts.push(...postsWithId);
@@ -171,8 +172,8 @@ const app = () => {
                   autoAddNewPosts(store);
                 }
               })
-              .catch((e) => {
-                console.log('validation dont start', e);
+              .catch(() => {
+                store.feedback = 'InvalidRSSlink';
               })
               .finally(() => {
                 store.isLoading = false;
