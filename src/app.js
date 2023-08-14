@@ -45,7 +45,6 @@ const app = () => {
       isLoading: false,
       lastResponse: null,
       liChildTarget: null,
-      response: '',
       modalId: '',
     };
 
@@ -97,27 +96,32 @@ const app = () => {
         const linkFromFeeds = store.feeds
           .filter((feed) => feed.link)
           .map((feed) => feed.link);
+
         if (linkFromFeeds.includes(link)) {
           store.feedback = 'duplicateRSSlink';
           store.isLoading = false;
           return;
         }
 
-        fetchProxyRSS(link)
-          .then((response) => {
-            // if (response?.data?.status?.content_type.includes('application/rss+xml')) {
-            store.response = response;
-            store.feedback = 'successfulScenario';
-            resolve(true);
-            // } else {
-            // store.feedback = 'invalidRSS';
-            // store.isLoading = false;
-            // }
-          })
-          .catch(() => {
-            store.feedback = 'invalidRSS';
-            store.isLoading = false;
-          });
+        // fetchProxyRSS(link)
+        // .then((response) => {
+        // if (response?.data?.status?.content_type.includes('application/rss+xml')) {
+        // store.response = response;
+        // store.feedback = 'successfulScenario';
+        const rssSchemaSucess = yup.string().url().required();
+        if (rssSchemaSucess.validate(link)) {
+          store.feedback = 'successfulScenario';
+          resolve(true);
+        }
+        // } else {
+        // store.feedback = 'invalidRSS';
+        // store.isLoading = false;
+        // }
+        // })
+        // .catch(() => {
+        // store.feedback = 'networkError';
+        // store.isLoading = false;
+        // });
       }),
     );
 
@@ -143,6 +147,7 @@ const app = () => {
 
     const query = document.querySelector('#query');
 
+    // renderContainer(store, i18nextInstance);
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.isLoading = true;
@@ -150,10 +155,10 @@ const app = () => {
       const processRss = (link) => {
         rssSchema.validate(link)
           .then(() => {
-            if (store.feedback === 'successfulScenario') {
-              const { response } = store;
-              try {
-                store.lastResponse = response;
+            // if (store.feedback === 'successfulScenario') {
+            fetchProxyRSS(link)
+              .then((response) => {
+                console.log('запрос не выполняется!!!');
                 const data = JSON.stringify(response);
                 const parsedData = parserV2(data);
                 const { title, description, posts } = parsedData;
@@ -165,12 +170,14 @@ const app = () => {
                   store.autoAddNewPosts = true;
                   autoAddNewPosts(store);
                 }
-              } catch (e) {
-                console.log('error in parser or get id', e);
-              } finally {
+              })
+              .catch((e) => {
+                console.log('validation dont start', e);
+              })
+              .finally(() => {
                 store.isLoading = false;
-              }
-            }
+              });
+            // }
           });
       };
       processRss(query.value);
