@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
 import {
-  render, isLoading, renderContainer, modalShow, renderFeeds, renderPosts, showFeedback,
+  render, isLoading, renderContainer,
 } from './view';
 import translations from './locales/ru';
 
