@@ -155,15 +155,22 @@ const app = () => {
       const processRss = (link) => {
         rssSchema.validate(link)
           .then(() => {
-            // if (store.feedback === 'successfulScenario') {
-            fetchProxyRSS(link)
+            const timeoutPromise = new Promise((resolve, reject) => {
+              setTimeout(() => {
+                reject(new Error('networkError'));
+              }, 5000); // 5 seconds
+            });
+
+            Promise.race([timeoutPromise, fetchProxyRSS(link)])
               .then((response) => {
-                console.log('запрос не выполняется!!!');
                 const data = JSON.stringify(response);
                 const parsedData = parserV2(data);
+
                 const { title, description, posts } = parsedData;
                 const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+
                 store.feedback = 'successfulScenario';
+
                 const postsWithId = postsIdRev;
                 store.feeds.push({ title, description, link });
                 store.posts.push(...postsWithId);
@@ -172,13 +179,18 @@ const app = () => {
                   autoAddNewPosts(store);
                 }
               })
-              .catch(() => {
-                store.feedback = 'Ресурс не содержит валидный RSS';
+              .catch((e) => {
+                if (e.message === 'networkError') {
+                  store.feedback = 'networkError';
+                } else if (e.message === 'invalidRSS') {
+                  store.feedback = 'invalidRSS';
+                } else {
+                  store.feedback = 'networkError';
+                }
               })
               .finally(() => {
                 store.isLoading = false;
               });
-            // }
           });
       };
       processRss(query.value);
