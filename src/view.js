@@ -166,5 +166,5 @@ const render = (store, i18n) => {
 // export default render;
 
 export {
-  render, isLoading, renderContainer, modalShow, showFeedback, renderFeeds, renderPosts
+  render, isLoading, renderContainer,
 };
