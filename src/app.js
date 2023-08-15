@@ -4,7 +4,9 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
-import { render, isLoading } from './view';
+import {
+  render, isLoading, renderContainer, modalShow, renderFeeds, renderPosts, showFeedback,
+} from './view';
 import translations from './locales/ru';
 
 const fetchProxyRSS = (link) => {
@@ -23,10 +25,40 @@ const getId = (() => {
   };
 })();
 
-const getNewPosts = (newPosts, posts) => {
-  const existingLinks = new Set(posts.map((post) => post.link));
-  const filteredPosts = newPosts.filter((post) => !existingLinks.has(post.link));
-  return filteredPosts;
+const autoAddNewPosts = (_store) => {
+  const linksFromFeeds = _store.feeds
+    .filter((feed) => feed.link)
+    .map((feed) => feed.link);
+
+  const getNewPosts = (newPosts, posts) => {
+    const existingLinks = new Set(posts.map((post) => post.link));
+    const filteredPosts = newPosts.filter((post) => !existingLinks.has(post.link));
+    return filteredPosts;
+  };
+
+  const promises = linksFromFeeds.map((link) => fetchProxyRSS(link)
+    .then((response) => {
+      const data = JSON.stringify(response);
+      const parsedData = parserV2(data);
+      const { posts } = parsedData;
+
+      if (posts.length !== 0) {
+        const newPosts = getNewPosts(posts.reverse(), _store.posts);
+
+        if (newPosts.length !== 0) {
+          const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
+          _store.posts.push(...postsWithId);
+        }
+      }
+    })
+    .catch((e) => {
+      console.log('invalidRSS', e);
+    }));
+
+  Promise.all(promises)
+    .then(() => {
+      setTimeout(() => autoAddNewPosts(_store), 5000);
+    });
 };
 
 const app = () => {
@@ -38,49 +70,27 @@ const app = () => {
     const initialStoreModel = {
       feeds: [],
       posts: [],
+      startApp: false,
       visitedPosts: [],
-      autoAddNewPosts: false,
       feedback: null,
       isLoading: false,
       modalId: '',
     };
 
-    const store = onChange(initialStoreModel, (path) => {
-      render(store, i18nextInstance);
+    const store = onChange(initialStoreModel, async (path) => {
+      if (!store.startApp === false) {
+        render(store, i18nextInstance);
+      } else {
+        await renderContainer(store, i18nextInstance);
+        autoAddNewPosts(store);
+        // }
+        render(store, i18nextInstance);
+      }
+
       if (path === 'isLoading') {
         isLoading(store, i18nextInstance);
       }
     });
-
-    const autoAddNewPosts = (_store) => {
-      const linksFromFeeds = _store.feeds
-        .filter((feed) => feed.link)
-        .map((feed) => feed.link);
-
-      const promises = linksFromFeeds.map((link) => fetchProxyRSS(link)
-        .then((response) => {
-          const data = JSON.stringify(response);
-          const parsedData = parserV2(data);
-          const { posts } = parsedData;
-
-          if (posts.length !== 0) {
-            const newPosts = getNewPosts(posts.reverse(), _store.posts);
-
-            if (newPosts.length !== 0) {
-              const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
-              _store.posts.push(...postsWithId);
-            }
-          }
-        })
-        .catch((e) => {
-          console.log('invalidRSS', e);
-        }));
-
-      Promise.all(promises)
-        .then(() => {
-          setTimeout(() => autoAddNewPosts(_store), 5000);
-        });
-    };
 
     const rssSchema = yup.string().test(
       'is-valid-rss',
@@ -151,15 +161,15 @@ const app = () => {
                 const { title, description, posts } = parsedData;
                 const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
 
+                if (store.startApp === false) {
+                  store.startApp = true;
+                }
+
                 store.feedback = 'successfulScenario';
 
                 const postsWithId = postsIdRev;
                 store.feeds.push({ title, description, link });
                 store.posts.push(...postsWithId);
-                if (store.autoAddNewPosts === false) {
-                  store.autoAddNewPosts = true;
-                  autoAddNewPosts(store);
-                }
               })
               .catch((e) => {
                 if (e.message === 'networkError') {

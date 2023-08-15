@@ -42,12 +42,12 @@ const renderContainer = (store, i18n) => {
 };
 
 const renderFeeds = (store, i18n) => {
-  if (document.querySelector('.container-list') === null) {
-    // console.log('store.showFeedback: ', store.showFeedback);
-    // if (store.showFeedback === 'successfulScenario') {
-    renderContainer(store, i18n);
-    // }
-  }
+  // if (document.querySelector('.container-list') === null) {
+  //   // console.log('store.showFeedback: ', store.showFeedback);
+  //   // if (store.showFeedback === 'successfulScenario') {
+  //   renderContainer(store, i18n);
+  //   // }
+  // }
   const { feeds } = store;
   const containerFeeds = document.querySelector('.container-feeds');
   containerFeeds.textContent = '';
@@ -172,5 +172,5 @@ const render = (store, i18n) => {
 // export default render;
 
 export {
-  render, isLoading, renderContainer, modalShow,
+  render, isLoading, renderContainer, modalShow, showFeedback, renderFeeds, renderPosts
 };
