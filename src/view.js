@@ -147,23 +147,12 @@ const isLoading = (store) => {
   }
 };
 
-// const debug = (store) => {
-//   const h1 = document.querySelector('.lead');
-//   const text = JSON.stringify(store.response);
-//   h1.textContent = text;
-// };
-
 const render = (store, i18n) => {
-  // renderContainer(store, i18n);
   renderFeeds(store, i18n);
   renderPosts(store, i18n);
   showFeedback(store, i18n);
   modalShow(store, i18n);
-  // isLoading(store, i18n);
-  // debug(store, i18n);
 };
-
-// export default render;
 
 export {
   render, isLoading, renderContainer,

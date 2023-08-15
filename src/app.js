@@ -83,7 +83,6 @@ const app = () => {
       } else {
         await renderContainer(store, i18nextInstance);
         autoAddNewPosts(store);
-        // }
         render(store, i18nextInstance);
       }
 
@@ -123,7 +122,6 @@ const app = () => {
 
     containerListEl.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
-      console.log('takeID', id);
       const link = e.target.getAttribute('data-link');
       if (id) {
         store.modalId = id;
