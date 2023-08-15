@@ -77,13 +77,16 @@ const app = () => {
       modalId: '',
     };
 
-    const store = onChange(initialStoreModel, async (path) => {
+    const store = onChange(initialStoreModel, (path) => {
       if (!store.startApp === false) {
         render(store, i18nextInstance);
       } else {
-        await renderContainer(store, i18nextInstance);
-        autoAddNewPosts(store);
-        render(store, i18nextInstance);
+        Promise.resolve()
+          .then(() => renderContainer(store, i18nextInstance))
+          .then(() => {
+            autoAddNewPosts(store);
+            render(store, i18nextInstance);
+          });
       }
 
       if (path === 'isLoading') {
