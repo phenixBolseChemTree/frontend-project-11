@@ -40,11 +40,8 @@ const app = () => {
       posts: [],
       visitedPosts: [],
       autoAddNewPosts: false,
-      container: false,
       feedback: null,
       isLoading: false,
-      lastResponse: null,
-      liChildTarget: null,
       modalId: '',
     };
 
@@ -59,28 +56,30 @@ const app = () => {
       const linksFromFeeds = _store.feeds
         .filter((feed) => feed.link)
         .map((feed) => feed.link);
-      linksFromFeeds.forEach((link) => {
-        let newPosts = [];
-        fetchProxyRSS(link)
-          .then((response) => {
-            const data = JSON.stringify(response);
-            const parsedData = parserV2(data);
-            const { posts } = parsedData;
-            if (posts.length !== 0) {
-              newPosts = getNewPosts(posts.reverse(), _store.posts);
-              if (newPosts.length !== 0) {
-                const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
-                _store.posts.push(...postsWithId);
-              }
-            }
-            return posts;
-          })
-          .catch((e) => {
-            console.log('invalidRSS', e);
-          });
-      });
 
-      setTimeout(() => autoAddNewPosts(_store), 5000);
+      const promises = linksFromFeeds.map((link) => fetchProxyRSS(link)
+        .then((response) => {
+          const data = JSON.stringify(response);
+          const parsedData = parserV2(data);
+          const { posts } = parsedData;
+
+          if (posts.length !== 0) {
+            const newPosts = getNewPosts(posts.reverse(), _store.posts);
+
+            if (newPosts.length !== 0) {
+              const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
+              _store.posts.push(...postsWithId);
+            }
+          }
+        })
+        .catch((e) => {
+          console.log('invalidRSS', e);
+        }));
+
+      Promise.all(promises)
+        .then(() => {
+          setTimeout(() => autoAddNewPosts(_store), 5000);
+        });
     };
 
     const rssSchema = yup.string().test(
@@ -102,26 +101,10 @@ const app = () => {
           store.isLoading = false;
           return;
         }
-
-        // fetchProxyRSS(link)
-        // .then((response) => {
-        // if (response?.data?.status?.content_type.includes('application/rss+xml')) {
-        // store.response = response;
-        // store.feedback = 'successfulScenario';
         const rssSchemaSucess = yup.string().url().required();
         if (rssSchemaSucess.validate(link)) {
-          // store.feedback = 'successfulScenario';
           resolve(true);
         }
-        // } else {
-        // store.feedback = 'invalidRSS';
-        // store.isLoading = false;
-        // }
-        // })
-        // .catch(() => {
-        // store.feedback = 'networkError';
-        // store.isLoading = false;
-        // });
       }),
     );
 
@@ -147,7 +130,6 @@ const app = () => {
 
     const query = document.querySelector('#query');
 
-    // renderContainer(store, i18nextInstance);
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.isLoading = true;
