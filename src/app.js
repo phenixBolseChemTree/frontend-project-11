@@ -150,7 +150,10 @@ const app = () => {
             store.posts.push(...postsWithId);
           })
           .catch((error) => {
-            console.log('error', error);
+            if (error.message === 'Network Error') {
+              store.feedback = 'networkError';
+              return;
+            }
             store.feedback = error.message;
           })
           .finally(() => {
