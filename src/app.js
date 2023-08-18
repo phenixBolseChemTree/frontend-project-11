@@ -70,15 +70,15 @@ const app = () => {
     const initialStoreModel = {
       feeds: [],
       posts: [],
-      startApp: false,
+      startApp: 'notInit',
       visitedPosts: [],
       feedback: null,
-      isLoading: false,
+      isLoading: 'loaded', // true unload false loaded
       modalId: '',
     };
 
     const store = onChange(initialStoreModel, (path) => {
-      if (!store.startApp === false) {
+      if (store.startApp === 'inited') {
         render(store, i18nextInstance);
       } else {
         Promise.resolve()
@@ -100,7 +100,7 @@ const app = () => {
       (link) => new Promise((resolve) => {
         if (!yup.string().url().isValidSync(link)) {
           store.feedback = 'InvalidRSSlink';
-          store.isLoading = false;
+          store.isLoading = 'loaded';
           return;
         }
 
@@ -110,7 +110,7 @@ const app = () => {
 
         if (linkFromFeeds.includes(link)) {
           store.feedback = 'duplicateRSSlink';
-          store.isLoading = false;
+          store.isLoading = 'loaded';
           return;
         }
         const rssSchemaSucess = yup.string().url().required();
@@ -143,7 +143,7 @@ const app = () => {
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.isLoading = true;
+      store.isLoading = 'unload';
 
       const processRss = (link) => {
         rssSchema.validate(link)
@@ -162,8 +162,8 @@ const app = () => {
                 const { title, description, posts } = parsedData;
                 const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
 
-                if (store.startApp === false) {
-                  store.startApp = true;
+                if (store.startApp === 'notInit') {
+                  store.startApp = 'inited';
                 }
 
                 store.feedback = 'successfulScenario';
@@ -182,7 +182,7 @@ const app = () => {
                 }
               })
               .finally(() => {
-                store.isLoading = false;
+                store.isLoading = 'loaded';
               });
           });
       };
