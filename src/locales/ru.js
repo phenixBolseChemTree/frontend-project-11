@@ -6,6 +6,7 @@ export default {
       InvalidRSSlink: 'Ссылка должна быть валидным URL',
       invalidRSS: 'Ресурс не содержит валидный RSS',
       doesentEmpty: 'Поле не должно быть пустым',
+      emptyInput: 'Не должно быть пустым',
       networkError: 'Ошибка сети',
       feeds: 'Фиды',
       posts: 'Посты',

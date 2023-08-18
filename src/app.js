@@ -4,9 +4,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
-import {
-  render, isLoading, renderContainer,
-} from './view';
+import { render, isLoading, renderContainer } from './view';
 import translations from './locales/ru';
 
 const fetchProxyRSS = (link) => {
@@ -94,31 +92,14 @@ const app = () => {
       }
     });
 
-    const rssSchema = yup.string().test(
-      'is-valid-rss',
-      'invalidRSS',
-      (link) => new Promise((resolve) => {
-        if (!yup.string().url().isValidSync(link)) {
-          store.feedback = 'InvalidRSSlink';
-          store.isLoading = false;
-          return;
-        }
+    // --------------------------------------------------
 
-        const linkFromFeeds = store.feeds
-          .filter((feed) => feed.link)
-          .map((feed) => feed.link);
+    const validate = (url, urls) => {
+      const schema = yup.string().url('InvalidRSSlink').notOneOf(urls, 'duplicateRSSlink').required('emptyInput');
+      return schema.validate(url, { abortEarly: false });
+    };
 
-        if (linkFromFeeds.includes(link)) {
-          store.feedback = 'duplicateRSSlink';
-          store.isLoading = false;
-          return;
-        }
-        const rssSchemaSucess = yup.string().url().required();
-        if (rssSchemaSucess.validate(link)) {
-          resolve(true);
-        }
-      }),
-    );
+    // --------------------------------------------------
 
     const form = document.querySelector('.text-body');
     const containerListEl = document.querySelector('.posts');
@@ -146,44 +127,34 @@ const app = () => {
       store.isLoading = true;
 
       const processRss = (link) => {
-        rssSchema.validate(link)
-          .then(() => {
-            const timeoutPromise = new Promise((resolve, reject) => {
-              setTimeout(() => {
-                reject(new Error('networkError'));
-              }, 5000); // 5 seconds
-            });
+        const links = store.feeds
+          .filter((feed) => feed.link)
+          .map((feed) => feed.link);
 
-            Promise.race([timeoutPromise, fetchProxyRSS(link)])
-              .then((response) => {
-                const data = JSON.stringify(response);
-                const parsedData = parserV2(data);
+        validate(link, links)
+          .then((url) => {
+            if (store.startApp === false) {
+              store.startApp = true;
+            }
+            return fetchProxyRSS(url);
+          })
+          .then((response) => {
+            const data = JSON.stringify(response);
+            const parsedData = parserV2(data);
+            const { title, description, posts } = parsedData;
+            const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+            store.feedback = 'successfulScenario';
 
-                const { title, description, posts } = parsedData;
-                const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
-
-                if (store.startApp === false) {
-                  store.startApp = true;
-                }
-
-                store.feedback = 'successfulScenario';
-
-                const postsWithId = postsIdRev;
-                store.feeds.push({ title, description, link });
-                store.posts.push(...postsWithId);
-              })
-              .catch((e) => {
-                if (e.message === 'networkError') {
-                  store.feedback = 'networkError';
-                } else if (e.message === 'invalidRSS') {
-                  store.feedback = 'invalidRSS';
-                } else {
-                  store.feedback = 'networkError';
-                }
-              })
-              .finally(() => {
-                store.isLoading = false;
-              });
+            const postsWithId = postsIdRev;
+            store.feeds.push({ title, description, link });
+            store.posts.push(...postsWithId);
+          })
+          .catch((error) => {
+            console.log('error', error);
+            store.feedback = error.message;
+          })
+          .finally(() => {
+            store.isLoading = false;
           });
       };
       processRss(query.value);
