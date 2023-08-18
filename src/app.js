@@ -70,15 +70,15 @@ const app = () => {
     const initialStoreModel = {
       feeds: [],
       posts: [],
-      startApp: 'notInit',
+      startApp: false,
       visitedPosts: [],
       feedback: null,
-      isLoading: 'loaded', // true unload false loaded
+      isLoading: false,
       modalId: '',
     };
 
     const store = onChange(initialStoreModel, (path) => {
-      if (store.startApp === 'inited') {
+      if (!store.startApp === false) {
         render(store, i18nextInstance);
       } else {
         Promise.resolve()
@@ -100,7 +100,7 @@ const app = () => {
       (link) => new Promise((resolve) => {
         if (!yup.string().url().isValidSync(link)) {
           store.feedback = 'InvalidRSSlink';
-          store.isLoading = 'loaded';
+          store.isLoading = false;
           return;
         }
 
@@ -110,7 +110,7 @@ const app = () => {
 
         if (linkFromFeeds.includes(link)) {
           store.feedback = 'duplicateRSSlink';
-          store.isLoading = 'loaded';
+          store.isLoading = false;
           return;
         }
         const rssSchemaSucess = yup.string().url().required();
@@ -143,7 +143,7 @@ const app = () => {
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.isLoading = 'unload';
+      store.isLoading = true;
 
       const processRss = (link) => {
         rssSchema.validate(link)
@@ -162,8 +162,8 @@ const app = () => {
                 const { title, description, posts } = parsedData;
                 const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
 
-                if (store.startApp === 'notInit') {
-                  store.startApp = 'inited';
+                if (store.startApp === false) {
+                  store.startApp = true;
                 }
 
                 store.feedback = 'successfulScenario';
@@ -182,7 +182,7 @@ const app = () => {
                 }
               })
               .finally(() => {
-                store.isLoading = 'loaded';
+                store.isLoading = false;
               });
           });
       };
