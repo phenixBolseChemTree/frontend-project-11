@@ -106,16 +106,10 @@ const app = () => {
 
     containerListEl.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
-      const link = e.target.getAttribute('data-link');
       if (id) {
         store.modalId = id;
         if (!Array.from(store.visitedPosts).includes(id)) {
           store.visitedPosts.push(id);
-        }
-      }
-      if (link) {
-        if (!Array.from(store.visitedPosts).includes(link)) {
-          store.visitedPosts.push(link);
         }
       }
     });

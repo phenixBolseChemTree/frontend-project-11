@@ -76,7 +76,7 @@ const renderPosts = (store, i18n) => {
     titleTag.textContent = title;
     titleTag.setAttribute('href', link);
     titleTag.setAttribute('target', '_blank');
-    titleTag.setAttribute('data-link', id);
+    titleTag.setAttribute('data-id', id);
     if (visitedPost.includes(String(id))) {
       titleTag.classList.add('fw-normal', 'text-secondary');
     } else {
