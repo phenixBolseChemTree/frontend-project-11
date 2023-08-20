@@ -78,15 +78,21 @@ const app = () => {
     };
 
     const store = onChange(initialStoreModel, (path) => {
-      if (store.startApp === 'loaded') {
-        render(store, i18nextInstance);
-      } else if (store.feedback === 'successfulScenario') {
-        renderContainer(store, i18nextInstance);
-        autoAddNewPosts(store);
-        store.startApp = 'loaded';
-      } else {
-        showFeedback(store, i18nextInstance);
-        store.startApp = 'not started';
+      switch (true) {
+        case store.startApp === 'loaded':
+          render(store, i18nextInstance);
+          break;
+
+        case store.feedback === 'successfulScenario':
+          renderContainer(store, i18nextInstance);
+          autoAddNewPosts(store);
+          store.startApp = 'loaded';
+          break;
+
+        default:
+          showFeedback(store, i18nextInstance);
+          store.startApp = 'not started';
+          break;
       }
 
       if (path === 'isLoading') {
