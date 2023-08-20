@@ -4,7 +4,9 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
-import { render, isLoading, renderContainer } from './view';
+import {
+  render, isLoading, renderContainer, showFeedback,
+} from './view';
 import translations from './locales/ru';
 
 const fetchProxyRSS = (link) => {
@@ -68,7 +70,7 @@ const app = () => {
     const initialStoreModel = {
       feeds: [],
       posts: [],
-      startApp: false,
+      startApp: 'not started',
       visitedPosts: [],
       feedback: null,
       isLoading: false,
@@ -76,15 +78,15 @@ const app = () => {
     };
 
     const store = onChange(initialStoreModel, (path) => {
-      if (!store.startApp === false) {
+      if (store.startApp === 'loaded') {
         render(store, i18nextInstance);
+      } else if (store.feedback === 'successfulScenario') {
+        renderContainer(store, i18nextInstance);
+        autoAddNewPosts(store);
+        store.startApp = 'loaded';
       } else {
-        Promise.resolve()
-          .then(() => renderContainer(store, i18nextInstance))
-          .then(() => {
-            autoAddNewPosts(store);
-            render(store, i18nextInstance);
-          });
+        showFeedback(store, i18nextInstance);
+        store.startApp = 'not started';
       }
 
       if (path === 'isLoading') {
@@ -127,8 +129,8 @@ const app = () => {
 
         validate(link, links)
           .then((url) => {
-            if (store.startApp === false) {
-              store.startApp = true;
+            if (store.startApp === 'not started') {
+              store.startApp = 'loading';
             }
             return fetchProxyRSS(url);
           })

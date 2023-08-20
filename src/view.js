@@ -155,5 +155,5 @@ const render = (store, i18n) => {
 };
 
 export {
-  render, isLoading, renderContainer,
+  render, isLoading, renderContainer, showFeedback,
 };
