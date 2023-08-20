@@ -73,7 +73,7 @@ const app = () => {
       startApp: 'not started',
       visitedPosts: [],
       feedback: null,
-      isLoading: false,
+      isLoading: 'not loaded',
       modalId: '',
     };
 
@@ -126,7 +126,7 @@ const app = () => {
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.isLoading = true;
+      store.isLoading = 'loading';
 
       const processRss = (link) => {
         const links = store.feeds
@@ -159,7 +159,7 @@ const app = () => {
             store.feedback = error.message;
           })
           .finally(() => {
-            store.isLoading = false;
+            store.isLoading = 'loaded';
           });
       };
       processRss(query.value);

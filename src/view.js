@@ -137,7 +137,7 @@ const modalShow = (store) => {
 
 const isLoading = (store) => {
   const btn = document.querySelector('.btn-primary');
-  if (store.isLoading) {
+  if (store.isLoading === 'loading') {
     btn.disabled = true;
   } else {
     btn.disabled = false;
