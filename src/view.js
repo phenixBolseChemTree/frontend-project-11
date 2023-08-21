@@ -137,7 +137,7 @@ const modalShow = (store) => {
 
 const isLoading = (store) => {
   const btn = document.querySelector('.btn-primary');
-  if (store.isLoading) {
+  if (store.isLoading === 'closed') {
     btn.disabled = true;
   } else {
     btn.disabled = false;
@@ -150,7 +150,7 @@ const isLoading = (store) => {
 const render = (store, i18n) => {
   renderFeeds(store, i18n);
   renderPosts(store, i18n);
-  // showFeedback(store, i18n);
+  showFeedback(store, i18n);
   modalShow(store, i18n);
 };
 

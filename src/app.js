@@ -70,6 +70,7 @@ const app = () => {
     const initialStoreModel = {
       feeds: [],
       posts: [],
+      status: 'filling',
       startApp: 'not started',
       visitedPosts: [],
       feedback: null,
@@ -78,18 +79,26 @@ const app = () => {
     };
 
     const store = onChange(initialStoreModel, (path) => {
-      if (store.startApp === 'inited') {
-        render(store, i18nextInstance);
+      if (path === 'status') {
+        if (store.status === 'loading') {
+          console.log('loading');
+          isLoading(store, i18nextInstance);
+        }
+        if (store.status === 'success') {
+          console.log('success');
+          render(store, i18nextInstance);
+          // showFeedback(store, i18nextInstance);
+          isLoading(store, i18nextInstance);
+        }
+        if (store.status === 'failed') {
+          console.log('failed');
+          isLoading(store, i18nextInstance);
+          showFeedback(store, i18nextInstance);
+        }
       }
-
-      if (path === 'feedback') {
-        showFeedback(store, i18nextInstance);
-      }
-
-      if (path === 'isLoading') {
+      if (store.status === 'filling') {
         isLoading(store, i18nextInstance);
       }
-
       if (path === 'startApp') {
         if (store.startApp === 'inicialization') {
           renderContainer(store, i18nextInstance);
@@ -124,19 +133,14 @@ const app = () => {
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.isLoading = true;
+      store.isLoading = 'closed';
 
       const processRss = (link) => {
         const links = store.feeds
           .map((feed) => feed.link);
 
         validate(link, links)
-          .then((url) => {
-            if (store.startApp === 'not started') {
-              store.startApp = 'inicialization';
-            }
-            return fetchProxyRSS(url);
-          })
+          .then((url) => fetchProxyRSS(url))
           .then((response) => {
             const data = JSON.stringify(response);
             const parsedData = parserV2(data);
@@ -146,9 +150,10 @@ const app = () => {
             const postsWithId = postsIdRev;
             store.feeds.push({ title, description, link });
             store.posts.push(...postsWithId);
-            if (store.startApp !== 'inited') {
-              store.startApp = 'inited';
+            if (store.startApp === 'not started') {
+              store.startApp = 'inicialization';
             }
+            store.status = 'success';
           })
           .catch((error) => {
             if (error.message === 'Network Error') {
@@ -156,9 +161,11 @@ const app = () => {
               return;
             }
             store.feedback = error.message;
+            store.status = 'failed';
           })
           .finally(() => {
-            store.isLoading = false;
+            store.isLoading = 'usable';
+            store.status = 'filling';
           });
       };
       processRss(query.value);
