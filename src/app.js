@@ -73,30 +73,28 @@ const app = () => {
       startApp: 'not started',
       visitedPosts: [],
       feedback: null,
-      isLoading: 'not loaded',
+      isLoading: false,
       modalId: '',
     };
 
     const store = onChange(initialStoreModel, (path) => {
-      switch (true) {
-        case store.startApp === 'loaded':
-          render(store, i18nextInstance);
-          break;
+      if (store.startApp === 'inited') {
+        render(store, i18nextInstance);
+      }
 
-        case store.feedback === 'successfulScenario':
-          renderContainer(store, i18nextInstance);
-          autoAddNewPosts(store);
-          store.startApp = 'loaded';
-          break;
-
-        default:
-          showFeedback(store, i18nextInstance);
-          store.startApp = 'not started';
-          break;
+      if (path === 'feedback') {
+        showFeedback(store, i18nextInstance);
       }
 
       if (path === 'isLoading') {
         isLoading(store, i18nextInstance);
+      }
+
+      if (path === 'startApp') {
+        if (store.startApp === 'inicialization') {
+          renderContainer(store, i18nextInstance);
+          autoAddNewPosts(store);
+        }
       }
     });
 
@@ -104,11 +102,7 @@ const app = () => {
 
     const validate = (url, urls) => {
       const schema = yup.string().url('InvalidRSSlink').notOneOf(urls, 'duplicateRSSlink').required('emptyInput');
-      return schema.validate(url, { abortEarly: false })
-        .catch((error) => {
-          // store.feedback = error.message;
-          throw error;
-        });
+      return schema.validate(url, { abortEarly: false });
     };
 
     // --------------------------------------------------
@@ -130,13 +124,16 @@ const app = () => {
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.isLoading = 'loading';
+      store.isLoading = true;
 
       const processRss = (link) => {
-        validate(link, store.feeds)
+        const links = store.feeds
+          .map((feed) => feed.link);
+
+        validate(link, links)
           .then((url) => {
             if (store.startApp === 'not started') {
-              store.startApp = 'loading';
+              store.startApp = 'inicialization';
             }
             return fetchProxyRSS(url);
           })
@@ -146,10 +143,12 @@ const app = () => {
             const { title, description, posts } = parsedData;
             const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
             store.feedback = 'successfulScenario';
-
             const postsWithId = postsIdRev;
             store.feeds.push({ title, description, link });
             store.posts.push(...postsWithId);
+            if (store.startApp !== 'inited') {
+              store.startApp = 'inited';
+            }
           })
           .catch((error) => {
             if (error.message === 'Network Error') {
@@ -159,7 +158,7 @@ const app = () => {
             store.feedback = error.message;
           })
           .finally(() => {
-            store.isLoading = 'loaded';
+            store.isLoading = false;
           });
       };
       processRss(query.value);
