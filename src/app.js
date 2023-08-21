@@ -104,7 +104,11 @@ const app = () => {
 
     const validate = (url, urls) => {
       const schema = yup.string().url('InvalidRSSlink').notOneOf(urls, 'duplicateRSSlink').required('emptyInput');
-      return schema.validate(url, { abortEarly: false });
+      return schema.validate(url, { abortEarly: false })
+        .catch((error) => {
+          // store.feedback = error.message;
+          throw error;
+        });
     };
 
     // --------------------------------------------------
