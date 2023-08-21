@@ -81,17 +81,14 @@ const app = () => {
     const store = onChange(initialStoreModel, (path) => {
       if (path === 'status') {
         if (store.status === 'loading') {
-          console.log('loading');
           isLoading(store, i18nextInstance);
         }
         if (store.status === 'success') {
-          console.log('success');
           render(store, i18nextInstance);
           // showFeedback(store, i18nextInstance);
           isLoading(store, i18nextInstance);
         }
         if (store.status === 'failed') {
-          console.log('failed');
           isLoading(store, i18nextInstance);
           showFeedback(store, i18nextInstance);
         }
@@ -158,10 +155,11 @@ const app = () => {
           .catch((error) => {
             if (error.message === 'Network Error') {
               store.feedback = 'networkError';
-              return;
+              store.status = 'failed';
+            } else {
+              store.feedback = error.message;
+              store.status = 'failed';
             }
-            store.feedback = error.message;
-            store.status = 'failed';
           })
           .finally(() => {
             store.isLoading = 'usable';
