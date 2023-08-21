@@ -129,11 +129,7 @@ const app = () => {
       store.isLoading = 'loading';
 
       const processRss = (link) => {
-        const links = store.feeds
-          .filter((feed) => feed.link)
-          .map((feed) => feed.link);
-
-        validate(link, links)
+        validate(link, store.feeds)
           .then((url) => {
             if (store.startApp === 'not started') {
               store.startApp = 'loading';
