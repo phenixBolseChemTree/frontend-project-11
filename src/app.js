@@ -82,6 +82,9 @@ const app = () => {
       switch (path) {
         case 'status':
           switch (store.status) {
+            case 'filling':
+              isLoading(store, i18nextInstance);
+              break;
             case 'loading':
               isLoading(store, i18nextInstance);
               break;
@@ -92,9 +95,6 @@ const app = () => {
             case 'failed':
               isLoading(store, i18nextInstance);
               showFeedback(store, i18nextInstance);
-              break;
-            case 'filling':
-              isLoading(store, i18nextInstance);
               break;
             default:
               break;
