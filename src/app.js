@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
 import {
-  render, isLoading, renderContainer, showFeedback, renderPosts, modalShow,
+  renderContent, isLoading, renderContainer, showFeedback, renderPosts, modalShow,
 } from './view';
 import translations from './locales/ru';
 
@@ -72,7 +72,6 @@ const app = () => {
       posts: [],
       status: 'filling',
       startApp: 'not started',
-      autoPosts: 'unusable',
       visitedPosts: [],
       feedback: null,
       isLoading: false,
@@ -80,32 +79,37 @@ const app = () => {
     };
 
     const store = onChange(initialStoreModel, (path) => {
-      if (path === 'status') {
-        if (store.status === 'loading') {
-          isLoading(store, i18nextInstance);
-        }
-        if (store.status === 'success') {
-          render(store, i18nextInstance);
-          isLoading(store, i18nextInstance);
-        }
-        if (store.status === 'failed') {
-          isLoading(store, i18nextInstance);
-          showFeedback(store, i18nextInstance);
-        }
-        if (store.status === 'filling') {
-          isLoading(store, i18nextInstance);
-        }
+      switch (path) {
+        case 'status':
+          switch (store.status) {
+            case 'loading':
+              isLoading(store, i18nextInstance);
+              break;
+            case 'success':
+              renderContent(store, i18nextInstance);
+              isLoading(store, i18nextInstance);
+              break;
+            case 'failed':
+              isLoading(store, i18nextInstance);
+              showFeedback(store, i18nextInstance);
+              break;
+            case 'filling':
+              isLoading(store, i18nextInstance);
+              break;
+            default:
+              break;
+          }
+          break;
+        default:
+          break;
       }
-      if (path === 'startApp') {
-        if (store.startApp === 'inicialization') {
-          renderContainer(store, i18nextInstance);
-          autoAddNewPosts(store);
-        }
+
+      if (path === 'startApp' && store.startApp === 'inicialization') {
+        renderContainer(store, i18nextInstance);
+        autoAddNewPosts(store);
       }
-      if (store.autoPosts === 'inicialization') {
-        if (path === 'posts') {
-          renderPosts(store, i18nextInstance);
-        }
+      if (store.startApp === 'inicialization' && path === 'posts') {
+        renderPosts(store, i18nextInstance);
       }
 
       if (path === 'modalId') {
@@ -115,14 +119,10 @@ const app = () => {
       }
     });
 
-    // --------------------------------------------------
-
     const validate = (url, urls) => {
       const schema = yup.string().url('InvalidRSSlink').notOneOf(urls, 'duplicateRSSlink').required('emptyInput');
       return schema.validate(url, { abortEarly: false });
     };
-
-    // --------------------------------------------------
 
     const containerListEl = document.querySelector('.posts');
     containerListEl.addEventListener('click', (e) => {

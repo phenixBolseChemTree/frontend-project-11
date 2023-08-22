@@ -66,7 +66,6 @@ const renderFeeds = (store) => {
 };
 
 const renderPosts = (store, i18n) => {
-  console.log('onffff');
   const container = document.querySelector('.container-list');
   container.textContent = '';
   const visitedPost = Array.from(store.visitedPosts);
@@ -148,12 +147,12 @@ const isLoading = (store) => {
   }
 };
 
-const render = (store, i18n) => {
+const renderContent = (store, i18n) => {
   renderFeeds(store, i18n);
   renderPosts(store, i18n);
   showFeedback(store, i18n);
 };
 
 export {
-  render, isLoading, renderContainer, showFeedback, renderPosts, modalShow,
+  renderContent, isLoading, renderContainer, showFeedback, renderPosts, modalShow,
 };
