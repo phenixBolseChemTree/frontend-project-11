@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
 import {
-  render, isLoading, renderContainer, showFeedback,
+  render, isLoading, renderContainer, showFeedback, renderPosts, modalShow,
 } from './view';
 import translations from './locales/ru';
 
@@ -72,6 +72,7 @@ const app = () => {
       posts: [],
       status: 'filling',
       startApp: 'not started',
+      autoPosts: 'unusable',
       visitedPosts: [],
       feedback: null,
       isLoading: false,
@@ -85,22 +86,32 @@ const app = () => {
         }
         if (store.status === 'success') {
           render(store, i18nextInstance);
-          // showFeedback(store, i18nextInstance);
           isLoading(store, i18nextInstance);
         }
         if (store.status === 'failed') {
           isLoading(store, i18nextInstance);
           showFeedback(store, i18nextInstance);
         }
-      }
-      if (store.status === 'filling') {
-        isLoading(store, i18nextInstance);
+        if (store.status === 'filling') {
+          isLoading(store, i18nextInstance);
+        }
       }
       if (path === 'startApp') {
         if (store.startApp === 'inicialization') {
           renderContainer(store, i18nextInstance);
           autoAddNewPosts(store);
         }
+      }
+      if (store.autoPosts === 'inicialization') {
+        if (path === 'posts') {
+          renderPosts(store, i18nextInstance);
+        }
+      }
+
+      if (path === 'modalId') {
+        Promise.resolve()
+          .then(() => modalShow(store, i18nextInstance))
+          .then(() => renderPosts(store, i18nextInstance));
       }
     });
 
@@ -113,9 +124,7 @@ const app = () => {
 
     // --------------------------------------------------
 
-    const form = document.querySelector('.text-body');
     const containerListEl = document.querySelector('.posts');
-
     containerListEl.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
       if (id) {
@@ -126,6 +135,7 @@ const app = () => {
       }
     });
 
+    const form = document.querySelector('.text-body');
     const query = document.querySelector('#query');
 
     form.addEventListener('submit', (event) => {
