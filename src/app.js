@@ -26,9 +26,7 @@ const getId = (() => {
 })();
 
 const autoAddNewPosts = (_store) => {
-  const linksFromFeeds = _store.feeds
-    .filter((feed) => feed.link)
-    .map((feed) => feed.link);
+  const linksFromFeeds = _store.feeds.map((feed) => feed.link);
 
   const getNewPosts = (newPosts, posts) => {
     const existingLinks = new Set(posts.map((post) => post.link));
