@@ -2,6 +2,9 @@ const renderContainer = (store, i18n) => {
   const postsEl = document.querySelector('.posts');
   const feedsEl = document.querySelector('.feeds');
 
+  postsEl.textContent = '';
+  feedsEl.textContent = '';
+
   const postsCard = document.createElement('div');
   postsCard.className = 'card border-0';
 
@@ -135,12 +138,12 @@ const modalShow = (store) => {
   openModal(title, description, link);
 };
 
-const isLoading = (store) => {
-  const btn = document.querySelector('.btn-primary');
-  if (store.isLoading === 'closed') {
-    btn.disabled = true;
+const isLoading = (btn) => {
+  const btnTag = document.querySelector('.btn-primary');
+  if (btn === 'closed') {
+    btnTag.disabled = true;
   } else {
-    btn.disabled = false;
+    btnTag.disabled = false;
     const formElement = document.querySelector('form');
     const queryElement = formElement.querySelector('#query');
     queryElement.value = '';

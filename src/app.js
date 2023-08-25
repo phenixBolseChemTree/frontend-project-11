@@ -26,8 +26,7 @@ const getId = (() => {
 })();
 
 const autoAddNewPosts = (_store) => {
-  const linksFromFeeds = _store.feeds.filter((feed) => feed.link);
-
+  const linksFromFeeds = _store.feeds.map((feed) => feed.link);
   const getNewPosts = (newPosts, posts) => {
     const existingLinks = new Set(posts.map((post) => post.link));
     const filteredPosts = newPosts.filter((post) => !existingLinks.has(post.link));
@@ -68,30 +67,27 @@ const app = () => {
     const initialStoreModel = {
       feeds: [],
       posts: [],
-      status: 'filling',
-      startApp: 'not started',
+      status: 'idle',
       visitedPosts: [],
       feedback: null,
-      isLoading: false,
       modalId: '',
     };
-
     const store = onChange(initialStoreModel, (path) => {
+      console.log(store.status);
       switch (path) {
         case 'status':
           switch (store.status) {
-            case 'filling':
-              isLoading(store, i18nextInstance);
-              break;
             case 'loading':
-              isLoading(store, i18nextInstance);
+              isLoading('closed');
               break;
             case 'success':
+              renderContainer(store, i18nextInstance);
               renderContent(store, i18nextInstance);
-              isLoading(store, i18nextInstance);
               break;
             case 'failed':
-              isLoading(store, i18nextInstance);
+              break;
+            case 'filling':
+              isLoading('open');
               showFeedback(store, i18nextInstance);
               break;
             default:
@@ -102,11 +98,7 @@ const app = () => {
           break;
       }
 
-      if (path === 'startApp' && store.startApp === 'inicialization') {
-        renderContainer(store, i18nextInstance);
-        autoAddNewPosts(store);
-      }
-      if (store.startApp === 'inicialization' && path === 'posts') {
+      if (store.status !== 'success' && path === 'posts' && store.status !== 'idle') {
         renderPosts(store, i18nextInstance);
       }
 
@@ -133,13 +125,13 @@ const app = () => {
       }
     });
 
+    autoAddNewPosts(store);
+
     const form = document.querySelector('.text-body');
     const query = document.querySelector('#query');
-
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.isLoading = 'closed';
-
+      isLoading('closed');
       const processRss = (link) => {
         const links = store.feeds
           .map((feed) => feed.link);
@@ -155,10 +147,9 @@ const app = () => {
             const postsWithId = postsIdRev;
             store.feeds.push({ title, description, link });
             store.posts.push(...postsWithId);
-            if (store.startApp === 'not started') {
-              store.startApp = 'inicialization';
-            }
             store.status = 'success';
+
+            store.status = 'filling';
           })
           .catch((error) => {
             if (error.message === 'Network Error') {
@@ -168,10 +159,15 @@ const app = () => {
               store.feedback = error.message;
               store.status = 'failed';
             }
+            if (store.feeds.length === 0) {
+              store.status = 'idle';
+            } else {
+              store.status = 'filling';
+            }
           })
           .finally(() => {
-            store.isLoading = 'usable';
-            store.status = 'filling';
+            isLoading('open');
+            // store.status = 'filling';
           });
       };
       processRss(query.value);
