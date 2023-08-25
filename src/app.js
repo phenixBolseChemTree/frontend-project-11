@@ -71,7 +71,6 @@ const app = () => {
       modalId: '',
     };
     const store = onChange(initialStoreModel, (path) => {
-      console.log(store.status);
       render(store, i18nextInstance, path);
     });
 
