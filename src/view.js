@@ -156,12 +156,15 @@ const renderContent = (store, i18n) => {
   showFeedback(store, i18n);
 };
 
-const render = (store, i18nextInstance, path) => {
+const render = (store, i18nextInstance, path, value, preValue) => {
   switch (path) {
     case 'status':
       switch (store.status) {
         case 'loading':
           isLoading('closed');
+          break;
+        case 'idle':
+          isLoading('open');
           break;
         case 'success':
           renderContainer(store, i18nextInstance);
@@ -182,10 +185,10 @@ const render = (store, i18nextInstance, path) => {
       break;
   }
 
-  if (store.status !== 'success' && path === 'posts' && store.status !== 'idle') {
+  if (store.status !== 'success' && path === 'posts' && store.status !== 'loading') {
     renderPosts(store, i18nextInstance);
   }
-  // по скольку мне нельзя вводить
+
   if (path === 'modalId') {
     Promise.resolve()
       .then(() => modalShow(store, i18nextInstance))

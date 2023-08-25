@@ -66,12 +66,11 @@ const app = () => {
       feeds: [],
       posts: [],
       status: 'idle',
-      modal: 'idle',
       visitedPosts: [],
       feedback: null,
       modalId: '',
     };
-    const store = onChange(initialStoreModel, (path) => {
+    const store = onChange(initialStoreModel, (path, value, preValue) => {
       console.log(store.status);
       render(store, i18nextInstance, path);
     });
@@ -98,7 +97,7 @@ const app = () => {
     const query = document.querySelector('#query');
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      // isLoading('closed');
+      store.status = 'loading';
       const processRss = (link) => {
         const links = store.feeds
           .map((feed) => feed.link);
@@ -131,9 +130,6 @@ const app = () => {
             } else {
               store.status = 'filling';
             }
-          })
-          .finally(() => {
-            // isLoading('open');
           });
       };
       processRss(query.value);
