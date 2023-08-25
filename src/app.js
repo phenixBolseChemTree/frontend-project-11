@@ -70,7 +70,7 @@ const app = () => {
       feedback: null,
       modalId: '',
     };
-    const store = onChange(initialStoreModel, (path, value, preValue) => {
+    const store = onChange(initialStoreModel, (path) => {
       console.log(store.status);
       render(store, i18nextInstance, path);
     });

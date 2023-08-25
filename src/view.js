@@ -138,7 +138,7 @@ const modalShow = (store) => {
   openModal(title, description, link);
 };
 
-const isLoading = (btn) => {
+const renderLoading = (btn) => {
   const btnTag = document.querySelector('.btn-primary');
   if (btn === 'closed') {
     btnTag.disabled = true;
@@ -156,15 +156,15 @@ const renderContent = (store, i18n) => {
   showFeedback(store, i18n);
 };
 
-const render = (store, i18nextInstance, path, value, preValue) => {
+const render = (store, i18nextInstance, path) => {
   switch (path) {
     case 'status':
       switch (store.status) {
         case 'loading':
-          isLoading('closed');
+          renderLoading('closed');
           break;
         case 'idle':
-          isLoading('open');
+          renderLoading('open');
           break;
         case 'success':
           renderContainer(store, i18nextInstance);
@@ -174,7 +174,7 @@ const render = (store, i18nextInstance, path, value, preValue) => {
           showFeedback(store, i18nextInstance);
           break;
         case 'filling':
-          isLoading('open');
+          renderLoading('open');
           showFeedback(store, i18nextInstance);
           break;
         default:
@@ -186,13 +186,13 @@ const render = (store, i18nextInstance, path, value, preValue) => {
   }
 
   if (store.status !== 'success' && path === 'posts' && store.status !== 'loading') {
-    renderPosts(store, i18nextInstance);
+    renderPosts(store, i18nextInstance); // for autoAddPost
   }
-
   if (path === 'modalId') {
-    Promise.resolve()
-      .then(() => modalShow(store, i18nextInstance))
-      .then(() => renderPosts(store, i18nextInstance));
+    modalShow(store, i18nextInstance);
+  }
+  if (path === 'visitedPosts') {
+    renderPosts(store, i18nextInstance);
   }
 };
 
