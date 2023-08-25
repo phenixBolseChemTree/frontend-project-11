@@ -4,9 +4,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import parserV2 from './parse';
-import {
-  renderContent, isLoading, renderContainer, showFeedback, renderPosts, modalShow,
-} from './view';
+import render from './view';
 import translations from './locales/ru';
 
 const fetchProxyRSS = (link) => {
@@ -68,46 +66,14 @@ const app = () => {
       feeds: [],
       posts: [],
       status: 'idle',
+      modal: 'idle',
       visitedPosts: [],
       feedback: null,
       modalId: '',
     };
     const store = onChange(initialStoreModel, (path) => {
       console.log(store.status);
-      switch (path) {
-        case 'status':
-          switch (store.status) {
-            case 'loading':
-              isLoading('closed');
-              break;
-            case 'success':
-              renderContainer(store, i18nextInstance);
-              renderContent(store, i18nextInstance);
-              break;
-            case 'failed':
-              showFeedback(store, i18nextInstance);
-              break;
-            case 'filling':
-              isLoading('open');
-              showFeedback(store, i18nextInstance);
-              break;
-            default:
-              break;
-          }
-          break;
-        default:
-          break;
-      }
-
-      if (store.status !== 'success' && path === 'posts' && store.status !== 'idle') {
-        renderPosts(store, i18nextInstance);
-      }
-
-      if (path === 'modalId') {
-        Promise.resolve()
-          .then(() => modalShow(store, i18nextInstance))
-          .then(() => renderPosts(store, i18nextInstance));
-      }
+      render(store, i18nextInstance, path);
     });
 
     const validate = (url, urls) => {
@@ -132,7 +98,7 @@ const app = () => {
     const query = document.querySelector('#query');
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      isLoading('closed');
+      // isLoading('closed');
       const processRss = (link) => {
         const links = store.feeds
           .map((feed) => feed.link);
@@ -167,7 +133,7 @@ const app = () => {
             }
           })
           .finally(() => {
-            isLoading('open');
+            // isLoading('open');
           });
       };
       processRss(query.value);

@@ -156,6 +156,41 @@ const renderContent = (store, i18n) => {
   showFeedback(store, i18n);
 };
 
-export {
-  renderContent, isLoading, renderContainer, showFeedback, renderPosts, modalShow,
+const render = (store, i18nextInstance, path) => {
+  switch (path) {
+    case 'status':
+      switch (store.status) {
+        case 'loading':
+          isLoading('closed');
+          break;
+        case 'success':
+          renderContainer(store, i18nextInstance);
+          renderContent(store, i18nextInstance);
+          break;
+        case 'failed':
+          showFeedback(store, i18nextInstance);
+          break;
+        case 'filling':
+          isLoading('open');
+          showFeedback(store, i18nextInstance);
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+
+  if (store.status !== 'success' && path === 'posts' && store.status !== 'idle') {
+    renderPosts(store, i18nextInstance);
+  }
+  // по скольку мне нельзя вводить
+  if (path === 'modalId') {
+    Promise.resolve()
+      .then(() => modalShow(store, i18nextInstance))
+      .then(() => renderPosts(store, i18nextInstance));
+  }
 };
+
+export default render;
