@@ -85,6 +85,7 @@ const app = () => {
               renderContent(store, i18nextInstance);
               break;
             case 'failed':
+              showFeedback(store, i18nextInstance);
               break;
             case 'filling':
               isLoading('open');
@@ -167,7 +168,6 @@ const app = () => {
           })
           .finally(() => {
             isLoading('open');
-            // store.status = 'filling';
           });
       };
       processRss(query.value);
