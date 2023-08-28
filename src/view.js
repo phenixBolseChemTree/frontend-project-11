@@ -71,7 +71,7 @@ const renderFeeds = (store, i18nextInstance, elements) => {
 const renderPosts = (store, i18n) => {
   const container = document.querySelector('.container-list');
   container.textContent = '';
-  const visitedPost = Array.from(store.visitedPosts);
+  const visitedPost = store.visitedPosts;
   store.posts.forEach((item) => {
     const { title, link, id } = item;
 

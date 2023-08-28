@@ -94,7 +94,7 @@ const app = () => {
       const id = e.target.getAttribute('data-id');
       if (id) {
         store.modalId = id;
-        if (!Array.from(store.visitedPosts).includes(id)) {
+        if (!store.visitedPosts.includes(id)) {
           store.visitedPosts.push(id);
         }
       }
