@@ -106,6 +106,7 @@ const app = () => {
 
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
+      store.feedback = '';
       store.status = 'loading';
       const link = elements.query.value;
       const links = store.feeds

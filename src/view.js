@@ -109,17 +109,17 @@ const renderPosts = (store, i18n) => {
 };
 
 const showFeedback = (store, i18n, elements) => {
-  const { feedback } = store;
   const feedbackContainer = elements.feedback;
-
-  if (feedback !== 'successfulScenario') {
-    feedbackContainer.classList.add('text-danger');
-    feedbackContainer.classList.remove('text-success');
-  } else {
+  if (store.status === 'success') {
     feedbackContainer.classList.remove('text-danger');
     feedbackContainer.classList.add('text-success');
+    feedbackContainer.textContent = i18n.t('successfulScenario');
+  } else {
+    const { feedback } = store;
+    feedbackContainer.classList.add('text-danger');
+    feedbackContainer.classList.remove('text-success');
+    feedbackContainer.textContent = i18n.t(feedback);
   }
-  feedbackContainer.textContent = i18n.t(feedback);
 };
 
 const openModal = (title, description, link, elements) => {
@@ -175,7 +175,7 @@ const render = (store, i18nextInstance, path, elements) => {
           break;
         case 'filling':
           renderLoading('open', elements);
-          showFeedback(store, i18nextInstance, elements);
+          // showFeedback(store, i18nextInstance, elements);
           break;
         default:
           break;
