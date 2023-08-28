@@ -107,41 +107,39 @@ const app = () => {
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.status = 'loading';
-      const processRss = (link) => {
-        const links = store.feeds
-          .map((feed) => feed.link);
+      const link = elements.query.value;
+      const links = store.feeds
+        .map((feed) => feed.link);
 
-        validate(link, links)
-          .then((url) => fetchProxyRSS(url))
-          .then((response) => {
-            const data = JSON.stringify(response);
-            const parsedData = parse(data);
-            const { title, description, posts } = parsedData;
-            const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
-            store.feedback = 'successfulScenario';
-            const postsWithId = postsIdRev;
-            store.feeds.push({ title, description, link });
-            store.posts.push(...postsWithId);
-            store.status = 'success';
+      validate(link, links)
+        .then((url) => fetchProxyRSS(url))
+        .then((response) => {
+          const data = JSON.stringify(response);
+          const parsedData = parse(data);
+          const { title, description, posts } = parsedData;
+          const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+          store.feedback = 'successfulScenario';
+          const postsWithId = postsIdRev;
+          store.feeds.push({ title, description, link });
+          store.posts.push(...postsWithId);
+          store.status = 'success';
 
+          store.status = 'filling';
+        })
+        .catch((error) => {
+          if (error.message === 'Network Error') {
+            store.feedback = 'networkError';
+            store.status = 'failed';
+          } else {
+            store.feedback = error.message;
+            store.status = 'failed';
+          }
+          if (store.feeds.length === 0) {
+            store.status = 'idle';
+          } else {
             store.status = 'filling';
-          })
-          .catch((error) => {
-            if (error.message === 'Network Error') {
-              store.feedback = 'networkError';
-              store.status = 'failed';
-            } else {
-              store.feedback = error.message;
-              store.status = 'failed';
-            }
-            if (store.feeds.length === 0) {
-              store.status = 'idle';
-            } else {
-              store.status = 'filling';
-            }
-          });
-      };
-      processRss(elements.query.value);
+          }
+        });
     });
   });
 };
