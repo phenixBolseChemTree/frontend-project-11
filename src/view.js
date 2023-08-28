@@ -163,9 +163,6 @@ const render = (store, i18nextInstance, path, elements) => {
         case 'loading':
           renderLoading('closed', elements);
           break;
-        case 'idle':
-          renderLoading('open', elements);
-          break;
         case 'success':
           renderLoading('open', elements);
           renderContainer(store, i18nextInstance, elements);

@@ -127,14 +127,10 @@ const app = () => {
         .catch((error) => {
           if (error.message === 'Network Error') {
             store.error = 'networkError';
-            store.status = 'failed';
           } else {
             store.error = error.message;
-            store.status = 'failed';
           }
-          if (store.feeds.length === 0) {
-            store.status = 'idle';
-          }
+          store.status = 'failed';
         });
     });
   });
