@@ -123,8 +123,6 @@ const app = () => {
           store.feeds.push({ title, description, link });
           store.posts.push(...postsWithId);
           store.status = 'success';
-
-          store.status = 'filling';
         })
         .catch((error) => {
           if (error.message === 'Network Error') {
@@ -136,8 +134,6 @@ const app = () => {
           }
           if (store.feeds.length === 0) {
             store.status = 'idle';
-          } else {
-            store.status = 'filling';
           }
         });
     });

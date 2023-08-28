@@ -167,15 +167,13 @@ const render = (store, i18nextInstance, path, elements) => {
           renderLoading('open', elements);
           break;
         case 'success':
+          renderLoading('open', elements);
           renderContainer(store, i18nextInstance, elements);
           renderContent(store, i18nextInstance, elements);
           break;
         case 'failed':
-          showFeedback(store, i18nextInstance, elements);
-          break;
-        case 'filling':
           renderLoading('open', elements);
-          // showFeedback(store, i18nextInstance, elements);
+          showFeedback(store, i18nextInstance, elements);
           break;
         default:
           break;
