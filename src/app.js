@@ -3,7 +3,7 @@ import onChange from 'on-change';
 import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
-import parserV2 from './parse';
+import parse from './parse';
 import render from './view';
 import translations from './locales/ru';
 
@@ -26,15 +26,15 @@ const getId = (() => {
 const autoAddNewPosts = (_store) => {
   const linksFromFeeds = _store.feeds.map((feed) => feed.link);
   const getNewPosts = (newPosts, posts) => {
-    const existingLinks = new Set(posts.map((post) => post.link));
-    const filteredPosts = newPosts.filter((post) => !existingLinks.has(post.link));
+    const existingLinks = posts.map((post) => post.link);
+    const filteredPosts = newPosts.filter((post) => !existingLinks.includes(post.link));
     return filteredPosts;
   };
 
   const promises = linksFromFeeds.map((link) => fetchProxyRSS(link)
     .then((response) => {
       const data = JSON.stringify(response);
-      const parsedData = parserV2(data);
+      const parsedData = parse(data);
       const { posts } = parsedData;
 
       if (posts.length !== 0) {
@@ -66,7 +66,7 @@ const app = () => {
       feeds: [],
       posts: [],
       status: 'idle',
-      visitedPosts: [],
+      2: [],
       feedback: null,
       modalId: '',
     };
@@ -84,6 +84,8 @@ const app = () => {
       const id = e.target.getAttribute('data-id');
       if (id) {
         store.modalId = id;
+        console.log('array', Array.from(store.visitedPosts));
+        console.log('origin', store.visitedPosts);
         if (!Array.from(store.visitedPosts).includes(id)) {
           store.visitedPosts.push(id);
         }
@@ -105,7 +107,7 @@ const app = () => {
           .then((url) => fetchProxyRSS(url))
           .then((response) => {
             const data = JSON.stringify(response);
-            const parsedData = parserV2(data);
+            const parsedData = parse(data);
             const { title, description, posts } = parsedData;
             const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
             store.feedback = 'successfulScenario';
