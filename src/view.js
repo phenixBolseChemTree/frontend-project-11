@@ -108,7 +108,7 @@ const renderPosts = (store, i18n) => {
   });
 };
 
-const showFeedback = (store, i18n, elements) => {
+const showError = (store, i18n, elements) => {
   const feedbackContainer = elements.feedback;
   if (store.status === 'success') {
     feedbackContainer.classList.remove('text-danger');
@@ -153,7 +153,7 @@ const renderLoading = (btn, elements) => {
 const renderContent = (store, i18n, elements) => {
   renderFeeds(store, i18n, elements);
   renderPosts(store, i18n, elements);
-  showFeedback(store, i18n, elements);
+  showError(store, i18n, elements);
 };
 
 const render = (store, i18nextInstance, path, elements) => {
@@ -170,7 +170,7 @@ const render = (store, i18nextInstance, path, elements) => {
           break;
         case 'failed':
           renderLoading('open', elements);
-          showFeedback(store, i18nextInstance, elements);
+          showError(store, i18nextInstance, elements);
           break;
         default:
           break;
@@ -180,14 +180,15 @@ const render = (store, i18nextInstance, path, elements) => {
       break;
   }
 
-  if (store.status !== 'success' && path === 'posts' && store.status !== 'loading') {
+  if (path === 'posts' && store.status !== 'loading') {
     renderPosts(store, i18nextInstance, elements); // for autoAddPost
-  }
-  if (path === 'modalId') {
-    modalShow(store, i18nextInstance, elements);
   }
   if (path === 'visitedPosts') {
     renderPosts(store, i18nextInstance, elements);
+  }
+
+  if (path === 'modalId') {
+    modalShow(store, i18nextInstance, elements);
   }
 };
 
