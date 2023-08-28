@@ -122,21 +122,21 @@ const showFeedback = (store, i18n, elements) => {
   feedbackContainer.textContent = i18n.t(feedback);
 };
 
-const openModal = (title, description, link) => {
-  const modalTitle = document.querySelector('.modal-title');
-  const modalBody = document.querySelector('.modal-body');
-  const fullArticleLink = document.querySelector('.full-article');
+const openModal = (title, description, link, elements) => {
+  const modalTitle = elements.modal.querySelector('.modal-title');
+  const modalBody = elements.modal.querySelector('.modal-body');
+  const fullArticleLink = elements.modal.querySelector('.full-article');
 
   modalTitle.textContent = title;
   modalBody.textContent = description;
   fullArticleLink.setAttribute('href', link);
 };
 
-const modalShow = (store) => {
+const modalShow = (store, i18nextInstance, elements) => {
   const { modalId, posts } = store;
   const targetContent = posts[modalId];
   const { title, description, link } = targetContent ?? {};
-  openModal(title, description, link);
+  openModal(title, description, link, elements);
 };
 
 const renderLoading = (btn, elements) => {
