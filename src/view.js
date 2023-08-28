@@ -115,10 +115,10 @@ const showFeedback = (store, i18n, elements) => {
     feedbackContainer.classList.add('text-success');
     feedbackContainer.textContent = i18n.t('successfulScenario');
   } else {
-    const { feedback } = store;
+    const { error } = store;
     feedbackContainer.classList.add('text-danger');
     feedbackContainer.classList.remove('text-success');
-    feedbackContainer.textContent = i18n.t(feedback);
+    feedbackContainer.textContent = i18n.t(error);
   }
 };
 

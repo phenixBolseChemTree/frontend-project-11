@@ -77,7 +77,7 @@ const app = () => {
       posts: [],
       status: 'idle',
       visitedPosts: [],
-      feedback: null,
+      error: null,
       modalId: '',
     };
     const store = onChange(initialStoreModel, (path) => {
@@ -106,7 +106,7 @@ const app = () => {
 
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.feedback = '';
+      store.error = '';
       store.status = 'loading';
       const link = elements.query.value;
       const links = store.feeds
@@ -119,7 +119,6 @@ const app = () => {
           const parsedData = parse(data);
           const { title, description, posts } = parsedData;
           const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
-          store.feedback = 'successfulScenario';
           const postsWithId = postsIdRev;
           store.feeds.push({ title, description, link });
           store.posts.push(...postsWithId);
@@ -129,10 +128,10 @@ const app = () => {
         })
         .catch((error) => {
           if (error.message === 'Network Error') {
-            store.feedback = 'networkError';
+            store.error = 'networkError';
             store.status = 'failed';
           } else {
-            store.feedback = error.message;
+            store.error = error.message;
             store.status = 'failed';
           }
           if (store.feeds.length === 0) {
