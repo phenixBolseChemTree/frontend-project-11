@@ -56,6 +56,15 @@ const autoAddNewPosts = (_store) => {
     });
 };
 
+const elements = {
+  form: document.querySelector('.text-body'),
+  query: document.querySelector('#query'),
+  feedback: document.querySelector('.feedback'),
+  feeds: document.querySelector('.feeds'),
+  posts: document.querySelector('.posts'),
+  modal: document.querySelector('#modal'),
+};
+
 const app = () => {
   const i18nextInstance = i18next.createInstance();
   i18nextInstance.init({
@@ -79,7 +88,7 @@ const app = () => {
       return schema.validate(url, { abortEarly: false });
     };
 
-    const containerListEl = document.querySelector('.posts');
+    const containerListEl = elements.posts;
     containerListEl.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
       if (id) {
@@ -94,9 +103,7 @@ const app = () => {
 
     autoAddNewPosts(store);
 
-    const form = document.querySelector('.text-body');
-    const query = document.querySelector('#query');
-    form.addEventListener('submit', (event) => {
+    elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
       store.status = 'loading';
       const processRss = (link) => {
@@ -133,7 +140,7 @@ const app = () => {
             }
           });
       };
-      processRss(query.value);
+      processRss(elements.query.value);
     });
   });
 };
