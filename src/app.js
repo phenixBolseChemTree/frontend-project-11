@@ -66,7 +66,7 @@ const app = () => {
       feeds: [],
       posts: [],
       status: 'idle',
-      2: [],
+      visitedPosts: [],
       feedback: null,
       modalId: '',
     };
