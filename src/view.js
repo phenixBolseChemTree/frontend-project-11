@@ -1,5 +1,4 @@
 const renderContainer = (store, i18n, elements) => {
-  console.log(elements);
   const postsEl = elements.posts;
   const feedsEl = elements.feeds;
 
