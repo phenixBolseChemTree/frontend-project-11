@@ -63,6 +63,7 @@ const elements = {
   feeds: document.querySelector('.feeds'),
   posts: document.querySelector('.posts'),
   modal: document.querySelector('#modal'),
+  button: document.querySelector('.btn-primary'),
 };
 
 const app = () => {
@@ -80,7 +81,7 @@ const app = () => {
       modalId: '',
     };
     const store = onChange(initialStoreModel, (path) => {
-      render(store, i18nextInstance, path);
+      render(store, i18nextInstance, path, elements);
     });
 
     const validate = (url, urls) => {

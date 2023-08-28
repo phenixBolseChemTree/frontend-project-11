@@ -1,6 +1,7 @@
-const renderContainer = (store, i18n) => {
-  const postsEl = document.querySelector('.posts');
-  const feedsEl = document.querySelector('.feeds');
+const renderContainer = (store, i18n, elements) => {
+  console.log(elements);
+  const postsEl = elements.posts;
+  const feedsEl = elements.feeds;
 
   postsEl.textContent = '';
   feedsEl.textContent = '';
@@ -44,9 +45,9 @@ const renderContainer = (store, i18n) => {
   feedsEl.appendChild(feedsList);
 };
 
-const renderFeeds = (store) => {
+const renderFeeds = (store, i18nextInstance, elements) => {
   const { feeds } = store;
-  const containerFeeds = document.querySelector('.container-feeds');
+  const containerFeeds = elements.feeds;
   containerFeeds.textContent = '';
 
   feeds.forEach((feedItem) => {
@@ -107,18 +108,18 @@ const renderPosts = (store, i18n) => {
   });
 };
 
-const showFeedback = (store, i18n) => {
+const showFeedback = (store, i18n, elements) => {
   const { feedback } = store;
-  const formResultEl = document.querySelector('#form-result');
+  const feedbackContainer = elements.feedback;
 
   if (feedback !== 'successfulScenario') {
-    formResultEl.classList.add('text-danger');
-    formResultEl.classList.remove('text-success');
+    feedbackContainer.classList.add('text-danger');
+    feedbackContainer.classList.remove('text-success');
   } else {
-    formResultEl.classList.remove('text-danger');
-    formResultEl.classList.add('text-success');
+    feedbackContainer.classList.remove('text-danger');
+    feedbackContainer.classList.add('text-success');
   }
-  formResultEl.textContent = i18n.t(feedback);
+  feedbackContainer.textContent = i18n.t(feedback);
 };
 
 const openModal = (title, description, link) => {
@@ -138,44 +139,43 @@ const modalShow = (store) => {
   openModal(title, description, link);
 };
 
-const renderLoading = (btn) => {
-  const btnTag = document.querySelector('.btn-primary');
+const renderLoading = (btn, elements) => {
+  const btnTag = elements.button;
   if (btn === 'closed') {
     btnTag.disabled = true;
   } else {
     btnTag.disabled = false;
-    const formElement = document.querySelector('form');
-    const queryElement = formElement.querySelector('#query');
+    const queryElement = elements.query;
     queryElement.value = '';
   }
 };
 
-const renderContent = (store, i18n) => {
-  renderFeeds(store, i18n);
-  renderPosts(store, i18n);
-  showFeedback(store, i18n);
+const renderContent = (store, i18n, elements) => {
+  renderFeeds(store, i18n, elements);
+  renderPosts(store, i18n, elements);
+  showFeedback(store, i18n, elements);
 };
 
-const render = (store, i18nextInstance, path) => {
+const render = (store, i18nextInstance, path, elements) => {
   switch (path) {
     case 'status':
       switch (store.status) {
         case 'loading':
-          renderLoading('closed');
+          renderLoading('closed', elements);
           break;
         case 'idle':
-          renderLoading('open');
+          renderLoading('open', elements);
           break;
         case 'success':
-          renderContainer(store, i18nextInstance);
-          renderContent(store, i18nextInstance);
+          renderContainer(store, i18nextInstance, elements);
+          renderContent(store, i18nextInstance, elements);
           break;
         case 'failed':
-          showFeedback(store, i18nextInstance);
+          showFeedback(store, i18nextInstance, elements);
           break;
         case 'filling':
-          renderLoading('open');
-          showFeedback(store, i18nextInstance);
+          renderLoading('open', elements);
+          showFeedback(store, i18nextInstance, elements);
           break;
         default:
           break;
@@ -186,13 +186,13 @@ const render = (store, i18nextInstance, path) => {
   }
 
   if (store.status !== 'success' && path === 'posts' && store.status !== 'loading') {
-    renderPosts(store, i18nextInstance); // for autoAddPost
+    renderPosts(store, i18nextInstance, elements); // for autoAddPost
   }
   if (path === 'modalId') {
-    modalShow(store, i18nextInstance);
+    modalShow(store, i18nextInstance, elements);
   }
   if (path === 'visitedPosts') {
-    renderPosts(store, i18nextInstance);
+    renderPosts(store, i18nextInstance, elements);
   }
 };
 
