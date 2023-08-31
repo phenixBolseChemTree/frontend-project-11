@@ -103,7 +103,8 @@ const app = () => {
       event.preventDefault();
       store.error = null;
       store.status = 'loading';
-      const link = elements.query.value;
+      const formData = new FormData(event.target);
+      const link = formData.get('query');
       const links = store.feeds
         .map((feed) => feed.link);
 
