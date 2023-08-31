@@ -55,15 +55,15 @@ const autoAddNewPosts = (_store) => {
     });
 };
 
-const elements = {
-  form: document.querySelector('.text-body'),
-  query: document.querySelector('#query'),
-  feedback: document.querySelector('.feedback'),
-  feeds: document.querySelector('.feeds'),
-  posts: document.querySelector('.posts'),
-  modal: document.querySelector('#modal'),
-  button: document.querySelector('.btn-primary'),
-};
+// const elements = {
+//   form: document.querySelector('.text-body'),
+//   query: document.querySelector('#query'),
+//   feedback: document.querySelector('.feedback'),
+//   feeds: document.querySelector('.feeds'),
+//   posts: document.querySelector('.posts'),
+//   modal: document.querySelector('#modal'),
+//   button: document.querySelector('.btn-primary'),
+// };
 
 const app = () => {
   const i18nextInstance = i18next.createInstance();
@@ -79,6 +79,15 @@ const app = () => {
       error: null,
       modalId: '',
     };
+    const elements = {
+      form: document.querySelector('.text-body'),
+      query: document.querySelector('#query'),
+      feedback: document.querySelector('.feedback'),
+      feeds: document.querySelector('.feeds'),
+      posts: document.querySelector('.posts'),
+      modal: document.querySelector('#modal'),
+      button: document.querySelector('.btn-primary'),
+    };
     const store = onChange(initialStoreModel, (path) => {
       render(store, i18nextInstance, path, elements);
     });
@@ -88,8 +97,7 @@ const app = () => {
       return schema.validate(url, { abortEarly: false });
     };
 
-    const containerListEl = elements.posts;
-    containerListEl.addEventListener('click', (e) => {
+    elements.posts.addEventListener('click', (e) => {
       const id = e.target.getAttribute('data-id');
       if (id) {
         store.modalId = id;
@@ -103,7 +111,7 @@ const app = () => {
 
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
-      store.error = '';
+      store.error = null;
       store.status = 'loading';
       const link = elements.query.value;
       const links = store.feeds
