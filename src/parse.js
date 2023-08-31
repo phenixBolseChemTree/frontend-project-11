@@ -1,7 +1,6 @@
 const parser = (dataStr) => {
-  const dataObj = JSON.parse(dataStr);
   const domParser = new DOMParser();
-  const data = domParser.parseFromString(dataObj.data.contents, 'application/xml');
+  const data = domParser.parseFromString(dataStr, 'application/xml');
   const errorNode = data.querySelector('parsererror');
 
   if (errorNode) {

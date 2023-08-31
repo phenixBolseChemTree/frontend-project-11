@@ -33,8 +33,7 @@ const autoAddNewPosts = (_store) => {
 
   const promises = linksFromFeeds.map((link) => fetchProxyRSS(link)
     .then((response) => {
-      const data = JSON.stringify(response);
-      const parsedData = parse(data);
+      const parsedData = parse(response.data.contents);
       const { posts } = parsedData;
 
       if (posts.length !== 0) {
@@ -113,8 +112,7 @@ const app = () => {
       validate(link, links)
         .then((url) => fetchProxyRSS(url))
         .then((response) => {
-          const data = JSON.stringify(response);
-          const parsedData = parse(data);
+          const parsedData = parse(response.data.contents);
           const { title, description, posts } = parsedData;
           const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
           const postsWithId = postsIdRev;
