@@ -175,19 +175,19 @@ const render = (store, i18nextInstance, path, elements) => {
           break;
       }
       break;
+    case 'posts':
+      if (store.status !== 'loading') {
+        renderPosts(store, i18nextInstance, elements); // for autoAddPost
+      }
+      break;
+    case 'visitedPosts':
+      renderPosts(store, i18nextInstance, elements);
+      break;
+    case 'modalId':
+      modalShow(store, i18nextInstance, elements);
+      break;
     default:
       break;
-  }
-
-  if (path === 'posts' && store.status !== 'loading') {
-    renderPosts(store, i18nextInstance, elements); // for autoAddPost
-  }
-  if (path === 'visitedPosts') {
-    renderPosts(store, i18nextInstance, elements);
-  }
-
-  if (path === 'modalId') {
-    modalShow(store, i18nextInstance, elements);
   }
 };
 

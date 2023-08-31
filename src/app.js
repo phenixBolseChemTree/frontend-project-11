@@ -55,16 +55,6 @@ const autoAddNewPosts = (_store) => {
     });
 };
 
-// const elements = {
-//   form: document.querySelector('.text-body'),
-//   query: document.querySelector('#query'),
-//   feedback: document.querySelector('.feedback'),
-//   feeds: document.querySelector('.feeds'),
-//   posts: document.querySelector('.posts'),
-//   modal: document.querySelector('#modal'),
-//   button: document.querySelector('.btn-primary'),
-// };
-
 const app = () => {
   const i18nextInstance = i18next.createInstance();
   i18nextInstance.init({
