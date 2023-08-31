@@ -37,7 +37,7 @@ const autoAddNewPosts = (_store) => {
       const { posts } = parsedData;
 
       if (posts.length !== 0) {
-        const newPosts = getNewPosts(posts.reverse(), _store.posts);
+        const newPosts = getNewPosts(posts, _store.posts);
 
         if (newPosts.length !== 0) {
           const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
@@ -114,7 +114,7 @@ const app = () => {
         .then((response) => {
           const parsedData = parse(response.data.contents);
           const { title, description, posts } = parsedData;
-          const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+          const postsIdRev = posts.map((post) => ({ ...post, id: getId() }));
           const postsWithId = postsIdRev;
           store.feeds.push({ title, description, link });
           store.posts.push(...postsWithId);

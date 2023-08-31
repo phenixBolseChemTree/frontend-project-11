@@ -9,13 +9,12 @@ const parser = (dataStr) => {
 
   const title = data.querySelector('title').textContent;
   const description = data.querySelector('description').textContent;
-  const postsReverse = [...data.querySelectorAll('item')].reverse().map((nodeItem) => ({
+  const postsReverse = [...data.querySelectorAll('item')].map((nodeItem) => ({
     title: nodeItem.querySelector('title').textContent,
     description: nodeItem.querySelector('description').textContent,
     link: nodeItem.querySelector('link').textContent,
-    pubDate: nodeItem.querySelector('pubDate').textContent,
   }));
-  const posts = postsReverse.reverse();
+  const posts = postsReverse;
   return { title, description, posts };
 };
 
