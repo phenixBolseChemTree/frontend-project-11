@@ -23,8 +23,8 @@ const getId = (() => {
   };
 })();
 
-const autoAddNewPosts = (_store) => {
-  const linksFromFeeds = _store.feeds.map((feed) => feed.link);
+const autoAddNewPosts = (store) => {
+  const linksFromFeeds = store.feeds.map((feed) => feed.link);
   const getNewPosts = (newPosts, posts) => {
     const existingLinks = posts.map((post) => post.link);
     const filteredPosts = newPosts.filter((post) => !existingLinks.includes(post.link));
@@ -37,11 +37,11 @@ const autoAddNewPosts = (_store) => {
       const { posts } = parsedData;
 
       if (posts.length !== 0) {
-        const newPosts = getNewPosts(posts, _store.posts);
+        const newPosts = getNewPosts(posts, store.posts);
 
         if (newPosts.length !== 0) {
           const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
-          _store.posts.push(...postsWithId);
+          store.posts.push(...postsWithId);
         }
       }
     })
@@ -51,7 +51,7 @@ const autoAddNewPosts = (_store) => {
 
   Promise.all(promises)
     .then(() => {
-      setTimeout(() => autoAddNewPosts(_store), 5000);
+      setTimeout(() => autoAddNewPosts(store), 5000);
     });
 };
 
