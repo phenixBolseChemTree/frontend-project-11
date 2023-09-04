@@ -24,14 +24,14 @@ const getId = (() => {
 })();
 
 const autoAddNewPosts = (store) => {
-  // const linksFromFeeds = store.feeds.map((feed) => feed.link);
+  const linksFromFeeds = store.feeds.map((feed) => feed.link);
   const getNewPosts = (newPosts, posts) => {
     const existingLinks = posts.map((post) => post.link);
     const filteredPosts = newPosts.filter((post) => !existingLinks.includes(post.link));
     return filteredPosts;
   };
 
-  const promises = store.feeds.map(({ link }) => fetchProxyRSS(link)
+  const promises = linksFromFeeds.map((link) => fetchProxyRSS(link)
     .then((response) => {
       const parsedData = parse(response.data.contents);
       const { posts } = parsedData;

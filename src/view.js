@@ -31,7 +31,7 @@ const renderContainer = (store, i18n, elements) => {
   feedsCardBody.className = 'card-body';
 
   const feedsCardTitle = document.createElement('h2');
-  feedsCardTitle.className = 'card-title h4';
+  feedsCardTitle.className = 'card-title-feeds h4';
   feedsCardTitle.textContent = i18n.t('feeds');
 
   feedsCardBody.appendChild(feedsCardTitle);
@@ -44,10 +44,9 @@ const renderContainer = (store, i18n, elements) => {
   feedsEl.appendChild(feedsList);
 };
 
-const renderFeeds = (store, i18nextInstance, elements) => {
+const renderFeeds = (store) => {
   const { feeds } = store;
-  const containerFeeds = elements.feeds;
-  containerFeeds.textContent = '';
+  const containerFeeds = document.querySelector('.container-feeds');
 
   feeds.forEach((feedItem) => {
     const liTag = document.createElement('li');
