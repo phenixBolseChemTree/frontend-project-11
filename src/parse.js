@@ -4,7 +4,9 @@ const parser = (dataStr) => {
   const errorNode = data.querySelector('parsererror');
 
   if (errorNode) {
-    throw new Error('invalidRSS');
+    const error = new Error(errorNode.textContent);
+    error.isParsingError = true;
+    throw error;
   }
 
   const title = data.querySelector('title').textContent;

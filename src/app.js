@@ -83,6 +83,7 @@ const app = () => {
 
     const validate = (url, urls) => {
       const schema = yup.string().url('InvalidRSSlink').notOneOf(urls, 'duplicateRSSlink').required('emptyInput');
+
       return schema.validate(url, { abortEarly: false });
     };
 
@@ -119,10 +120,23 @@ const app = () => {
           store.status = 'success';
         })
         .catch((error) => {
-          if (error.message === 'Network Error') {
-            store.error = 'networkError';
-          } else {
-            store.error = error.message;
+          // не понимаю как вынести на верхний уровень загрузку
+          switch (true) {
+            case error.isParsingError:
+              store.error = 'invalidRSS';
+              break;
+
+            case error.isAxiosError:
+              store.error = 'networkError';
+              break;
+
+            case error.name === 'ValidationError':
+              console.log('ValidationError');
+              store.error = error.message;
+              break;
+
+            default:
+              store.error = 'unknownError';
           }
           store.status = 'failed';
         });
