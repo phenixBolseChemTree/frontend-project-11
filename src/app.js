@@ -120,7 +120,9 @@ const app = () => {
           store.status = 'success';
         })
         .catch((error) => {
-          // не понимаю как вынести на верхний уровень загрузку
+          // не понимаю как вынести store на верхний уровень "загрузку"
+          // (возникают проблемы в eslint указывая на то что я передаю store как аргумент и
+          // изменение стора выдает ошибку store.status = 'failed')
           switch (true) {
             case error.isParsingError:
               store.error = 'invalidRSS';
