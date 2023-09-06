@@ -23,16 +23,6 @@ const getId = (() => {
   };
 })();
 
-const dataLoading = (response, store, link) => {
-  const parsedData = parse(response.data.contents);
-  const { title, description, posts } = parsedData;
-  const postsIdRev = posts.map((post) => ({ ...post, id: getId() }));
-  const postsWithId = postsIdRev;
-  store.feeds.push({ title, description, link });
-  store.posts.push(...postsWithId);
-  store.status = 'success';
-};
-
 const autoAddNewPosts = (store) => {
   const getNewPosts = (newPosts, posts) => {
     const existingLinks = posts.map((post) => post.link);
@@ -120,7 +110,15 @@ const app = () => {
 
       validate(link, links)
         .then((url) => fetchProxyRSS(url))
-        .then((response) => dataLoading(response, store, link))
+        .then((response) => {
+          const parsedData = parse(response.data.contents);
+          const { title, description, posts } = parsedData;
+          const postsIdRev = posts.map((post) => ({ ...post, id: getId() }));
+          const postsWithId = postsIdRev;
+          store.feeds.push({ title, description, link });
+          store.posts.push(...postsWithId);
+          store.status = 'success';
+        })
         .catch((error) => {
           switch (true) {
             case error.isParsingError:
@@ -132,7 +130,6 @@ const app = () => {
               break;
 
             case error.name === 'ValidationError':
-              console.log('ValidationError');
               store.error = error.message;
               break;
 
@@ -141,8 +138,8 @@ const app = () => {
           }
           store.status = 'failed';
         });
+    });
   });
-});
 };
 
 export default app;
