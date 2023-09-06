@@ -23,6 +23,16 @@ const getId = (() => {
   };
 })();
 
+const loadingData = (response, store, link) => {
+  const parsedData = parse(response.data.contents);
+  const { title, description, posts } = parsedData;
+  const postsIdRev = posts.map((post) => ({ ...post, id: getId() }));
+  const postsWithId = postsIdRev;
+  store.feeds.push({ title, description, link });
+  store.posts.push(...postsWithId);
+  store.status = 'success';
+};
+
 const autoAddNewPosts = (store) => {
   const getNewPosts = (newPosts, posts) => {
     const existingLinks = posts.map((post) => post.link);
@@ -110,15 +120,7 @@ const app = () => {
 
       validate(link, links)
         .then((url) => fetchProxyRSS(url))
-        .then((response) => {
-          const parsedData = parse(response.data.contents);
-          const { title, description, posts } = parsedData;
-          const postsIdRev = posts.map((post) => ({ ...post, id: getId() }));
-          const postsWithId = postsIdRev;
-          store.feeds.push({ title, description, link });
-          store.posts.push(...postsWithId);
-          store.status = 'success';
-        })
+        .then((response) => loadingData(response, store, link))
         .catch((error) => {
           switch (true) {
             case error.isParsingError:
