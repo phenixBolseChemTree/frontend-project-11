@@ -1,28 +1,6 @@
-const renderContainer = (store, i18n, elements) => {
-  const postsEl = elements.posts;
+const renderFeeds = (store, i18n, elements) => {
   const feedsEl = elements.feeds;
-
-  postsEl.textContent = '';
   feedsEl.textContent = '';
-
-  const postsCard = document.createElement('div');
-  postsCard.className = 'card border-0';
-
-  const postsCardBody = document.createElement('div');
-  postsCardBody.className = 'card-body';
-
-  const postsCardTitle = document.createElement('h2');
-  postsCardTitle.className = 'card-title h4';
-  postsCardTitle.textContent = i18n.t('posts');
-
-  postsCardBody.appendChild(postsCardTitle);
-  postsCard.appendChild(postsCardBody);
-
-  const postsList = document.createElement('ul');
-  postsList.className = 'container-list list-group border-0 rounded-0';
-
-  postsEl.appendChild(postsCard);
-  postsEl.appendChild(postsList);
 
   const feedsCard = document.createElement('div');
   feedsCard.className = 'card border-0';
@@ -42,11 +20,8 @@ const renderContainer = (store, i18n, elements) => {
 
   feedsEl.appendChild(feedsCard);
   feedsEl.appendChild(feedsList);
-};
 
-const renderFeeds = (store) => {
   const { feeds } = store;
-  const containerFeeds = document.querySelector('.container-feeds');
 
   feeds.forEach((feedItem) => {
     const liTag = document.createElement('li');
@@ -63,11 +38,33 @@ const renderFeeds = (store) => {
     liTag.appendChild(titleTeg);
     liTag.appendChild(descriptionTag);
 
-    containerFeeds.appendChild(liTag);
+    feedsList.appendChild(liTag);
   });
 };
 
-const renderPosts = (store, i18n) => {
+const renderPosts = (store, i18n, elements) => {
+  const postsEl = elements.posts;
+  postsEl.textContent = '';
+
+  const postsCard = document.createElement('div');
+  postsCard.className = 'card border-0';
+
+  const postsCardBody = document.createElement('div');
+  postsCardBody.className = 'card-body';
+
+  const postsCardTitle = document.createElement('h2');
+  postsCardTitle.className = 'card-title h4';
+  postsCardTitle.textContent = i18n.t('posts');
+
+  postsCardBody.appendChild(postsCardTitle);
+  postsCard.appendChild(postsCardBody);
+
+  const postsList = document.createElement('ul'); // для li
+  postsList.className = 'container-list list-group border-0 rounded-0';
+
+  postsEl.appendChild(postsCard);
+  postsEl.appendChild(postsList);
+
   const container = document.querySelector('.container-list');
   container.textContent = '';
   const visitedPost = store.visitedPosts;
@@ -102,7 +99,7 @@ const renderPosts = (store, i18n) => {
     );
     li.appendChild(titleTag);
     li.appendChild(descriptionTag);
-    container.prepend(li);
+    postsList.prepend(li);
   });
 };
 
@@ -148,12 +145,6 @@ const renderLoading = (btn, elements) => {
   }
 };
 
-const renderContent = (store, i18n, elements) => {
-  renderFeeds(store, i18n, elements);
-  renderPosts(store, i18n, elements);
-  showError(store, i18n, elements);
-};
-
 const render = (store, i18nextInstance, path, elements) => {
   switch (path) {
     case 'status':
@@ -163,8 +154,7 @@ const render = (store, i18nextInstance, path, elements) => {
           break;
         case 'success':
           renderLoading('open', elements);
-          renderContainer(store, i18nextInstance, elements);
-          renderContent(store, i18nextInstance, elements);
+          showError(store, i18nextInstance, elements);
           break;
         case 'failed':
           renderLoading('open', elements);
@@ -175,9 +165,10 @@ const render = (store, i18nextInstance, path, elements) => {
       }
       break;
     case 'posts':
-      if (store.status !== 'loading') {
-        renderPosts(store, i18nextInstance, elements); // for autoAddPost
-      }
+      renderPosts(store, i18nextInstance, elements); // for autoAddPost
+      break;
+    case 'feeds':
+      renderFeeds(store, i18nextInstance, elements);
       break;
     case 'visitedPosts':
       renderPosts(store, i18nextInstance, elements);

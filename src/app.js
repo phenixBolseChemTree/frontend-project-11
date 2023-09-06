@@ -40,7 +40,7 @@ const autoAddNewPosts = (store) => {
 
         if (newPosts.length !== 0) {
           const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
-          store.posts.push(...postsWithId);
+          store.posts.push(...postsWithId.reverse());
         }
       }
     })
