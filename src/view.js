@@ -1,19 +1,25 @@
+const createCard = (title, className) => {
+  const card = document.createElement('div');
+  card.className = `card border-0 ${className}`;
+
+  const cardBody = document.createElement('div');
+  cardBody.className = 'card-body';
+
+  const cardTitle = document.createElement('h2');
+  cardTitle.className = `card-title ${className}-title h4`;
+  cardTitle.textContent = title;
+
+  cardBody.appendChild(cardTitle);
+  card.appendChild(cardBody);
+
+  return card;
+};
+
 const renderFeeds = (store, i18n, elements) => {
   const feedsEl = elements.feeds;
   feedsEl.textContent = '';
 
-  const feedsCard = document.createElement('div');
-  feedsCard.className = 'card border-0';
-
-  const feedsCardBody = document.createElement('div');
-  feedsCardBody.className = 'card-body';
-
-  const feedsCardTitle = document.createElement('h2');
-  feedsCardTitle.className = 'card-title-feeds h4';
-  feedsCardTitle.textContent = i18n.t('feeds');
-
-  feedsCardBody.appendChild(feedsCardTitle);
-  feedsCard.appendChild(feedsCardBody);
+  const feedsCard = createCard(i18n.t('feeds'), 'feeds');
 
   const feedsList = document.createElement('ul');
   feedsList.className = 'container-feeds list-group border-0 rounded-0';
@@ -46,20 +52,9 @@ const renderPosts = (store, i18n, elements) => {
   const postsEl = elements.posts;
   postsEl.textContent = '';
 
-  const postsCard = document.createElement('div');
-  postsCard.className = 'card border-0';
+  const postsCard = createCard(i18n.t('posts'), '');
 
-  const postsCardBody = document.createElement('div');
-  postsCardBody.className = 'card-body';
-
-  const postsCardTitle = document.createElement('h2');
-  postsCardTitle.className = 'card-title h4';
-  postsCardTitle.textContent = i18n.t('posts');
-
-  postsCardBody.appendChild(postsCardTitle);
-  postsCard.appendChild(postsCardBody);
-
-  const postsList = document.createElement('ul'); // для li
+  const postsList = document.createElement('ul');
   postsList.className = 'container-list list-group border-0 rounded-0';
 
   postsEl.appendChild(postsCard);
@@ -81,6 +76,7 @@ const renderPosts = (store, i18n, elements) => {
     } else {
       titleTag.classList.add('fw-bold');
     }
+
     const descriptionTag = document.createElement('button');
     descriptionTag.textContent = i18n.t('check');
     descriptionTag.classList.add('btn', 'btn-outline-primary', 'btn-sm');
