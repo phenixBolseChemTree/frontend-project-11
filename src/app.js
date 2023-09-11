@@ -26,7 +26,7 @@ const getId = (() => {
 const loadingData = (response, store, link) => {
   const parsedData = parse(response.data.contents);
   const { title, description, posts } = parsedData;
-  const postsIdRev = posts.map((post) => ({ ...post, id: getId() }));
+  const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
   const postsWithId = postsIdRev;
   store.feeds.push({ title, description, link });
   store.posts.push(...postsWithId);
@@ -49,8 +49,8 @@ const autoAddNewPosts = (store) => {
         const newPosts = getNewPosts(posts, store.posts);
 
         if (newPosts.length !== 0) {
-          const postsWithId = newPosts.map((post) => ({ ...post, id: getId() }));
-          store.posts.push(...postsWithId.reverse());
+          const postsWithId = newPosts.reverse().map((post) => ({ ...post, id: getId() }));
+          store.posts.push(...postsWithId);
         }
       }
     })
@@ -88,6 +88,7 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
+      console.log('store!!!', store);
       render(store, i18nextInstance, path, elements);
     });
 
