@@ -42,7 +42,10 @@ const loadingData = (response, store, link) => {
     const postsWithId = postsIdRev;
     store.feeds.push({ title, description, link });
     store.posts.push(...postsWithId);
+    store.status = 'success';
   } catch (error) {
+    console.log('error.isParsingError :', error.isParsingError);
+    // store.status = 'failed';
     switch (true) {
       case error.isParsingError:
         store.error = 'invalidRSS';
@@ -143,7 +146,6 @@ const app = () => {
         .then((url) => fetchProxyRSS(url, store))
         .then((response) => {
           loadingData(response, store, link);
-          store.status = 'success';
         })
         .catch((error) => {
           switch (true) {
