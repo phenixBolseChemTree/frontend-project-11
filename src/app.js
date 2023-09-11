@@ -7,23 +7,12 @@ import parse from './parse';
 import render from './view';
 import translations from './locales/ru';
 
-const fetchProxyRSS = (link, store) => {
-  try {
-    const url = new URL('https://allorigins.hexlet.app/get');
-    url.searchParams.append('url', link);
-    url.searchParams.append('disableCache', 'true');
+const fetchProxyRSS = (link) => {
+  const url = new URL('https://allorigins.hexlet.app/get');
+  url.searchParams.append('url', link);
+  url.searchParams.append('disableCache', 'true');
 
-    return axios.get(url.toString());
-  } catch (error) {
-    switch (true) {
-      case error.isAxiosError:
-        store.error = 'networkError';
-        break;
-      default:
-        store.error = 'unknownError';
-    }
-    store.status = 'failed';
-  }
+  return axios.get(url.toString());
 };
 
 const getId = (() => {
@@ -143,7 +132,7 @@ const app = () => {
         .map((feed) => feed.link);
 
       validate(link, links)
-        .then((url) => fetchProxyRSS(url, store))
+        .then((url) => fetchProxyRSS(url))
         .then((response) => {
           loadingData(response, store, link);
         })
@@ -152,7 +141,9 @@ const app = () => {
             case error.name === 'ValidationError':
               store.error = error.message;
               break;
-
+            case error.isAxiosError:
+              store.error = 'networkError';
+              break;
             default:
               store.error = 'unknownError';
           }
