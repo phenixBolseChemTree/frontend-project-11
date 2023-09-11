@@ -33,8 +33,6 @@ const loadingData = (response, store, link) => {
     store.posts.push(...postsWithId);
     store.status = 'success';
   } catch (error) {
-    console.log('error.isParsingError :', error.isParsingError);
-    // store.status = 'failed';
     switch (true) {
       case error.isParsingError:
         store.error = 'invalidRSS';
