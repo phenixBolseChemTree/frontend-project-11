@@ -7,12 +7,23 @@ import parse from './parse';
 import render from './view';
 import translations from './locales/ru';
 
-const fetchProxyRSS = (link) => {
-  const url = new URL('https://allorigins.hexlet.app/get');
-  url.searchParams.append('url', link);
-  url.searchParams.append('disableCache', 'true');
+const fetchProxyRSS = (link, store) => {
+  try {
+    const url = new URL('https://allorigins.hexlet.app/get');
+    url.searchParams.append('url', link);
+    url.searchParams.append('disableCache', 'true');
 
-  return axios.get(url.toString());
+    return axios.get(url.toString());
+  } catch (error) {
+    switch (true) {
+      case error.isAxiosError:
+        store.error = 'networkError';
+        break;
+      default:
+        store.error = 'unknownError';
+    }
+    store.status = 'failed';
+  }
 };
 
 const getId = (() => {
@@ -24,13 +35,23 @@ const getId = (() => {
 })();
 
 const loadingData = (response, store, link) => {
-  const parsedData = parse(response.data.contents);
-  const { title, description, posts } = parsedData;
-  const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
-  const postsWithId = postsIdRev;
-  store.feeds.push({ title, description, link });
-  store.posts.push(...postsWithId);
-  store.status = 'success';
+  try {
+    const parsedData = parse(response.data.contents);
+    const { title, description, posts } = parsedData;
+    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+    const postsWithId = postsIdRev;
+    store.feeds.push({ title, description, link });
+    store.posts.push(...postsWithId);
+  } catch (error) {
+    switch (true) {
+      case error.isParsingError:
+        store.error = 'invalidRSS';
+        break;
+      default:
+        store.error = 'unknownError';
+    }
+    store.status = 'failed';
+  }
 };
 
 const autoAddNewPosts = (store) => {
@@ -88,7 +109,6 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
-      console.log('store!!!', store);
       render(store, i18nextInstance, path, elements);
     });
 
@@ -120,18 +140,13 @@ const app = () => {
         .map((feed) => feed.link);
 
       validate(link, links)
-        .then((url) => fetchProxyRSS(url))
-        .then((response) => loadingData(response, store, link))
+        .then((url) => fetchProxyRSS(url, store))
+        .then((response) => {
+          loadingData(response, store, link);
+          store.status = 'success';
+        })
         .catch((error) => {
           switch (true) {
-            case error.isParsingError:
-              store.error = 'invalidRSS';
-              break;
-
-            case error.isAxiosError:
-              store.error = 'networkError';
-              break;
-
             case error.name === 'ValidationError':
               store.error = error.message;
               break;
