@@ -68,7 +68,7 @@ const loadingData = (response, store, link) => {
 };
 
 const updateFeeds = (store) => {
-  const getNewPosts = (newPosts, posts, id) => {
+  const getNewPosts = (newPosts, posts) => {
     const existingLinks = posts.map((post) => post.link);
     const filteredPosts = newPosts.filter((post) => !existingLinks.includes(post.link));
     return filteredPosts;
@@ -79,7 +79,7 @@ const updateFeeds = (store) => {
       const parsedData = parse(response.data.contents);
       const { posts } = parsedData;
       if (posts.length !== 0) {
-        const newPosts = getNewPosts(posts, store.posts, id);
+        const newPosts = getNewPosts(posts, store.posts);
 
         if (newPosts.length !== 0) {
           const feedId = id;
