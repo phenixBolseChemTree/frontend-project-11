@@ -35,13 +35,24 @@ const getId = (() => {
   };
 })();
 
+const getIdForFeed = (() => {
+  let id = -1;
+  return () => {
+    id += 1;
+    return id;
+  };
+})();
+
 const loadingData = (response, store, link) => {
   try {
     const parsedData = parse(response.data.contents);
     const { title, description, posts } = parsedData;
-    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
+    const feedId = getIdForFeed();
+    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId(), feedId }));
     const postsWithId = postsIdRev;
-    store.feeds.push({ title, description, link });
+    store.feeds.push({
+      title, description, link, id: feedId,
+    });
     store.posts.push(...postsWithId);
     store.status = 'success';
   } catch (error) {
@@ -56,23 +67,23 @@ const loadingData = (response, store, link) => {
   }
 };
 
-const autoAddNewPosts = (store) => {
-  const getNewPosts = (newPosts, posts) => {
+const updateFeeds = (store) => {
+  const getNewPosts = (newPosts, posts, id) => {
     const existingLinks = posts.map((post) => post.link);
     const filteredPosts = newPosts.filter((post) => !existingLinks.includes(post.link));
     return filteredPosts;
   };
 
-  const promises = store.feeds.map(({ link }) => fetchProxyRSS(link)
+  const promises = store.feeds.map(({ link, id }) => fetchProxyRSS(link)
     .then((response) => {
       const parsedData = parse(response.data.contents);
       const { posts } = parsedData;
-
       if (posts.length !== 0) {
-        const newPosts = getNewPosts(posts, store.posts);
+        const newPosts = getNewPosts(posts, store.posts, id);
 
         if (newPosts.length !== 0) {
-          const postsWithId = newPosts.reverse().map((post) => ({ ...post, id: getId() }));
+          const feedId = id;
+          const postsWithId = newPosts.reverse().map((post) => ({ ...post, id: getId(), feedId }));
           store.posts.push(...postsWithId);
         }
       }
@@ -83,7 +94,7 @@ const autoAddNewPosts = (store) => {
 
   Promise.all(promises)
     .then(() => {
-      setTimeout(() => autoAddNewPosts(store), 5000);
+      setTimeout(() => updateFeeds(store), 5000);
     });
 };
 
@@ -111,6 +122,7 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
+      console.log(store.posts);
       render(store, i18nextInstance, path, elements);
     });
 
@@ -130,7 +142,7 @@ const app = () => {
       }
     });
 
-    autoAddNewPosts(store);
+    updateFeeds(store);
 
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
