@@ -7,25 +7,25 @@ import parse from './parse';
 import render from './view';
 import translations from './locales/ru';
 
-const fetchProxyRSS = (link) => {
-  const url = new URL('https://allorigins.hexlet.app/get');
-  url.searchParams.append('url', link);
-  url.searchParams.append('disableCache', 'true');
+// const fetchProxyRSS = (link) => {
+//   const url = new URL('https://allorigins.hexlet.app/get');
+//   url.searchParams.append('url', link);
+//   url.searchParams.append('disableCache', 'true');
 
-  return axios.get(url.toString());
+//   return axios.get(url.toString());
+// };
+
+const addProxyUrl = (url) => {
+  const proxyUrl = new URL('https://allorigins.hexlet.app/get');
+  proxyUrl.searchParams.append('url', url);
+  proxyUrl.searchParams.append('disableCache', 'true');
+  return proxyUrl.toString();
 };
 
-// const addProxyUrl = (url) => {
-//   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
-//   proxyUrl.searchParams.append('url', url);
-//   proxyUrl.searchParams.append('disableCache', 'true');
-//   return proxyUrl.toString();
-// };
-
-// const fetchProxyRSS = (url) => {
-//   const proxyUrl = addProxyUrl(url);
-//   return axios.get(proxyUrl);
-// };
+const fetchProxyRSS = (url) => {
+  const proxyUrl = addProxyUrl(url);
+  return axios.get(proxyUrl);
+};
 
 const getId = (() => {
   let id = -1;
@@ -35,23 +35,23 @@ const getId = (() => {
   };
 })();
 
-const getIdForFeed = (() => {
-  let id = -1;
-  return () => {
-    id += 1;
-    return id;
-  };
-})();
+// const getIdForFeed = (() => {
+//   let id = -1;
+//   return () => {
+//     id += 1;
+//     return id;
+//   };
+// })();
 
 const loadFeed = (response, store, link) => {
   try {
     const parsedData = parse(response.data.contents);
     const { title, description, posts } = parsedData;
-    const feedId = getIdForFeed();
-    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId(), feedId }));
+    // const feedId = getIdForFeed();
+    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
     const postsWithId = postsIdRev;
     store.feeds.push({
-      title, description, link, id: feedId,
+      title, description, link,
     });
     store.posts.push(...postsWithId);
     store.status = 'success';
@@ -74,7 +74,7 @@ const updateFeeds = (store) => {
     return filteredPosts;
   };
 
-  const promises = store.feeds.map(({ link, id }) => fetchProxyRSS(link)
+  const promises = store.feeds.map(({ link }) => fetchProxyRSS(link)
     .then((response) => {
       const parsedData = parse(response.data.contents);
       const { posts } = parsedData;
@@ -82,8 +82,7 @@ const updateFeeds = (store) => {
         const newPosts = getNewPosts(posts, store.posts);
 
         if (newPosts.length !== 0) {
-          const feedId = id;
-          const postsWithId = newPosts.reverse().map((post) => ({ ...post, id: getId(), feedId }));
+          const postsWithId = newPosts.reverse().map((post) => ({ ...post, id: getId() }));
           store.posts.push(...postsWithId);
         }
       }
@@ -122,7 +121,6 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
-      console.log(store.posts);
       render(store, i18nextInstance, path, elements);
     });
 
