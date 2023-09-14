@@ -15,7 +15,7 @@ import translations from './locales/ru';
 //   return axios.get(url.toString());
 // };
 
-const addProxyUrl = (url) => {
+const addProxy = (url) => {
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
   proxyUrl.searchParams.append('url', url);
   proxyUrl.searchParams.append('disableCache', 'true');
@@ -23,7 +23,7 @@ const addProxyUrl = (url) => {
 };
 
 const fetchProxyRSS = (url) => {
-  const proxyUrl = addProxyUrl(url);
+  const proxyUrl = addProxy(url);
   return axios.get(proxyUrl);
 };
 
@@ -35,24 +35,13 @@ const getId = (() => {
   };
 })();
 
-// const getIdForFeed = (() => {
-//   let id = -1;
-//   return () => {
-//     id += 1;
-//     return id;
-//   };
-// })();
-
-const loadFeed = (response, store, link) => {
+const loadingData = (response, store, link) => {
   try {
     const parsedData = parse(response.data.contents);
     const { title, description, posts } = parsedData;
-    // const feedId = getIdForFeed();
     const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId() }));
     const postsWithId = postsIdRev;
-    store.feeds.push({
-      title, description, link,
-    });
+    store.feeds.push({ title, description, link });
     store.posts.push(...postsWithId);
     store.status = 'success';
   } catch (error) {
@@ -67,7 +56,7 @@ const loadFeed = (response, store, link) => {
   }
 };
 
-const updateFeeds = (store) => {
+const autoAddNewPosts = (store) => {
   const getNewPosts = (newPosts, posts) => {
     const existingLinks = posts.map((post) => post.link);
     const filteredPosts = newPosts.filter((post) => !existingLinks.includes(post.link));
@@ -78,6 +67,7 @@ const updateFeeds = (store) => {
     .then((response) => {
       const parsedData = parse(response.data.contents);
       const { posts } = parsedData;
+
       if (posts.length !== 0) {
         const newPosts = getNewPosts(posts, store.posts);
 
@@ -93,7 +83,7 @@ const updateFeeds = (store) => {
 
   Promise.all(promises)
     .then(() => {
-      setTimeout(() => updateFeeds(store), 5000);
+      setTimeout(() => autoAddNewPosts(store), 5000);
     });
 };
 
@@ -140,7 +130,7 @@ const app = () => {
       }
     });
 
-    updateFeeds(store);
+    autoAddNewPosts(store);
 
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -154,7 +144,7 @@ const app = () => {
       validate(link, links)
         .then((url) => fetchProxyRSS(url))
         .then((response) => {
-          loadFeed(response, store, link);
+          loadingData(response, store, link);
         })
         .catch((error) => {
           switch (true) {
