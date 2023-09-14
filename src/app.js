@@ -7,12 +7,23 @@ import parse from './parse';
 import render from './view';
 import translations from './locales/ru';
 
-const fetchProxyRSS = (link) => {
-  const url = new URL('https://allorigins.hexlet.app/get');
-  url.searchParams.append('url', link);
-  url.searchParams.append('disableCache', 'true');
+// const fetchProxyRSS = (link) => {
+//   const url = new URL('https://allorigins.hexlet.app/get');
+//   url.searchParams.append('url', link);
+//   url.searchParams.append('disableCache', 'true');
 
-  return axios.get(url.toString());
+//   return axios.get(url.toString());
+// };
+
+const addProxy = (url) => {
+  const proxyUrl = new URL('https://allorigins.hexlet.app/get');
+  proxyUrl.searchParams.append('url', url);
+  return proxyUrl.toString();
+};
+
+const fetchProxyRSS = (url) => {
+  const proxyUrl = addProxy(url);
+  return axios.get(proxyUrl);
 };
 
 const getId = (() => {
