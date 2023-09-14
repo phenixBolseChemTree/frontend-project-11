@@ -7,15 +7,7 @@ import parse from './parse';
 import render from './view';
 import translations from './locales/ru';
 
-// const fetchProxyRSS = (link) => {
-//   const url = new URL('https://allorigins.hexlet.app/get');
-//   url.searchParams.append('url', link);
-//   url.searchParams.append('disableCache', 'true');
-
-//   return axios.get(url.toString());
-// };
-
-const addProxy = (url) => {
+const addProxyUrl = (url) => {
   const proxyUrl = new URL('https://allorigins.hexlet.app/get');
   proxyUrl.searchParams.append('url', url);
   proxyUrl.searchParams.append('disableCache', 'true');
@@ -23,7 +15,7 @@ const addProxy = (url) => {
 };
 
 const fetchProxyRSS = (url) => {
-  const proxyUrl = addProxy(url);
+  const proxyUrl = addProxyUrl(url);
   return axios.get(proxyUrl);
 };
 
@@ -43,7 +35,7 @@ const getIdForFeed = (() => {
   };
 })();
 
-const loadingData = (response, store, link) => {
+const loadFeed = (response, store, link) => {
   try {
     const parsedData = parse(response.data.contents);
     const { title, description, posts } = parsedData;
@@ -156,7 +148,7 @@ const app = () => {
       validate(link, links)
         .then((url) => fetchProxyRSS(url))
         .then((response) => {
-          loadingData(response, store, link);
+          loadFeed(response, store, link);
         })
         .catch((error) => {
           switch (true) {
