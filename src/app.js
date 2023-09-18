@@ -143,9 +143,6 @@ const app = () => {
             case error.name === 'ValidationError':
               store.error = error.message;
               break;
-            case error.isAxiosError:
-              store.error = 'networkError';
-              break;
             default:
               store.error = 'unknownError';
           }
