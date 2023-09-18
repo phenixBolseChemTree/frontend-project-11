@@ -15,33 +15,39 @@ const addProxyUrl = (url) => {
   return proxyUrl.toString();
 };
 
-const fetchProxyRSS = (url) => {
-  const proxyUrl = addProxyUrl(url);
-  return axios.get(proxyUrl);
-};
+// const fetchProxyRSS = (url) => {
+//   const proxyUrl = addProxyUrl(url);
+//   return axios.get(proxyUrl);
+// };
 
-const loadFeed = (response, store, link) => {
-  try {
-    const parsedData = parse(response.data.contents);
-    const { title, description, posts } = parsedData;
-    const feedId = _.uniqueId();
-    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: _.uniqueId(), feedId }));
-    const postsWithId = postsIdRev;
-    store.feeds.push({
-      title, description, link, id: feedId,
+const loadFeed = (url, store) => {
+  const proxyUrl = addProxyUrl(url);
+  axios.get(proxyUrl)
+    .then((response) => {
+      const parsedData = parse(response.data.contents);
+      const { title, description, posts } = parsedData;
+      const feedId = _.uniqueId();
+      const postsIdRev = posts.reverse().map((post) => ({ ...post, id: _.uniqueId(), feedId }));
+      const postsWithId = postsIdRev;
+      store.feeds.push({
+        title, description, link: url, id: feedId,
+      });
+      store.posts.push(...postsWithId);
+      store.status = 'success';
+    })
+    .catch((error) => {
+      switch (true) {
+        case error.isParsingError:
+          store.error = 'invalidRSS';
+          break;
+        case error.isAxiosError:
+          store.error = 'networkError';
+          break;
+        default:
+          store.error = 'unknownError';
+      }
+      store.status = 'failed';
     });
-    store.posts.push(...postsWithId);
-    store.status = 'success';
-  } catch (error) {
-    switch (true) {
-      case error.isParsingError:
-        store.error = 'invalidRSS';
-        break;
-      default:
-        store.error = 'unknownError';
-    }
-    store.status = 'failed';
-  }
 };
 
 const updateFeeds = (store) => {
@@ -51,26 +57,29 @@ const updateFeeds = (store) => {
     return filteredPosts;
   };
 
-  const promises = store.feeds.map(({ link, id }) => fetchProxyRSS(link)
-    .then((response) => {
-      const parsedData = parse(response.data.contents);
-      const { posts } = parsedData;
-      if (posts.length !== 0) {
-        const newPosts = getNewPosts(posts, store.posts);
+  const promises = store.feeds.map(({ link, id }) => {
+    const proxyUrl = addProxyUrl(link);
+    axios.get(proxyUrl)
+      .then((response) => {
+        const parsedData = parse(response.data.contents);
+        const { posts } = parsedData;
+        if (posts.length !== 0) {
+          const newPosts = getNewPosts(posts, store.posts);
 
-        if (newPosts.length !== 0) {
-          const feedId = id;
-          const postsWithId = newPosts
-            .reverse()
-            .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
+          if (newPosts.length !== 0) {
+            const feedId = id;
+            const postsWithId = newPosts
+              .reverse()
+              .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
 
-          store.posts.push(...postsWithId);
+            store.posts.push(...postsWithId);
+          }
         }
-      }
-    })
-    .catch((e) => {
-      console.log('invalidRSS', e);
-    }));
+      })
+      .catch((e) => {
+        console.log('invalidRSS', e);
+      });
+  });
 
   Promise.all(promises)
     .then(() => {
@@ -129,13 +138,12 @@ const app = () => {
       store.status = 'loading';
       const formData = new FormData(event.target);
       const link = formData.get('query');
-      const links = store.feeds
-        .map((feed) => feed.link);
+      const links = store.feeds.map((feed) => feed.link);
 
       validate(link, links)
-        .then((url) => fetchProxyRSS(url))
+        // .then((url) => fetchProxyRSS(url))
         .then((response) => {
-          loadFeed(response, store, link);
+          loadFeed(response, store);
         })
         .catch((error) => {
           switch (true) {
