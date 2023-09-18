@@ -126,7 +126,6 @@ const openModal = (title, description, link, elements) => {
 const modalShow = (store, i18nextInstance, elements) => {
   const { modalId, posts } = store;
   const targetContent = posts.find((post) => post.id === modalId);
-  console.log('targetContent!!!', targetContent);
   const { title, description, link } = targetContent ?? {};
   openModal(title, description, link, elements);
 };
