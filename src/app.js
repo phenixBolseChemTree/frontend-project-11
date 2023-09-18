@@ -59,7 +59,7 @@ const updateFeeds = (store) => {
 
   const promises = store.feeds.map(({ link, id }) => {
     const proxyUrl = addProxyUrl(link);
-    axios.get(proxyUrl)
+    return axios.get(proxyUrl) // Вернуть промис из axios.get
       .then((response) => {
         const parsedData = parse(response.data.contents);
         const { posts } = parsedData;
@@ -81,12 +81,11 @@ const updateFeeds = (store) => {
       });
   });
 
-  Promise.all(promises)
+  return Promise.all(promises) // Вернуть Promise.all
     .then(() => {
       setTimeout(() => updateFeeds(store), 5000);
     });
 };
-
 const app = () => {
   const i18nextInstance = i18next.createInstance();
   i18nextInstance.init({
