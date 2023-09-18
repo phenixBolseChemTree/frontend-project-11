@@ -15,11 +15,6 @@ const addProxyUrl = (url) => {
   return proxyUrl.toString();
 };
 
-// const fetchProxyRSS = (url) => {
-//   const proxyUrl = addProxyUrl(url);
-//   return axios.get(proxyUrl);
-// };
-
 const loadFeed = (url, store) => {
   const proxyUrl = addProxyUrl(url);
   axios.get(proxyUrl)
@@ -81,7 +76,7 @@ const updateFeeds = (store) => {
       });
   });
 
-  return Promise.all(promises) // Вернуть Promise.all
+  return Promise.all(promises)
     .then(() => {
       setTimeout(() => updateFeeds(store), 5000);
     });
@@ -140,7 +135,6 @@ const app = () => {
       const links = store.feeds.map((feed) => feed.link);
 
       validate(link, links)
-        // .then((url) => fetchProxyRSS(url))
         .then((response) => {
           loadFeed(response, store);
         })
