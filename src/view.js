@@ -71,7 +71,7 @@ const renderPosts = (store, i18n, elements) => {
     titleTag.setAttribute('href', link);
     titleTag.setAttribute('target', '_blank');
     titleTag.setAttribute('data-id', id);
-    if (visitedPost.includes(String(id))) {
+    if (visitedPost.includes(id)) {
       titleTag.classList.add('fw-normal', 'text-secondary');
     } else {
       titleTag.classList.add('fw-bold');
@@ -125,7 +125,8 @@ const openModal = (title, description, link, elements) => {
 
 const modalShow = (store, i18nextInstance, elements) => {
   const { modalId, posts } = store;
-  const targetContent = posts[modalId];
+  const targetContent = posts.find((post) => post.id === modalId);
+  console.log('targetContent!!!', targetContent);
   const { title, description, link } = targetContent ?? {};
   openModal(title, description, link, elements);
 };

@@ -2,6 +2,7 @@ import './styles.scss';
 import onChange from 'on-change';
 import axios from 'axios';
 import * as yup from 'yup';
+import _ from 'lodash';
 import i18next from 'i18next';
 import parse from './parse';
 import render from './view';
@@ -39,8 +40,8 @@ const loadFeed = (response, store, link) => {
   try {
     const parsedData = parse(response.data.contents);
     const { title, description, posts } = parsedData;
-    const feedId = getIdForFeed();
-    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: getId(), feedId }));
+    const feedId = _.uniqueId();
+    const postsIdRev = posts.reverse().map((post) => ({ ...post, id: _.uniqueId(), feedId }));
     const postsWithId = postsIdRev;
     store.feeds.push({
       title, description, link, id: feedId,
@@ -75,7 +76,10 @@ const updateFeeds = (store) => {
 
         if (newPosts.length !== 0) {
           const feedId = id;
-          const postsWithId = newPosts.reverse().map((post) => ({ ...post, id: getId(), feedId }));
+          const postsWithId = newPosts
+            .reverse()
+            .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
+
           store.posts.push(...postsWithId);
         }
       }
@@ -114,6 +118,13 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
+      // console.log('store!!!', store);
+      // console.log('getIdTest1!!!', getIdTest1());
+      // console.log('getIdTest2!!!', getIdTest2());
+      // const id1 = getIdTest1();
+      // console.log('111!!!', id1); // Вернет, например, "1"
+      // const id2 = getIdTest2();
+      // console.log('222!!!', id2); // Вернет, например, "1" (но это будет другой уникальный идентификатор)
       render(store, i18nextInstance, path, elements);
     });
 
