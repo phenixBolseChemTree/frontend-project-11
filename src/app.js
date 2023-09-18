@@ -27,7 +27,9 @@ const loadFeed = (url, store) => {
       store.feeds.push({
         title, description, link: url, id: feedId,
       });
-      store.posts.push(...postsWithId);
+      const postsForCurrentFeed = postsWithId.filter((post) => post.feedId === feedId);
+
+      store.posts.push(...postsForCurrentFeed);
       store.status = 'success';
     })
     .catch((error) => {
@@ -67,7 +69,8 @@ const updateFeeds = (store) => {
               .reverse()
               .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
 
-            store.posts.push(...postsWithId);
+            const postsForCurrentFeed = postsWithId.filter((post) => post.feedId === feedId);
+            store.posts.push(...postsForCurrentFeed);
           }
         }
       })
