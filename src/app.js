@@ -20,22 +20,6 @@ const fetchProxyRSS = (url) => {
   return axios.get(proxyUrl);
 };
 
-const getId = (() => {
-  let id = -1;
-  return () => {
-    id += 1;
-    return id;
-  };
-})();
-
-const getIdForFeed = (() => {
-  let id = -1;
-  return () => {
-    id += 1;
-    return id;
-  };
-})();
-
 const loadFeed = (response, store, link) => {
   try {
     const parsedData = parse(response.data.contents);
@@ -118,13 +102,6 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
-      // console.log('store!!!', store);
-      // console.log('getIdTest1!!!', getIdTest1());
-      // console.log('getIdTest2!!!', getIdTest2());
-      // const id1 = getIdTest1();
-      // console.log('111!!!', id1); // Вернет, например, "1"
-      // const id2 = getIdTest2();
-      // console.log('222!!!', id2); // Вернет, например, "1" (но это будет другой уникальный идентификатор)
       render(store, i18nextInstance, path, elements);
     });
 
