@@ -44,8 +44,11 @@ const loadFeed = (url, store) => {
 };
 
 const updateFeeds = (store) => {
-  const getNewPosts = (newPosts, posts) => {
-    const existingLinks = posts.map((post) => post.link);
+  const getNewPosts = (newPosts, posts, feedId) => {
+    console.log('posts!!!', posts);
+    const existingLinks = posts
+      .filter((post) => post.feedId === feedId)
+      .map((post) => post.link);
     const filteredPosts = newPosts.filter((post) => !existingLinks.includes(post.link));
     return filteredPosts;
   };
@@ -55,12 +58,12 @@ const updateFeeds = (store) => {
     return axios.get(proxyUrl)
       .then((response) => {
         const parsedData = parse(response.data.contents);
+        const feedId = id;
         const { posts } = parsedData;
         if (posts.length !== 0) {
-          const newPosts = getNewPosts(posts, store.posts);
+          const newPosts = getNewPosts(posts, store.posts, feedId);
 
           if (newPosts.length !== 0) {
-            const feedId = id;
             const postsWithId = newPosts
               .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
 
@@ -102,7 +105,7 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
-      console.log(store);
+      // console.log(store);
       render(store, i18nextInstance, path, elements);
     });
 
