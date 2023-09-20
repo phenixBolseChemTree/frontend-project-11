@@ -67,8 +67,7 @@ const updateFeeds = (store) => {
             const postsWithId = newPosts
               .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
 
-            const postsForCurrentFeed = postsWithId.filter((post) => post.feedId === feedId);
-            store.posts.push(...postsForCurrentFeed);
+            store.posts.push(...postsWithId);
           }
         }
       })
