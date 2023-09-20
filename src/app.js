@@ -32,15 +32,12 @@ const loadFeed = (url, store) => {
       store.status = 'success';
     })
     .catch((error) => {
-      switch (true) {
-        case error.isParsingError:
-          store.error = 'invalidRSS';
-          break;
-        case error.isAxiosError:
-          store.error = 'networkError';
-          break;
-        default:
-          store.error = 'unknownError';
+      if (error.isParsingError) {
+        store.error = 'invalidRSS';
+      } else if (error.isAxiosError) {
+        store.error = 'networkError';
+      } else {
+        store.error = 'unknownError';
       }
       store.status = 'failed';
     });
@@ -55,7 +52,7 @@ const updateFeeds = (store) => {
 
   const promises = store.feeds.map(({ link, id }) => {
     const proxyUrl = addProxyUrl(link);
-    return axios.get(proxyUrl) // Вернуть промис из axios.get
+    return axios.get(proxyUrl)
       .then((response) => {
         const parsedData = parse(response.data.contents);
         const { posts } = parsedData;
@@ -140,13 +137,7 @@ const app = () => {
           loadFeed(response, store);
         })
         .catch((error) => {
-          switch (true) {
-            case error.name === 'ValidationError':
-              store.error = error.message;
-              break;
-            default:
-              store.error = 'unknownError';
-          }
+          store.error = error.message;
           store.status = 'failed';
         });
     });
