@@ -23,11 +23,10 @@ const loadFeed = (url, store) => {
       const { title, description, posts } = parsedData;
       const feedId = _.uniqueId();
       const postsIdRev = posts.map((post) => ({ ...post, id: _.uniqueId(), feedId }));
-      const postsWithId = postsIdRev;
       store.feeds.push({
         title, description, link: url, id: feedId,
       });
-      const postsForCurrentFeed = postsWithId.filter((post) => post.feedId === feedId);
+      const postsForCurrentFeed = postsIdRev.filter((post) => post.feedId === feedId);
 
       store.posts.push(...postsForCurrentFeed);
       store.status = 'success';
