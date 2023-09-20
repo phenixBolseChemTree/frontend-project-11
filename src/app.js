@@ -22,7 +22,7 @@ const loadFeed = (url, store) => {
       const parsedData = parse(response.data.contents);
       const { title, description, posts } = parsedData;
       const feedId = _.uniqueId();
-      const postsIdRev = posts.reverse().map((post) => ({ ...post, id: _.uniqueId(), feedId }));
+      const postsIdRev = posts.map((post) => ({ ...post, id: _.uniqueId(), feedId }));
       const postsWithId = postsIdRev;
       store.feeds.push({
         title, description, link: url, id: feedId,
@@ -66,7 +66,6 @@ const updateFeeds = (store) => {
           if (newPosts.length !== 0) {
             const feedId = id;
             const postsWithId = newPosts
-              .reverse()
               .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
 
             const postsForCurrentFeed = postsWithId.filter((post) => post.feedId === feedId);
@@ -108,6 +107,7 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
+      console.log(store);
       render(store, i18nextInstance, path, elements);
     });
 

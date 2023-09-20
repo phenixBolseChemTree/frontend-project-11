@@ -95,7 +95,7 @@ const renderPosts = (store, i18n, elements) => {
     );
     li.appendChild(titleTag);
     li.appendChild(descriptionTag);
-    postsList.prepend(li);
+    postsList.append(li);
   });
 };
 
