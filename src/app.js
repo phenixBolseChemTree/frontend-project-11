@@ -22,12 +22,13 @@ const loadFeed = (url, store) => {
       const parsedData = parse(response.data.contents);
       const { title, description, posts } = parsedData;
       const feedId = _.uniqueId();
-      const newPosts = posts.reverse().map((post) => ({ ...post, id: _.uniqueId(), feedId }));
+      const newPosts = posts
+        .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
       store.feeds.push({
         title, description, link: url, id: feedId,
       });
 
-      store.posts.push(...newPosts);
+      store.posts.unshift(...newPosts);
       store.status = 'success';
     })
     .catch((error) => {
@@ -63,10 +64,9 @@ const updateFeeds = (store) => {
 
           if (newPosts.length !== 0) {
             const postsWithId = newPosts
-              .reverse()
               .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
 
-            store.posts.push(...postsWithId);
+            store.posts.unshift(...postsWithId);
           }
         }
       })
