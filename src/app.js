@@ -27,10 +27,7 @@ const loadFeed = (url, store) => {
         title, description, link: url, id: feedId,
       });
 
-      // const postsForCurrentFeed = newPosts.filter((post) => post.feedId === feedId);
-      const postsForCurrentFeed = newPosts;
-
-      store.posts.push(...postsForCurrentFeed);
+      store.posts.push(...newPosts);
       store.status = 'success';
     })
     .catch((error) => {
