@@ -60,8 +60,6 @@ const renderPosts = (store, i18n, elements) => {
   postsEl.appendChild(postsCard);
   postsEl.appendChild(postsList);
 
-  const container = document.querySelector('.container-list');
-  container.textContent = '';
   const visitedPost = store.visitedPosts;
   store.posts.forEach((item) => {
     const { title, link, id } = item;
