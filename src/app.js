@@ -104,7 +104,6 @@ const app = () => {
       button: document.querySelector('.btn-primary'),
     };
     const store = onChange(initialStoreModel, (path) => {
-      console.log(store);
       render(store, i18nextInstance, path, elements);
     });
 
