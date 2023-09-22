@@ -44,7 +44,6 @@ const loadFeed = (url, store) => {
 
 const updateFeeds = (store) => {
   const getNewPosts = (newPosts, posts, feedId) => {
-    console.log('posts!!!', posts);
     const existingLinks = posts
       .filter((post) => post.feedId === feedId)
       .map((post) => post.link);
